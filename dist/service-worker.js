@@ -14,10 +14,10 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/mecvision/precache-manifest.c34d79a2e8a8f1ad6f19fbbd7a9f7113.js"
+  "/ai-egg-counter/precache-manifest.af15018e45961d9651f0266c5a89fd1d.js"
 );
 
-workbox.core.setCacheNameDetails({prefix: "mec-vision"});
+workbox.core.setCacheNameDetails({prefix: "ai-egg-counter"});
 
 /**
  * The workboxSW.precacheAndRoute() method efficiently caches and responds to

@@ -1,3 +1,3 @@
 export const build = {
-  assetsPublicPath: '/mecvision/'
+  assetsPublicPath: '/ai-egg-counter/'
 }

@@ -1,4 +1,4 @@
-# MECVision
+# AI Egg Counter
 
 <p align="center">
   <img width="150" src="https://raw.githubusercontent.com/gabrielkrieshok/aieggcounter/master/public/img/bot.gif" alt="AI Egg Counter Logo GIF" />
