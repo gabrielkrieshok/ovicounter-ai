@@ -4,7 +4,7 @@ module.exports = {
   publicPath: process.env.NODE_ENV === 'production'
     ? '/ai-egg-counter/'
     : '/',
-  pwa: {
+  pwa: {  
     themeColor: manifestJSON.theme_color,
     workboxOptions: {
       runtimeCaching: [{

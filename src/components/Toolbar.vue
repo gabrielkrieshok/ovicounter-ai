@@ -5,8 +5,8 @@
 
   <v-toolbar-title class="text-uppercase white--text" style="cursor: pointer">
     <v-layout align-center  @click="rerender()">
-    <v-avatar tile size="20" class="mx-2"><img src="/img/bot.png" /></v-avatar>
-    <span class="font-weight-black">MEC</span><span class="font-weight-thin">Vision</span>
+    <v-avatar tile size="20" class="mx-2"><v-img :src="require('@/assets/img/bot.png')" /></v-avatar>
+    <span class="font-weight-black">AI</span><span class="font-weight-thin">Egg Counter</span>
     </v-layout>
   </v-toolbar-title>
   <v-spacer></v-spacer>
