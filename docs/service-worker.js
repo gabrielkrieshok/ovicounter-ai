@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/ai-egg-counter/precache-manifest.af15018e45961d9651f0266c5a89fd1d.js"
+  "/ai-egg-counter/precache-manifest.00e21e6d39fcb107feeceed28e9de593.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "ai-egg-counter"});
