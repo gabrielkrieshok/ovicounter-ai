@@ -1,7 +1,7 @@
 # Ovicounter AI
 
 <p align="center">
-  <img width="150" src="/img/bot.gif" alt="Ovicounter AI Logo GIF" />
+  <img width="150" src="https://raw.githubusercontent.com/gabrielkrieshok/ovicounter-ai/master/public/img/bot.gif" alt="Ovicounter AI Logo GIF" />
 </p>
 
 Ovicounter AI is a proof-of-concept progressive web app to identify and estimate number of mosquito eggs on ovitrap papers using simple, adjustable computer vision techniques, all done locally (and offline) on a smartphone (iOS or Android) or desktop browser device.
@@ -11,7 +11,7 @@ This project is a fork of the [MECvision project](https://github.com/abtassociat
 This project uses [OpenCV.js](https://docs.opencv.org/3.4/index.html), [Vue.js](https://vuejs.org), [Vuetify](https://vuetifyjs.com), and [Vue Croppa](https://zhanziyang.github.io/vue-croppa/), and forked from the [Abt Associates MECVision project].
 
 <p align="center">
-  <img src="/img/Screenshot-Descriptions.png" alt="Ovicounter AI Screenshot with Descriptions" />
+  <img src="https://raw.githubusercontent.com/gabrielkrieshok/ovicounter-ai/master/public/img/Screenshot-Descriptions.png" alt="Ovicounter AI Screenshot with Descriptions" />
 </p>
 
 ---
