@@ -1,3 +1,3 @@
 export const build = {
-  assetsPublicPath: '/ai-egg-counter/'
+  assetsPublicPath: '/ovicounter-ai/'
 }

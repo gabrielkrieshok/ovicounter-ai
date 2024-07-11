@@ -1,6 +1,6 @@
 {
-  "name": "AI Egg Counter",
-  "short_name": "AIEggCounter",
+  "name": "Ovicounter AI",
+  "short_name": "OvicounterAI",
   "icons": [
     {
       "src": "/img/icons/android-chrome-192x192.png",

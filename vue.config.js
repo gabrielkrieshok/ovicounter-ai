@@ -2,7 +2,7 @@ const manifestJSON = require('./public/manifest.json')
 
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/ai-egg-counter/'
+    ? '/ovicounter-ai/'
     : '/',
   pwa: {  
     themeColor: manifestJSON.theme_color,

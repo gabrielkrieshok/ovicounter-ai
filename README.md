@@ -1,23 +1,17 @@
-# AI Egg Counter
+# Ovicounter AI
 
 <p align="center">
-  <img width="150" src="https://raw.githubusercontent.com/gabrielkrieshok/aieggcounter/master/public/img/bot.gif" alt="AI Egg Counter Logo GIF" />
+  <img width="150" src="/img/bot.gif" alt="Ovicounter AI Logo GIF" />
 </p>
 
-The AI Egg Counter is a Progressive Web App ([PWA]) that uses computer vision (object detection in this case) on mosquito trap papers (ovitraps) to estimate the number of mosquito eggs on that ovitrap, using computer vision.
+Ovicounter AI is a proof-of-concept progressive web app to identify and estimate number of mosquito eggs on ovitrap papers using simple, adjustable computer vision techniques, all done locally (and offline) on a smartphone (iOS or Android) or desktop browser device.
 
-This project uses [OpenCV.js], [Vue.js], [Vuetify], and [Vue Croppa], and forked from the [Abt Associates MECVision project].
+This project is a fork of the [MECvision project](https://github.com/abtassociates/mecvision) from Abt Global, where I worked during its creation.
 
-[PWA]: https://developers.google.com/web/progressive-web-apps
-[OpenCV.js]: https://docs.opencv.org/3.4/index.html
-[Vue.js]: https://vuejs.org
-[Vuetify]: https://vuetifyjs.com
-[Vue Croppa]: https://zhanziyang.github.io/vue-croppa/
-[Abt Associates MECVision project]: https://github.com/abtassociates/mecvision
-
+This project uses [OpenCV.js](https://docs.opencv.org/3.4/index.html), [Vue.js](https://vuejs.org), [Vuetify](https://vuetifyjs.com), and [Vue Croppa](https://zhanziyang.github.io/vue-croppa/), and forked from the [Abt Associates MECVision project].
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/gabrielkrieshok/aieggcounter/master/public/img/Screenshot-Descriptions.png" alt="AI Egg Counter Screenshot with Descriptions" />
+  <img src="/img/Screenshot-Descriptions.png" alt="Ovicounter AI Screenshot with Descriptions" />
 </p>
 
 ---
@@ -37,7 +31,7 @@ And because it's a "progressive" app, the software to run the site and analysis 
 
 The app has built-in filters to adjust for various paper type sizes, groupings of eggs themselves, different lighting environments, and so on.
 
-The algorithmic processing of the app uses a tool known as "OpenCV" (Open Computer Vision) which analyzes an image in order to highlight contrast, detect edges, find contours of objects within an image, and to make calculations based on that analysis. For AI Egg Counter, we use several algorithmic procedures tied together, in order to isolate the mosquito egg items and count them separately.
+The algorithmic processing of the app uses a tool known as "OpenCV" (Open Computer Vision) which analyzes an image in order to highlight contrast, detect edges, find contours of objects within an image, and to make calculations based on that analysis. For Ovicounter AI, we use several algorithmic procedures tied together, in order to isolate the mosquito egg items and count them separately.
 
 Finally, the app and underlying technologies all rely on open-source technologies and libraries, meaning that the source code itself can be updated and tailored to other use cases.
 
@@ -99,9 +93,9 @@ Finally, the app and underlying technologies all rely on open-source technologie
 
 - **Egg Paper Type and Quality.** There is a lot of variation in egg paper (ovitrap paper), and so try to have a consistent process throughout the various counts. Ensure that the egg paper is as flat as possible, with as few folds and wrinkles in the paper, as this causes shadows which may be misidentified as eggs. Additionally, try to use a background color that is different than the egg paper, as this will make it easier to crop the picture within the app.
 
-- **Consistency and the Algorithm.** The AI Egg Counter app works best when used in a controlled and consistent environment. The best types of images are ones that are consist in all their qualities except for the number of eggs on the paper, which the app should capture differently. The app itself is susceptible to changes in lighting, focus, and processing demands, and so there will be some small variation from picture to picture (similar to human counts!) The best ways to ensure consistency is to focus on finding a consistent process, and then using consistent filtering and thresholding values that match the image environment.
+- **Consistency and the Algorithm.** The Ovicounter AI app works best when used in a controlled and consistent environment. The best types of images are ones that are consist in all their qualities except for the number of eggs on the paper, which the app should capture differently. The app itself is susceptible to changes in lighting, focus, and processing demands, and so there will be some small variation from picture to picture (similar to human counts!) The best ways to ensure consistency is to focus on finding a consistent process, and then using consistent filtering and thresholding values that match the image environment.
 
-- **A Note about Data Retention.** The app, because it is a web app, does *not* save data locally to a device, and it is never sent to a server or external database. Once the page is refreshed, the previous data is erased. It is much like a functional calculator in this way, with no history. Ensure that your counting process is consistent and is collected in another location prior to adapting the AI Egg Counter app entirely!
+- **A Note about Data Retention.** The app, because it is a web app, does *not* save data locally to a device, and it is never sent to a server or external database. Once the page is refreshed, the previous data is erased. It is much like a functional calculator in this way, with no history. Ensure that your counting process is consistent and is collected in another location prior to adapting the Ovicounter AI app entirely!
 
 ---
 

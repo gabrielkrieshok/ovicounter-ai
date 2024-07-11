@@ -14,10 +14,10 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/ai-egg-counter/precache-manifest.00e21e6d39fcb107feeceed28e9de593.js"
+  "/ovicounter-ai/precache-manifest.00e21e6d39fcb107feeceed28e9de593.js"
 );
 
-workbox.core.setCacheNameDetails({prefix: "ai-egg-counter"});
+workbox.core.setCacheNameDetails({prefix: "ovicounter-ai"});
 
 /**
  * The workboxSW.precacheAndRoute() method efficiently caches and responds to
