@@ -1,34 +1,20 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify'
+// src/main.js
+import { createApp } from 'vue'
 import App from './App.vue'
+import vuetify from './plugins/vuetify'
 import i18n from '@/plugins/i18n'
 import './registerServiceWorker'
 import 'vue-croppa/dist/vue-croppa.css'
 import Croppa from 'vue-croppa'
-import 'vuetify/dist/vuetify.min.css'
-import colors from 'vuetify/es5/util/colors'
 import router from './router'
+import store from './store' // Add this if you're using Vuex
 
-Vue.use(Croppa)
-Vue.use(Vuetify, {
-  theme: {
-    primary: colors.blue.darken4, // #90A4AE
-    secondary: colors.lightBlue.darken4, // #FFCDD2
-    accent: colors.red.accent2 // #3F51B5
-  },
-  options: {
-    customProperties: true
-  }
-})
+const app = createApp(App)
 
-Vue.config.productionTip = false
+app.use(vuetify)
+app.use(Croppa)
+app.use(i18n)
+app.use(router)
+app.use(store) // Add this if you're using Vuex
 
-// Vue.prototype.$bus = new Vue()
-
-export const eventBus = new Vue()
-
-new Vue({
-  i18n,
-  router,
-  render: h => h(App)
-}).$mount('#app')
+app.mount('#app')

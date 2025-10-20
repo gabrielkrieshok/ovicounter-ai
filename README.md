@@ -1,3 +1,4 @@
+
 # Ovicounter AI
 
 <p align="center">
@@ -19,12 +20,15 @@ This project uses [OpenCV.js](https://docs.opencv.org/3.4/index.html), [Vue.js](
 ## Background
 
 ### Challenge
+
 Tracking mosquito populations is critical to stopping the spread of malaria and Zika, among other diseases. One way to track mosquito populations is through the use of ovitraps which are placed in various locations to attract mosquitoes who then lay their eggs on a uniform sheet of paper and are then collected for counting egg densities per sheet.
 
 ### Solution
+
 We developed an app that uses the camera of a smartphone to photograph a paper sheet of collected mosquito eggs, and then analyze the images using computer vision to automatically identify individual eggs and count their total — a process that is currently done mostly by-hand and can be very time-consuming.
 
 ### Details
+
 This app is notable for a few reasons — it's a "progressive web app" (PWA) meaning that it behaves like a native iOS or Android app (you can even put it on your home screen alongside other apps), and also as a traditional website from the phone's web browser or from a laptop or desktop computer.
 
 And because it's a "progressive" app, the software to run the site and analysis is loaded into the website when you access the page for the first time, meaning that it works even when completely offline, including the analysis and egg counting.
@@ -39,19 +43,19 @@ Finally, the app and underlying technologies all rely on open-source technologie
 
 ## Technical Walkthrough
 
-**1\. Load an Image**
+### 1. Load an Image
 
 - When the app (or website) is loaded onto a device's web-browser, it loads all of the app code it needs to operate so that no information needs to be sent or received from a remote server or database -- everything is happening on the device to which it is loaded.
 
 - After the app loads, a user can either take a picture, or upload one from their device (or use the 'demo' pictures in memory to see it work).
 
-**2. Adjust the Image**
+### 2. Adjust the Image
 
 - Once selected, the user then adjusts the image (rotation, resizing, and cropping) by zooming in and out using 'pinch-and-zoom' on a phone or with the scroll function on a desktop.
 
 - The user then selects the 'type' of image to analyze, ensuring more precise default values for the analysis depending on the type of picture, (Current templates are: a *classic* ovitrap paper, a *magnified*, and a *micro-scoped* image. These just help to present default values, and the advanced controls are available after the initial analysis.
 
-**3. Analyze the Image**
+### 3. Analyze the Image
 
 - Once the image has been loaded and adjusted, the user presses the button to 'analyze' the image.
 
@@ -75,11 +79,11 @@ Finally, the app and underlying technologies all rely on open-source technologie
 
   - **Single eggs versus egg clusters**. Mosquito eggs have a tendency sometimes to cluster up into groups, sometimes lying on top of each other in ways that are difficult to see and count. The app deals with this is by separating out "single" eggs from egg "clusters." It does this after identifying all of the ROIs in the image, and calculating their various size dimensions (pixel square area, in this case). There is an assumption that there will be *more* "single" eggs than clusters, and so it calculates the average single-egg size from using the median value for all of the ROIs. Then, using this single-egg size approximate value, it divides up the remaining clusters by this value. There are some accuracy challenges with this, but without moving to a more sophisticated model, this works pretty well in practice.
 
-**4. Review the Analysis**
+### 4. Review the Analysis
 
 - When the analysis is complete, the total egg estimation will be displayed. The user can also see a disaggregation of single egg counts versus clustered egg counts, as well as additional 'details' in the pop-up button. Additionally, the user can 'compare' the output at each stage of the algorithm process by pressing the 'compare' button, along with toggling the left-right arrows to review the algorithm processes in order.
 
-**5. Advanced Algorithm Controls**
+### 5. Advanced Algorithm Controls
 
 - Depending on the process and image used, it might be necessary to adjust the filters and threshold value. This can be done by selecting the 'show filters' button and reviewing the various settings, including ways to adjust the threshold value (where items become black or white), and the single egg minimum and maximum values, as well as maximum cluster size (to filter out large foreign objects like insects or dirt). When a value is changed here, the algorithm is updated automatically (without the animation) to reflect the new values.
 
@@ -102,16 +106,19 @@ Finally, the app and underlying technologies all rely on open-source technologie
 ## Installation & Setup
 
 ### Clone repository and install dependencies
+
 ```
 npm install
 ```
 
 ### Compiles and hot-reloads for development
+
 ```
 npm run serve
 ```
 
 ### Compiles and minifies for production
+
 ```
 npm run build
 ```
