@@ -12,18 +12,19 @@ The remaining component files are separated for organizational purposes (About, 
 <!-- This operates mainly as a single-page app (SPA), where the client-side view is controlled by the 'router-view' component.
 The ':key' here is used to reset the app either through the reset button, or through clicking on the Ovicounter AI logo.
 The loading dialogue only fires after the analysis button is clicked -- but it stays here as it is an app-wide view. -->
-<v-content>
+<v-main>
   <router-view :key="componentKey"></router-view>
   <loading-dialogue></loading-dialogue>
-</v-content>
+</v-main>
 
 </v-app>
 </div>
 </template>
 
 <script>
-// Import eventBus (not complex enough for Vuex yet), Toolbar, and Loading screen
-import { eventBus } from './main.js'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import AppToolbar from './components/Toolbar.vue'
 import LoadingDialogue from './components/Loading.vue'
 
@@ -33,26 +34,32 @@ export default {
     AppToolbar,
     LoadingDialogue
   },
-  data () {
-    return {
-      componentKey: 0 // This number is what gets reset by a forced re-render
+  setup () {
+    const componentKey = ref(0)
+    const router = useRouter()
+    const store = useStore()
+
+    // Provide a method to force rerender that other components can use via store
+    const forceRerender = () => {
+      router.push('/')
+      componentKey.value += 1
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-  },
-  created () { // A forced re-render pushes user back to default URL ("/"), increments componentKey which resets all the Vue components, and resets the scroll position.
-    eventBus.$on('forceRerender', () => {
-      this.$router.push('/')
-      this.componentKey += 1
-      this.$vuetify.goTo(0, {
-        offset: 0
-      })
+
+    // Make forceRerender available through store
+    store.commit('setForceRerender', forceRerender)
+
+    onMounted(() => {
+      // Mount openCV module after component is loaded, as the JS library isn't part of Webpack (explicitly because it tries to transcode everything which doesn't work), and just log that it worked.
+      const opencv = document.createElement('script')
+      opencv.setAttribute('src', 'opencv.js')
+      document.head.appendChild(opencv)
+      console.log('OpenCV Loaded')
     })
-  },
-  mounted () {
-    // Mount openCV module after component is loaded, as the JS library isn't part of Webpack (explicitly because it tries to transcode everything which doesn't work), and just log that it worked.
-    let opencv = document.createElement('script')
-    opencv.setAttribute('src', 'opencv.js')
-    document.head.appendChild(opencv)
-    console.log('OpenCV Loaded')
+
+    return {
+      componentKey
+    }
   }
 }
 </script>

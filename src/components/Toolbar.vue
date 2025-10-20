@@ -1,98 +1,101 @@
 <template>
 <div>
-<!-- class="white--text" @click="rerender()" -->
-<v-toolbar color="primary" absolute app>
+<v-app-bar color="primary" app>
 
-  <v-toolbar-title class="text-uppercase white--text" style="cursor: pointer">
-    <v-layout align-center  @click="rerender()">
-    <v-avatar tile size="20" class="mx-2"><v-img :src="require('@/assets/img/bot.png')" /></v-avatar>
-    <span class="font-weight-black">Ovitrap </span><span class="font-weight-thin">AI</span>
-    </v-layout>
-  </v-toolbar-title>
+  <v-app-bar-title class="text-uppercase white--text" style="cursor: pointer">
+    <div class="d-flex align-center" @click="rerender()">
+      <v-avatar tile size="20" class="mx-2"><v-img :src="require('@/assets/img/bot.png')" /></v-avatar>
+      <span class="font-weight-black">Ovitrap </span><span class="font-weight-thin">AI</span>
+    </div>
+  </v-app-bar-title>
   <v-spacer></v-spacer>
-  <span class="caption mx-3">
-    <v-btn-toggle :value="localeSelect" mandatory>
-    <v-btn small flat @click="changeLocale('en')">EN</v-btn>
-    <v-btn small flat @click="changeLocale('es')">ES</v-btn>
+  <span class="text-caption mx-3">
+    <v-btn-toggle :model-value="localeSelect" mandatory>
+      <v-btn size="small" variant="text" @click="changeLocale('en')">EN</v-btn>
+      <v-btn size="small" variant="text" @click="changeLocale('es')">ES</v-btn>
     </v-btn-toggle>
   </span>
 
-  <v-toolbar-items class="hidden-sm-and-down">
+  <div class="d-none d-md-flex">
     <v-btn
-    v-for="(item) in menu[localeSelect]"
-    :key="item.title"
-    :to="item.link"
-    flat dark
-  >{{ item.title }}</v-btn>
-    </v-toolbar-items>
+      v-for="(item) in menu[localeSelect]"
+      :key="item.title"
+      :to="item.link"
+      variant="text"
+      color="white"
+    >{{ item.title }}</v-btn>
+  </div>
 
-    <v-menu class="hidden-md-and-up">
-      <v-toolbar-side-icon slot="activator"></v-toolbar-side-icon>
-      <v-list>
-        <v-list-tile v-for="item in menu[localeSelect]" :key="item.title" :to="item.link">
-          <v-list-tile-content>
-            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-    </v-menu>
+  <v-menu class="d-md-none">
+    <template v-slot:activator="{ props }">
+      <v-app-bar-nav-icon v-bind="props"></v-app-bar-nav-icon>
+    </template>
+    <v-list>
+      <v-list-item v-for="item in menu[localeSelect]" :key="item.title" :to="item.link">
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-menu>
 
-</v-toolbar>
+</v-app-bar>
 
 </div>
 </template>
 
 <script>
-import { eventBus } from '../main.js'
-import i18n from '@/plugins/i18n'
+import { ref, computed, watch } from 'vue'
+import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
 
 export default {
-  components: {
-  },
-  data () {
-    return {
-      menu: {
-        0: [
-          { title: 'Vision', link: '/' },
-          { title: 'Guide', link: '/guide' },
-          { title: 'About', link: '/about' }
-        ],
-        1: [
-          { title: 'Visión', link: '/' },
-          { title: 'Guía', link: '/guide-es' },
-          { title: 'Acerca de...', link: '/about-es' }
-        ]
-      },
-      languages: [
-        { title: 'en', name: 'English' },
-        { title: 'es', name: 'Español' }
+  setup () {
+    const store = useStore()
+    const { locale } = useI18n()
+
+    const menu = {
+      0: [
+        { title: 'Vision', link: '/' },
+        { title: 'Guide', link: '/guide' },
+        { title: 'About', link: '/about' }
       ],
-      loading: false
+      1: [
+        { title: 'Visión', link: '/' },
+        { title: 'Guía', link: '/guide-es' },
+        { title: 'Acerca de...', link: '/about-es' }
+      ]
     }
-  },
-  computed: {
-    localeSelect () {
-      if (this.$i18n.locale === 'en') {
-        return 0
-      } else {
-        return 1
-      }
-    }
-  },
-  created () {
-    eventBus.$on('appLoading', () => {
-      this.loading = true
+
+    const languages = [
+      { title: 'en', name: 'English' },
+      { title: 'es', name: 'Español' }
+    ]
+
+    const loading = ref(false)
+
+    const localeSelect = computed(() => {
+      return locale.value === 'en' ? 0 : 1
     })
-  },
-  methods: {
-    rerender () {
-      eventBus.$emit('forceRerender')
-    },
-    menuItems () {
-      return this.menu
-    },
-    changeLocale (locale) {
-      i18n.locale = locale
+
+    // Watch for appLoading state changes
+    watch(() => store.state.appLoading, (newVal) => {
+      loading.value = newVal
+    })
+
+    const rerender = () => {
+      store.dispatch('triggerRerender')
+    }
+
+    const changeLocale = (newLocale) => {
+      locale.value = newLocale
+    }
+
+    return {
+      menu,
+      languages,
+      loading,
+      localeSelect,
+      rerender,
+      changeLocale
     }
   }
 }

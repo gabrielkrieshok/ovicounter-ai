@@ -1,7 +1,4 @@
-import Vue from 'vue'
-import VueI18n from 'vue-i18n'
-
-Vue.use(VueI18n)
+import { createI18n } from 'vue-i18n'
 
 const messages = {
   'en': {
@@ -108,7 +105,8 @@ const messages = {
   }
 }
 
-const i18n = new VueI18n({
+const i18n = createI18n({
+  legacy: false, // Use Composition API mode
   locale: 'en', // set locale
   fallbackLocale: 'es', // set fallback locale
   messages // set locale messages

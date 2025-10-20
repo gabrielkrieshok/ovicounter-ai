@@ -3,7 +3,8 @@
 </template>
 
 <script>
-import { eventBus } from '../main.js'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import AppImage from './Image.vue'
 import AppAnalysis from './Analysis.vue'
 
@@ -12,16 +13,19 @@ export default {
     AppImage,
     AppAnalysis
   },
-  data () {
-    return {
-      componentKey: 0, // Just as with the main app, the 'reset image' button the bottom bar resets this specific component.
-      visionComponent: AppImage // Starts with AppImage by default, waiting for the eventBus to fire to tell it to switch to Analysis.
-    }
-  },
-  created () {
-    eventBus.$on('toAnalysis', () => {
-      this.visionComponent = 'AppAnalysis' // Switches to Analysis component.
+  setup () {
+    const store = useStore()
+    const componentKey = 0
+
+    // Watch the store's toAnalysis state to switch components
+    const visionComponent = computed(() => {
+      return store.state.toAnalysis ? AppAnalysis : AppImage
     })
+
+    return {
+      componentKey,
+      visionComponent
+    }
   }
 }
 </script>

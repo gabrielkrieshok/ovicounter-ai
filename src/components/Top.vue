@@ -2,32 +2,38 @@
 
 <div class="title my-4">
 
-  <v-layout justify-center row @click="rerender()" style="cursor: pointer">
+  <div class="d-flex justify-center" @click="rerender()" style="cursor: pointer">
     <v-avatar tile size="48" class="mr-2 ml-0"><v-img :src="require('@/assets/img/bot.png')" /></v-avatar>
-    <span class="display-2 font-weight-black text-uppercase black--text pb-0"><span>Ovitrap </span><span class="font-weight-thin">AI</span></span>
-  </v-layout>
+    <span class="text-h3 font-weight-black text-uppercase pb-0"><span>Ovitrap </span><span class="font-weight-thin">AI</span></span>
+  </div>
 
-  <v-layout align-center justify-center wrap>
-    <h2 class="headline mt-4">{{ $t('subtitle') }}</h2>
-  </v-layout>
+  <div class="d-flex align-center justify-center flex-wrap">
+    <h2 class="text-h5 mt-4">{{ $t('subtitle') }}</h2>
+  </div>
 
-  <v-layout align-center justify-center wrap>
-    <v-flex xs12 md10 lg10 xl6>
-      <p class="subheading my-3">{{ $t('description') }}</p>
-    </v-flex>
-  </v-layout>
+  <div class="d-flex align-center justify-center flex-wrap">
+    <v-col cols="12" md="10" lg="10" xl="6">
+      <p class="text-h6 my-3">{{ $t('description') }}</p>
+    </v-col>
+  </div>
 
 </div>
 
 </template>
 
 <script>
-import { eventBus } from '../main.js'
+import { useStore } from 'vuex'
 
 export default {
-  methods: {
-    rerender () {
-      eventBus.$emit('forceRerender')
+  setup () {
+    const store = useStore()
+
+    const rerender = () => {
+      store.dispatch('triggerRerender')
+    }
+
+    return {
+      rerender
     }
   }
 }
