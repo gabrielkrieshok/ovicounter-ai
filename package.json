@@ -2,13 +2,16 @@
   "name": "ovicounter-ai",
   "version": "0.2.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "npm": "^10.8.2",
     "register-service-worker": "^1.7.2",
     "vue": "^3.4.31",
     "vue-advanced-cropper": "^2.8.8",
@@ -19,11 +22,11 @@
   },
   "devDependencies": {
     "@mdi/font": "^7.4.47",
-    "@vue/cli-plugin-babel": "^5.0.8",
-    "@vue/cli-plugin-pwa": "^5.0.8",
-    "@vue/cli-service": "^5.0.8",
-    "babel-plugin-transform-imports": "^2.0.0",
+    "@vitejs/plugin-vue": "^6.0.1",
     "sass": "^1.77.0",
-    "sass-loader": "^16.0.0"
+    "vite": "^7.1.11",
+    "vite-plugin-pwa": "^1.1.0",
+    "vite-plugin-vuetify": "^2.1.2",
+    "workbox-window": "^7.3.0"
   }
 }

@@ -4,7 +4,7 @@
 
   <v-app-bar-title class="text-uppercase white--text" style="cursor: pointer">
     <div class="d-flex align-center" @click="rerender()">
-      <v-avatar tile size="20" class="mx-2"><v-img :src="require('@/assets/img/bot.png')" /></v-avatar>
+      <v-avatar tile size="20" class="mx-2"><v-img :src="botIcon" /></v-avatar>
       <span class="font-weight-black">Ovitrap </span><span class="font-weight-thin">AI</span>
     </div>
   </v-app-bar-title>
@@ -46,6 +46,7 @@
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
+import botIcon from '@/assets/img/bot.png'
 
 export default {
   setup () {
@@ -95,7 +96,8 @@ export default {
       loading,
       localeSelect,
       rerender,
-      changeLocale
+      changeLocale,
+      botIcon
     }
   }
 }

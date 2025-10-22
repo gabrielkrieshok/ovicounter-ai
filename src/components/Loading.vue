@@ -12,7 +12,7 @@
       <v-card-text>
         <div class="d-flex align-center">
           <v-avatar id="bot" tile size="24" class="mr-2">
-            <v-img :src="require('@/assets/img/bot.gif')"></v-img>
+            <v-img :src="botGif"></v-img>
           </v-avatar>
           {{ $t('Analyzing Image...') }}
         </div>
@@ -31,6 +31,7 @@
 <script>
 import { ref, watch } from 'vue'
 import { useStore } from 'vuex'
+import botGif from '@/assets/img/bot.gif'
 
 export default {
   setup () {
@@ -48,7 +49,8 @@ export default {
     })
 
     return {
-      loadingDialog
+      loadingDialog,
+      botGif
     }
   }
 }

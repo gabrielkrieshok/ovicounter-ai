@@ -17,7 +17,7 @@
         <v-col cols="12" md="4">
           <v-item v-slot="{ isSelected, toggle }">
             <v-card :style="isSelected ? 'border: 2px solid rgb(var(--v-theme-primary))' : ''" :class="isSelected ? 'elevation-5' : ''" @click="toggle">
-              <v-img :src="require('@/assets/img/type-paper-thumb.jpg')" aspect-ratio="2.00"></v-img>
+              <v-img :src="typePaperThumb" aspect-ratio="2.00"></v-img>
               <v-card-title>
                 <div>
                   <h3 class="text-h6 mb-0">{{ $t('Paper Strip') }}</h3>
@@ -31,7 +31,7 @@
         <v-col cols="12" md="4">
           <v-item v-slot="{ isSelected, toggle }">
             <v-card :style="isSelected ? 'border: 2px solid rgb(var(--v-theme-primary))' : ''" :class="isSelected ? 'elevation-5' : ''" @click="toggle">
-              <v-img :src="require('@/assets/img/type-magnified-thumb.jpg')" aspect-ratio="2.00"></v-img>
+              <v-img :src="typeMagnifiedThumb" aspect-ratio="2.00"></v-img>
               <v-card-title>
                 <div>
                   <h3 class="text-h6 mb-0">{{ $t('Magnified') }}</h3>
@@ -45,7 +45,7 @@
         <v-col cols="12" md="4">
           <v-item v-slot="{ isSelected, toggle }">
             <v-card :style="isSelected ? 'border: 2px solid rgb(var(--v-theme-primary))' : ''" :class="isSelected ? 'elevation-5' : ''" @click="toggle">
-              <v-img :src="require('@/assets/img/type-microscope-thumb.jpg')" aspect-ratio="2.00"></v-img>
+              <v-img :src="typeMicroscopeThumb" aspect-ratio="2.00"></v-img>
               <v-card-title>
                 <div>
                   <h3 class="text-h6 mb-0">{{ $t('Microscope') }}</h3>
@@ -135,6 +135,9 @@ import AppTop from './Top.vue'
 import typePaperImg from '@/assets/img/type-paper.jpg'
 import typeMagnifiedImg from '@/assets/img/type-magnified.jpg'
 import typeMicroscopeImg from '@/assets/img/type-microscope.jpg'
+import typePaperThumb from '@/assets/img/type-paper-thumb.jpg'
+import typeMagnifiedThumb from '@/assets/img/type-magnified-thumb.jpg'
+import typeMicroscopeThumb from '@/assets/img/type-microscope-thumb.jpg'
 
 export default {
   components: {
@@ -265,7 +268,10 @@ export default {
       loadDemoImage,
       rotateImage,
       removeImage,
-      accept
+      accept,
+      typePaperThumb,
+      typeMagnifiedThumb,
+      typeMicroscopeThumb
     }
   }
 }

@@ -19,7 +19,6 @@ export default {
 
     // Watch the store's toAnalysis state to switch components
     const visionComponent = computed(() => {
-      console.log('[Vision] toAnalysis changed:', store.state.toAnalysis)
       return store.state.toAnalysis ? AppAnalysis : AppImage
     })
 
