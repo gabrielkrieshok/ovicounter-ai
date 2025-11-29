@@ -1,47 +1,57 @@
 
 # Ovicounter AI
 
+<!-- markdownlint-disable MD033 -->
 <p align="center">
   <img width="150" src="https://raw.githubusercontent.com/gabrielkrieshok/ovicounter-ai/master/public/img/bot.gif" alt="Ovicounter AI Logo GIF" />
 </p>
+<!-- markdownlint-enable MD033 -->
 
-Ovicounter AI is a proof-of-concept progressive web app to identify and estimate number of mosquito eggs on ovitrap papers using simple, adjustable computer vision techniques, all done locally (and offline) on a smartphone (iOS or Android) or desktop browser device.
+Ovicounter AI is a progressive web app that automates the counting of mosquito eggs on ovitrap paper using computer vision. Originally developed as part of **USAID's Zika AIRS Project** to combat vector-borne diseases like malaria, Zika, dengue fever, and chikungunya, this tool transforms a tedious, time-consuming manual process into a fast, consistent analysis that runs entirely on your device—whether that's a smartphone (iOS or Android) or desktop browser.
 
-This project is a fork of the [MECvision project](https://github.com/abtassociates/mecvision) from Abt Global, where I worked during its creation.
+**This project is a fork of the [MECvision project](https://github.com/abtassociates/mecvision)**, originally developed at Abt Global for USAID. The app has been deployed in several countries across the Americas and Caribbean to support mosquito surveillance and disease prevention efforts.
 
-This project uses [OpenCV.js](https://docs.opencv.org/3.4/index.html), [Vue.js](https://vuejs.org), [Vuetify](https://vuetifyjs.com), and [Vue Croppa](https://zhanziyang.github.io/vue-croppa/), and forked from the [Abt Associates MECVision project].
+Built with [OpenCV.js](https://docs.opencv.org/3.4/index.html), [Vue.js](https://vuejs.org), [Vuetify](https://vuetifyjs.com), and [Vue Croppa](https://zhanziyang.github.io/vue-croppa/), this tool processes everything locally—no internet connection required after initial load.
 
+<!-- markdownlint-disable MD033 -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/gabrielkrieshok/ovicounter-ai/master/public/img/Screenshot-Descriptions.png" alt="Ovicounter AI Screenshot with Descriptions" />
 </p>
+<!-- markdownlint-enable MD033 -->
 
 ---
 
 ## Background
 
-### Challenge
+### The Global Health Challenge
 
-Tracking mosquito populations is critical to stopping the spread of malaria and Zika, among other diseases. One way to track mosquito populations is through the use of ovitraps which are placed in various locations to attract mosquitoes who then lay their eggs on a uniform sheet of paper and are then collected for counting egg densities per sheet.
+Vector-borne diseases—including malaria, Zika, dengue fever, and chikungunya—pose significant threats to public health worldwide. Tracking mosquito populations is essential to understanding and controlling disease transmission. Health workers use ovitraps placed strategically throughout communities to attract mosquitoes, which then lay their eggs on uniform paper strips. These papers must be collected and analyzed to monitor egg densities and population trends.
 
-### Solution
+**The problem?** Counting mosquito eggs by hand is tedious, eye-straining, error-prone, inconsistent, and incredibly time-consuming work.
 
-We developed an app that uses the camera of a smartphone to photograph a paper sheet of collected mosquito eggs, and then analyze the images using computer vision to automatically identify individual eggs and count their total — a process that is currently done mostly by-hand and can be very time-consuming.
+### The Solution: Computer Vision Meets Public Health
 
-### Details
+Ovicounter AI transforms this manual process with a smartphone-based computer vision solution. Health workers can photograph ovitrap papers and receive automated egg counts in seconds—work that previously took technicians 20 minutes per paper now takes approximately 2 minutes for 10 papers.
 
-This app is notable for a few reasons — it's a "progressive web app" (PWA) meaning that it behaves like a native iOS or Android app (you can even put it on your home screen alongside other apps), and also as a traditional website from the phone's web browser or from a laptop or desktop computer.
+The app was developed as part of **USAID's Zika AIRS Project** (Aedes-transmitted disease Integrated vector management Response and Surveillance) with Abt Global to reduce vector-borne disease burdens through improved mosquito control activities.
 
-And because it's a "progressive" app, the software to run the site and analysis is loaded into the website when you access the page for the first time, meaning that it works even when completely offline, including the analysis and egg counting.
+### App Features
 
-The app has built-in filters to adjust for various paper type sizes, groupings of eggs themselves, different lighting environments, and so on.
+**Progressive Web App Architecture:** Ovicounter AI behaves like a native iOS or Android app (installable on your home screen), while also functioning as a traditional website accessible from any browser on phones, tablets, or computers.
 
-The algorithmic processing of the app uses a tool known as "OpenCV" (Open Computer Vision) which analyzes an image in order to highlight contrast, detect edges, find contours of objects within an image, and to make calculations based on that analysis. For Ovicounter AI, we use several algorithmic procedures tied together, in order to isolate the mosquito egg items and count them separately.
+**Complete Offline Functionality:** All software needed for image analysis loads when you first access the site. After that, everything—including the computer vision analysis—works completely offline. No data ever leaves your device.
 
-Finally, the app and underlying technologies all rely on open-source technologies and libraries, meaning that the source code itself can be updated and tailored to other use cases.
+**Adaptive Computer Vision:** Built on OpenCV (Open Computer Vision), the app analyzes images through multiple algorithmic steps: highlighting contrast, detecting edges, finding object contours, and performing calculations. Built-in filters allow adjustments for different paper types, egg groupings, and lighting conditions.
+
+**Open Source & Adaptable:** All underlying technologies are open source, meaning the code can be modified, improved, and tailored to other use cases beyond mosquito egg counting.
+
+**Real-World Impact:** The app has been shared with and deployed in multiple countries across the Americas and Caribbean as part of mosquito surveillance and disease prevention programs.
 
 ---
 
 ## Technical Walkthrough
+
+Understanding how Ovicounter AI works helps explain both its capabilities and limitations. The app processes images through five main stages, each using different computer vision techniques to identify and count mosquito eggs.
 
 ### 1. Load an Image
 
@@ -107,18 +117,18 @@ Finally, the app and underlying technologies all rely on open-source technologie
 
 ### Clone repository and install dependencies
 
-```
+```bash
 npm install
 ```
 
 ### Compiles and hot-reloads for development
 
-```
-npm run serve
+```bash
+npm run dev
 ```
 
 ### Compiles and minifies for production
 
-```
+```bash
 npm run build
 ```

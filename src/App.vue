@@ -50,11 +50,34 @@ export default {
     store.commit('setForceRerender', forceRerender)
 
     onMounted(() => {
-      // Mount openCV module after component is loaded, as the JS library isn't part of Webpack (explicitly because it tries to transcode everything which doesn't work), and just log that it worked.
+      // Load OpenCV.js and wait for it to initialize
       const opencv = document.createElement('script')
       opencv.setAttribute('src', 'opencv.js')
+      opencv.setAttribute('async', '')
+
+      opencv.onload = () => {
+        // Modern OpenCV.js uses cv.ready() promise
+        if (typeof cv !== 'undefined' && cv.onRuntimeInitialized) {
+          cv.onRuntimeInitialized = () => {
+            console.log('OpenCV.js is ready')
+            store.commit('setOpenCVReady', true)
+          }
+        } else if (typeof cv !== 'undefined' && typeof cv.then === 'function') {
+          // Alternative: use the .then() method if available
+          cv.then(() => {
+            console.log('OpenCV.js is ready')
+            store.commit('setOpenCVReady', true)
+          })
+        } else {
+          console.warn('OpenCV loaded but initialization method not found')
+        }
+      }
+
+      opencv.onerror = () => {
+        console.error('Failed to load OpenCV.js')
+      }
+
       document.head.appendChild(opencv)
-      console.log('OpenCV Loaded')
     })
 
     return {

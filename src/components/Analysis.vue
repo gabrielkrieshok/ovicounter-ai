@@ -37,10 +37,12 @@
           <h2 :class="{'text-body-1': smAndDown, 'text-h6 mt-2': !smAndDown}">({{window+1}} {{ $t('of') }} {{length}})</h2>
         </div>
         <v-spacer></v-spacer>
-        <div class="d-flex justify-end">
-          <v-btn icon color="primary" @click="previous"><v-icon>mdi-chevron-left</v-icon>
+        <div class="d-flex justify-end gap-2">
+          <v-btn icon color="primary" variant="elevated" @click="previous">
+            <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
-          <v-btn icon color="primary" @click="next"><v-icon>mdi-chevron-right</v-icon>
+          <v-btn icon color="primary" variant="elevated" @click="next">
+            <v-icon>mdi-chevron-right</v-icon>
           </v-btn>
         </div>
       </div>
@@ -366,7 +368,7 @@ export default {
         maxEggRadius.value = 14
         maxEggCluster.value = 20
       }
-    })
+    }, { immediate: true })
 
     const load = async () => {
       store.commit('setLoadingDialog', true)
@@ -392,6 +394,27 @@ export default {
     }
 
     const analyze = async () => {
+      // Check if OpenCV is ready
+      if (!store.state.openCVReady) {
+        console.warn('[Analysis] Waiting for OpenCV to initialize...')
+        // Wait for OpenCV to be ready (with timeout)
+        const timeout = 10000 // 10 seconds
+        const startTime = Date.now()
+        while (!store.state.openCVReady && Date.now() - startTime < timeout) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
+        if (!store.state.openCVReady) {
+          console.error('[Analysis] ERROR: OpenCV failed to initialize within timeout')
+          return
+        }
+      }
+
+      // Verify cv is globally available
+      if (typeof cv === 'undefined') {
+        console.error('[Analysis] ERROR: OpenCV (cv) is not defined')
+        return
+      }
+
       // Show 'analysis' components in Vue
       analysisStarted.value = true
 
@@ -489,7 +512,14 @@ export default {
           cv.drawContours(objects, contours, i, contoursColor, 1, 8, hierarchy, 100)
           let point1 = new cv.Point((rect.x - 5), (rect.y - 5))
           let point2 = new cv.Point(rect.x + rect.width + 5, rect.y + rect.height + 5)
-          if (hierarchy.intPtr(0, i)[0] === -1 || hierarchy.intPtr(0, i)[1] === -1 || hierarchy.intPtr(0, i)[2] === -1 || hierarchy.intPtr(0, i)[3] === -1) {
+          // Access hierarchy data using modern OpenCV.js 4.x API
+          // Hierarchy structure: [Next, Previous, First_Child, Parent] for each contour
+          const hierarchyData = hierarchy.data32S
+          const next = hierarchyData[i * 4]
+          const prev = hierarchyData[i * 4 + 1]
+          const firstChild = hierarchyData[i * 4 + 2]
+          const parent = hierarchyData[i * 4 + 3]
+          if (next === -1 || prev === -1 || firstChild === -1 || parent === -1) {
             cv.rectangle(objects, point1, point2, green, 1, cv.LINE_AA, 0)
           } else {
             cv.rectangle(objects, point1, point2, green, 3, cv.LINE_AA, 0)
@@ -498,20 +528,22 @@ export default {
           boundingBoxes = src.roi(rect)
           detectedObjectsArrayLocal.push(boundingBoxes)
           // Loop through all contours and sort/color by size, drawing on both outlines and overlay images (as well as counting towards array counts)
-          if (cv.contourArea(contours.get(i)) <= minEggArea) {
+          const area = cv.contourArea(contours.get(i))
+
+          if (area <= minEggArea) {
             cv.drawContours(outlines, contours, i, grayColor, -1, cv.LINE_8, hierarchy, 0)
             cv.drawContours(overlay, contours, i, grayColor, 1, cv.LINE_8, hierarchy, 0)
-          } else if (cv.contourArea(contours.get(i)) > minEggArea && cv.contourArea(contours.get(i)) <= maxEggArea) {
+          } else if (area > minEggArea && area <= maxEggArea) {
             cv.drawContours(outlines, contours, i, blue, -1, cv.LINE_8, hierarchy, 0)
             cv.drawContours(overlay, contours, i, blue, 1, cv.LINE_8, hierarchy, 0)
-            singlesArray.value.push(cv.contourArea(contours.get(i)))
+            singlesArray.value.push(area)
             ++singlesCount.value
-          } else if (cv.contourArea(contours.get(i)) > maxEggArea && cv.contourArea(contours.get(i)) <= maxClusterArea) {
+          } else if (area > maxEggArea && area <= maxClusterArea) {
             cv.drawContours(outlines, contours, i, red, -1, cv.LINE_8, hierarchy, 0)
             cv.drawContours(overlay, contours, i, red, 1, cv.LINE_8, hierarchy, 0)
-            clustersArray.value.push(cv.contourArea(contours.get(i)))
+            clustersArray.value.push(area)
             ++clustersCount.value
-          } else if (cv.contourArea(contours.get(i)) > maxClusterArea) {
+          } else if (area > maxClusterArea) {
             cv.drawContours(outlines, contours, i, grayColor, -1, cv.LINE_8, hierarchy, 0)
             cv.drawContours(overlay, contours, i, grayColor, 1, cv.LINE_8, hierarchy, 0)
           }

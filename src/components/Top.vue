@@ -4,7 +4,7 @@
 
   <div class="d-flex justify-center" @click="rerender()" style="cursor: pointer">
     <v-avatar tile size="48" class="mr-2 ml-0"><v-img :src="botIcon" /></v-avatar>
-    <span class="text-h3 font-weight-black text-uppercase pb-0"><span>Ovitrap </span><span class="font-weight-thin">AI</span></span>
+    <span class="text-h3 font-weight-black text-uppercase pb-0"><span>Ovicounter </span><span class="font-weight-thin">AI</span></span>
   </div>
 
   <div class="d-flex align-center justify-center flex-wrap">

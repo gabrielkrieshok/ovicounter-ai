@@ -8,7 +8,8 @@ export default createStore({
     loadingDialog: false,
     toAnalysis: false,
     imageType: 0,
-    rawImage: null
+    rawImage: null,
+    openCVReady: false
   },
   mutations: {
     setForceRerender(state, fn) {
@@ -28,6 +29,9 @@ export default createStore({
     },
     setRawImage(state, value) {
       state.rawImage = value
+    },
+    setOpenCVReady(state, value) {
+      state.openCVReady = value
     }
   },
   actions: {

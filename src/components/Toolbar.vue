@@ -5,7 +5,7 @@
   <v-app-bar-title class="text-uppercase white--text" style="cursor: pointer">
     <div class="d-flex align-center" @click="rerender()">
       <v-avatar tile size="20" class="mx-2"><v-img :src="botIcon" /></v-avatar>
-      <span class="font-weight-black">Ovitrap </span><span class="font-weight-thin">AI</span>
+      <span class="font-weight-black">Ovicounter </span><span class="font-weight-thin">AI</span>
     </div>
   </v-app-bar-title>
   <v-spacer></v-spacer>
