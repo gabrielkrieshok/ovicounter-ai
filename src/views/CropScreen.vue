@@ -319,4 +319,24 @@ async function useThisPhoto() {
 .footer {
   padding: 0 var(--sp-16) 18px;
 }
+
+/* Laptop: the photograph left at full height, title top-right, the confirm
+   bottom-right. The rotate chips and caption stay over the photograph. */
+.wide .crop {
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-rows: auto 1fr auto;
+}
+.wide .crop > .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.wide .crop > .body {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+.wide .crop > .footer {
+  grid-column: 2;
+  grid-row: 3;
+}
 </style>

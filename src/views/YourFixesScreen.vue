@@ -77,6 +77,7 @@ function done() {
         ref="stage"
         :src="strip.working?.canvas ?? null"
         background="var(--stage-bg)"
+        initial-fit="cover"
         @tap="onTap"
         @add="onAdd"
         @stroke="onStroke"
@@ -231,5 +232,27 @@ function done() {
 .undo:disabled {
   color: var(--disabled);
   border-color: var(--rule-idle);
+}
+
+/* Laptop: stage left at full height, header top-right, legend and Done
+   bottom-right. */
+.wide .fixes {
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-rows: auto 1fr auto;
+}
+.wide .fixes > .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.wide .fixes > .stage-wrap {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  border-right: var(--bd) solid var(--ink);
+}
+.wide .fixes > .footer {
+  grid-column: 2;
+  grid-row: 3;
+  border-top: 0;
 }
 </style>

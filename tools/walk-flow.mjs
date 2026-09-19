@@ -1,6 +1,10 @@
 /* Walk the demo path in a real browser and screenshot each screen.
  *
- *   node tools/walk-flow.mjs [--port=5199] [--out=tools/shots] [--width=900 --height=900]
+ *   node tools/walk-flow.mjs [--port=5199] [--out=tools/shots] [--width=900 --height=900] [--frame=0|1]
+ *
+ * Below 1000px wide the phone frame is kept (`?frame=1`) so screens can be
+ * checked against the hi-fi; at 1440 the laptop layout is walked and the
+ * photograph's share of the viewport is measured on Refine and Your fixes.
  *
  * Clicks through Welcome → Crop → Processing → Refine the way a technician
  * would — Mark one egg only if the probe fails to calibrate the strip on its
@@ -25,9 +29,9 @@ const args = Object.fromEntries(
 )
 const port = args.port ?? '5199'
 const outDir = args.out ?? 'tools/shots'
-/* 900 wide keeps the phone frame; 1440 is the laptop layout; 390 is a phone. */
 const width = Number(args.width ?? 900)
 const height = Number(args.height ?? 900)
+const framed = args.frame !== undefined ? args.frame !== '0' : width < 1000
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -70,7 +74,8 @@ async function main() {
   await mkdir(outDir, { recursive: true })
   await waitForDevTools()
 
-  const target = `http://localhost:${port}/`
+  const target = `http://localhost:${port}/${framed ? '?frame=1' : ''}`
+  console.log(`${width}×${height}, ${framed ? 'phone frame' : 'no frame'}`)
   const page = await fetch(
     `http://localhost:${DEBUG_PORT}/json/new?${encodeURIComponent(target)}`,
     { method: 'PUT' },
@@ -143,6 +148,22 @@ async function main() {
     })()`)
 
   const route = () => evaluate('location.hash')
+
+  /* How much of the viewport the photograph takes. On Refine the ImageStage
+     canvas IS the photograph's box; on Your fixes the ZoomPanStage canvas is
+     the stage, and at cover fit the photograph is at least that wide. */
+  const photoShare = async (selector) => {
+    const m = await evaluate(`(() => {
+      const el = document.querySelector(${JSON.stringify(selector)});
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { w: Math.round(r.width), h: Math.round(r.height), pct: Math.round(100 * r.width / innerWidth),
+               wide: !!document.querySelector('.device.wide') };
+    })()`)
+    if (!m) return '  photo: not found'
+    return `  photo ${m.w}×${m.h} = ${m.pct}% of ${width}px${m.wide ? ' (laptop layout)' : ' (framed)'}` +
+      (m.wide ? (m.pct >= 60 ? ' ≥60% ✓' : ' <60% ✗') : '')
+  }
 
   const waitForRoute = async (hash, ms = 15000) => {
     const until = Date.now() + ms
@@ -262,6 +283,7 @@ async function main() {
   await sleep(3000)
   console.log(`Refine (${await route()})`)
   await shot('flow-6-refine')
+  console.log(await photoShare('.refine .stage-wrap canvas.photo'))
 
   const state = await evaluate(`(() => {
     const el = document.querySelector('.refine');
@@ -273,6 +295,7 @@ async function main() {
   await sleep(1500)
   console.log(`Your fixes (${await route()})`)
   await shot('flow-7-fixes')
+  console.log(await photoShare('.fixes .stage'))
 
   /* Exercise the gestures rather than just photographing the screen. Each one
      reports the mark count around it, because the visible effect of a cull is a

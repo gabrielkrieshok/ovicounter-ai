@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
@@ -33,6 +33,12 @@ import { useStripStore } from '@/stores/strip'
 const router = useRouter()
 const session = useSessionStore()
 const strip = useStripStore()
+
+/* On a laptop the stage is most of the screen, so the whole strip fits at a
+   size where every egg is visible — and "have I seen all of it?" is answered
+   at a glance. In the phone frame the hi-fi's cover fit stands. */
+const wide = inject('wideLayout', ref(false))
+const stageFit = computed(() => (wide.value ? 'contain' : 'cover'))
 
 const showOriginal = ref(false)
 const ghosts = ref([])
@@ -162,7 +168,7 @@ onMounted(() => {
     <div class="stage-wrap">
       <ImageStage
         :src="strip.working?.canvas ?? null"
-        fit="cover"
+        :fit="stageFit"
         background="var(--stage-bg)"
         v-slot="{ rect, stage }"
       >
@@ -379,4 +385,28 @@ onMounted(() => {
 }
 .grow-1 { flex: 1; }
 .grow-13 { flex: 1.3; }
+
+/* Laptop: stage left at full height, header and controls in the right pane. */
+.wide .refine {
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-rows: auto 1fr;
+}
+.wide .refine > .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.wide .refine > .stage-wrap {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  border-right: var(--bd) solid var(--ink);
+}
+.wide .refine > .controls {
+  grid-column: 2;
+  grid-row: 2;
+  border-top: 0;
+}
+.wide .refine .footer {
+  margin-top: auto;
+}
 </style>

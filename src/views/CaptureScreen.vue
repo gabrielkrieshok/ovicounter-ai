@@ -342,4 +342,24 @@ async function pickFile(event) {
   color: var(--ink-soft);
   border-color: var(--ink);
 }
+
+/* Laptop: viewfinder left at full height, strip number top-right, the live
+   checks bottom-right. */
+.wide .capture {
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-rows: auto 1fr auto;
+}
+.wide .capture > .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.wide .capture > .viewfinder {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+.wide .capture > .panel {
+  grid-column: 2;
+  grid-row: 3;
+}
 </style>

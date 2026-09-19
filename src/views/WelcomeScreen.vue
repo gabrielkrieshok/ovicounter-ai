@@ -91,7 +91,9 @@ async function startDemo() {
   <div class="welcome">
     <header class="head">
       <div class="lockup">
-        <AppWordmark :size="20" />
+        <!-- 16, not the 20 the frame was first built with: at 20 the row
+             needs 370px in a 336px header and the menu button was clipped. -->
+        <AppWordmark :size="16" />
         <span class="offline mono">{{ t('app.offline') }}</span>
         <!-- Welcome has no app bar — it is already home — so the menu is
              reachable from its own header instead. -->
@@ -339,6 +341,14 @@ async function startDemo() {
 .run {
   font: 500 12px var(--font-mono);
   color: var(--disabled);
+}
+
+/* Laptop: no stage to split around, so the phone layout stands in a column
+   that a laptop can read — buttons and paragraphs do not want 1400px. */
+.wide .welcome {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
 .note {

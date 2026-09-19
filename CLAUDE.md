@@ -41,7 +41,15 @@ Your fixes · Strip result · Session summary**
   holds a Mat. Live sliders and pinch-zoom cannot share a thread on a
   mid-range Android.
 - **Viewport:** design and check at 380px inside the phone frame; full-bleed
-  below 430px. Both are the same code — the frame is only chrome.
+  below 430px. **At 900px and up the frame is dropped and stage screens go
+  two-pane** (decided Sep 2026, `docs/surpass-v1-brief.md` §3 — a deliberate
+  deviation from "design at 380px inside the frame"; the audience for now is
+  partners and funders on laptops): photograph left at full height, title,
+  controls, legend and actions in a right column never narrower than 380px
+  (`1fr minmax(var(--device-w), var(--pane-share))`). Same components, tokens
+  and copy; each screen carries its own `.wide` rules and App.vue provides
+  `wideLayout`. `?frame=1` in the page URL keeps the frame at any width for
+  checking against the hi-fi. All three modes are the same code.
 
 Ask before adding any dependency beyond vue, vue-router, pinia, vite and
 @vitejs/plugin-vue.
@@ -87,10 +95,19 @@ drawing and hit-testing have to agree about how big a mark is.
 `MarkLayer` sizes its canvas to the STAGE and draws through the transform. Sizing
 it to the image would mean a 9600px-wide backing store at 4× zoom.
 
-**Zoom 1 shows the whole strip** (contain), not the hi-fi's full-bleed cover.
-On a 2.18:1 strip in a 0.8:1 stage, cover would show about a third of its width,
-and "have I checked all of it?" is the question this screen exists to answer.
-Flagged as a deliberate deviation.
+**Zoom 1 is the whole strip** (contain), and **Your fixes opens at cover**
+(`initial-fit="cover"`, Sep 2026 brief §3): fitted to the stage's larger
+dimension so a wide strip fills the pane instead of a band one third of the
+height, with the whole strip one pinch out. On a 2.18:1 strip in a 0.8:1 stage,
+cover shows about a third of its width — so "have I checked all of it?" is
+answered by zooming out, not by the opening view. Refine uses cover in the
+phone frame (hi-fi) and contain on the laptop, where the whole strip fits at a
+size every egg is visible.
+
+**Rings thin as marks shrink** (`lib/marks.js` `ringWidth`): 2.5px from an
+18px diameter down to 1.25px at the 7px floor, with 2px clearance each side of
+the egg. At 2.5px on a 7px ring the hole was 2px and the egg under it invisible
+at zoom 1 — a mark has to show what it marks.
 
 ## Copy
 

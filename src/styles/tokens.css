@@ -67,6 +67,14 @@
   /* ---- Device canvas --------------------------------------------------- */
   --device-w: 380px;
   --device-h: 788px;
+
+  /* ---- Laptop layout (Sep 2026) ---------------------------------------- */
+  /* At and above this width the phone frame is dropped and stage screens go
+     two-pane. Media queries cannot read a custom property, so App.vue repeats
+     the number; this is the one place it is defined. The right-hand pane is
+     never narrower than --device-w, the width everything was designed at. */
+  --laptop-min: 900px;
+  --pane-share: 35%;
 }
 
 /* Cluster hues — assigned so adjacent groups never share a colour.

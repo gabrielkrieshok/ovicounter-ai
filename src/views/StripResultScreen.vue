@@ -293,4 +293,33 @@ function endSession() {
 .footer.ready { opacity: 1; }
 .grow-1 { flex: 1; }
 .grow-14 { flex: 1.4; }
+
+/* Laptop: the checked strip left at full height; title, scale, legend and the
+   next action in the right pane. */
+.wide .result {
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-rows: auto auto auto 1fr auto;
+}
+.wide .result > .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.wide .result > .count-block {
+  grid-column: 2;
+  grid-row: 2;
+}
+.wide .result > .legend {
+  grid-column: 2;
+  grid-row: 3;
+}
+.wide .result > .thumb {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  margin: var(--sp-16);
+}
+.wide .result > .footer {
+  grid-column: 2;
+  grid-row: 5;
+}
 </style>

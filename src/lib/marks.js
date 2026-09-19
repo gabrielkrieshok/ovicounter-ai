@@ -3,15 +3,33 @@
  * is, or the operator taps a ring and misses it.
  */
 
-/* Token rule: 2.5px rings, diameter clamped 7–26px. */
+/* Token rule: 2.5px rings, diameter clamped 7–26px — with the ring thinning as
+   the mark shrinks (Sep 2026). At the 7px floor a 2.5px stroke leaves a 2px
+   hole, and the egg under it — three or four pixels across at zoom 1 on a
+   phone — was invisible. A mark has to show what it marks. */
 export const RING_WIDTH = 2.5
+export const MIN_RING_WIDTH = 1.25
 export const MIN_DIAMETER = 7
 export const MAX_DIAMETER = 26
+
+/* Clearance between the egg's long edge and the ring, each side. */
+const CLEARANCE = 2
 
 /** A mark's drawn radius in stage pixels, given the image's on-screen box. */
 export function markRadius(mark, rect) {
   const longEdge = Math.max(mark.w * rect.width, mark.h * rect.height)
-  return Math.min(MAX_DIAMETER, Math.max(MIN_DIAMETER, longEdge + 4)) / 2
+  return Math.min(MAX_DIAMETER, Math.max(MIN_DIAMETER, longEdge + 2 * CLEARANCE)) / 2
+}
+
+/**
+ * Stroke width for a ring of radius `r`: full weight from an 18px diameter up,
+ * thinning to MIN_RING_WIDTH at the 7px floor, so the hole inside the ring
+ * always shows the egg. Linear in between.
+ */
+export function ringWidth(r) {
+  const d = r * 2
+  const t = Math.min(1, Math.max(0, (d - MIN_DIAMETER) / (18 - MIN_DIAMETER)))
+  return MIN_RING_WIDTH + t * (RING_WIDTH - MIN_RING_WIDTH)
 }
 
 /**

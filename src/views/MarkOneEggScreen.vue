@@ -284,4 +284,26 @@ function go() {
 }
 .grow-1 { flex: 1; }
 .grow-13 { flex: 1.3; }
+
+/* Laptop: photograph left, instruction top-right, buttons bottom-right. */
+.wide .calibrate {
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-rows: auto 1fr auto;
+}
+.wide .calibrate > .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.wide .calibrate > .stage-wrap {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  border-top: 0;
+  border-bottom: 0;
+  border-right: var(--bd) solid var(--ink);
+}
+.wide .calibrate > .footer {
+  grid-column: 2;
+  grid-row: 3;
+}
 </style>

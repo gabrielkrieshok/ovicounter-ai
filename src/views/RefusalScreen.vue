@@ -99,6 +99,8 @@ function takeAgain() {
 
 .card {
   width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
   background: var(--paper);
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-primary);

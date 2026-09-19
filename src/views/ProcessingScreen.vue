@@ -228,4 +228,24 @@ onMounted(async () => {
   border: 2.5px dashed var(--blue);
   border-radius: 50%;
 }
+
+/* Laptop: the buffer left at full height, title and progress top-right, the
+   step rail bottom-right. */
+.wide .processing {
+  display: grid;
+  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-rows: auto 1fr auto;
+}
+.wide .processing > .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+.wide .processing > .stage-wrap {
+  grid-column: 1;
+  grid-row: 1 / -1;
+}
+.wide .processing > .rail {
+  grid-column: 2;
+  grid-row: 3;
+}
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import { RING_WIDTH, markRadius } from '@/lib/marks'
+import { markRadius, ringWidth } from '@/lib/marks'
 
 /* The mark language, drawn once for every screen that shows marks.
  *
@@ -43,7 +43,8 @@ const canvas = ref(null)
    hit-testing has to agree with drawing about how big a mark is. The clamp is
    what keeps a mark tappable on a strip whose eggs are three pixels across, and
    keeps it from swallowing the paper on one whose eggs are thirty. Zooming in
-   walks a mark up to the ceiling, which is the point of zooming. */
+   walks a mark up to the ceiling, which is the point of zooming. The ring
+   thins as the mark shrinks so the egg stays visible inside it at zoom 1. */
 
 const COLOUR = {
   proposed: '#1250c8',
@@ -53,16 +54,18 @@ const COLOUR = {
 }
 
 function drawRing(ctx, x, y, r, colour, dashed) {
+  const width = ringWidth(r)
   ctx.setLineDash(dashed ? [3.5, 2.5] : [])
 
   // White halo first, so the ring reads on dark eggs and pale paper alike.
-  ctx.lineWidth = RING_WIDTH + 2
+  // It scales with the ring, or at small sizes it is most of the mark.
+  ctx.lineWidth = width + 1.5
   ctx.strokeStyle = 'rgba(255,255,255,.55)'
   ctx.beginPath()
   ctx.arc(x, y, r, 0, Math.PI * 2)
   ctx.stroke()
 
-  ctx.lineWidth = RING_WIDTH
+  ctx.lineWidth = width
   ctx.strokeStyle = colour
   ctx.beginPath()
   ctx.arc(x, y, r, 0, Math.PI * 2)

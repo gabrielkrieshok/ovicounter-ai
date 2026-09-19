@@ -208,4 +208,11 @@ function backHome() {
 .footer {
   padding: 0 var(--sp-16) var(--sp-22);
 }
+
+/* Laptop: a readable column, as on Welcome. */
+.wide .summary {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
 </style>

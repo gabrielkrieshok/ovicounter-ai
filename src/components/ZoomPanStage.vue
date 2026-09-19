@@ -35,6 +35,12 @@ const props = defineProps({
   src: { type: [String, Object], default: null },
   background: { type: String, default: 'var(--stage-bg)' },
   maxZoom: { type: Number, default: 8 },
+  /* How the strip opens. 'contain' shows all of it at zoom 1. 'cover' opens
+     fitted to the stage's larger dimension — zoomed in until the strip fills
+     the pane — which is what the hi-fi draws and what a 2.18:1 strip needs in
+     a portrait pane, where contain is a band one third of the height. Zoom 1
+     is still contain either way: the whole strip is one pinch out. */
+  initialFit: { type: String, default: 'contain' },
 })
 
 /* `navigate` fires on any zoom or pan the operator makes. Your fixes counts
@@ -295,7 +301,18 @@ async function load(source) {
     natural.value = { width: source.width, height: source.height }
     painted.value = source
   }
+  if (props.initialFit === 'cover') openCovering()
   paint()
+}
+
+/* Zoom so the strip fills the stage's larger dimension, centred. */
+function openCovering() {
+  const s = stageSize.value
+  const n = natural.value
+  if (!n.width || !n.height || !s.width || !s.height) return
+  const cover = Math.max(s.width / n.width, s.height / n.height)
+  zoom.value = Math.min(props.maxZoom, Math.max(1, cover / fitScale.value))
+  pan.value = { x: 0, y: 0 }
 }
 
 function paint() {
