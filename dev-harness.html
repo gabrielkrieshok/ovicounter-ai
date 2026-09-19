@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ovicounter — CV harness</title>
+    <style>
+      body { margin: 0; padding: 24px; background: #ded8cd; font: 14px system-ui, sans-serif; color: #14100c; }
+      h1 { font-size: 18px; margin: 0 0 4px; }
+      .sub { color: #6b6155; margin: 0 0 20px; }
+      .cards { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+      .card { background: #fffdf9; border: 2px solid #14100c; border-radius: 10px; padding: 12px; width: 380px; }
+      .card h2 { font-size: 14px; margin: 0 0 8px; font-family: ui-monospace, monospace; }
+      canvas { width: 100%; display: block; border: 1px solid #cfc6b6; background: #2a241d; }
+      table { border-collapse: collapse; margin-top: 8px; width: 100%; font: 12px ui-monospace, monospace; }
+      td { padding: 1px 0; }
+      td:last-child { text-align: right; }
+      .warn { color: #c02d12; }
+      pre { background: #14100c; color: #fffdf9; padding: 14px; border-radius: 8px; overflow: auto; font-size: 12px; margin-top: 24px; }
+    </style>
+  </head>
+  <body>
+    <h1>CV harness</h1>
+    <p class="sub">
+      Real pipeline, real photographs. Not part of the build. Two passes per
+      image: broad defaults, then parameters seeded from the median egg the
+      first pass found.
+    </p>
+    <div class="cards" id="cards"></div>
+    <pre id="dump">running…</pre>
+    <script type="module" src="/tools/harness.js"></script>
+  </body>
+</html>

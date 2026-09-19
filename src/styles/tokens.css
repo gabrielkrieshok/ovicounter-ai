@@ -1,0 +1,83 @@
+/* Design tokens. These names are the contract — do not introduce colours,
+   radii or sizes that are not in this file. See docs/design-brief.md §5 for
+   the type scale, per-component geometry and motion timings that sit on top
+   of these values. */
+
+:root {
+  /* ---- Colour ---------------------------------------------------------- */
+  --ink: #14100c;          /* text, borders, filled/primary */
+  --paper: #fffdf9;        /* app surface, inverse text */
+  --panel: #f3efe6;        /* app bar, inset panels */
+  --desk: #ded8cd;         /* harness background only */
+  --muted: #6b6155;        /* secondary text, offline chip */
+  --ink-soft: #3d362d;     /* body copy */
+  --disabled: #a49a8c;     /* upcoming step labels */
+  --rule-idle: #cfc6b6;    /* stepper connectors, idle borders */
+  --track-toggle: #d8d0c2;
+  --track-progress: #e6dfd2;
+
+  --blue: #1250c8;         /* provisional markers, links */
+  --green: #0a8f4d;        /* kept detections */
+  --red: #c02d12;          /* dropped detections */
+  --pink: #e0158f;         /* hand-added eggs */
+  --cyan: #19d5ff;         /* bounding boxes */
+  --amber: #ffd23f;        /* in-progress step */
+  --single: #3fa9ff;       /* lone egg */
+
+  --scrim: rgba(20, 16, 12, 0.62);
+  --stage-bg: #2a241d;     /* image stage backing, Crop screen */
+
+  /* Marker legibility over photography — never for depth */
+  --halo-light: 0 0 0 1px rgba(255, 255, 255, 0.55);
+  --halo-dark: 0 0 0 1px rgba(0, 0, 0, 0.45);
+
+  /* ---- Type ------------------------------------------------------------ */
+  --font-sans: 'Archivo', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ---- Spacing --------------------------------------------------------- */
+  --sp-5: 5px;
+  --sp-8: 8px;
+  --sp-9: 9px;
+  --sp-10: 10px;
+  --sp-12: 12px;
+  --sp-14: 14px;
+  --sp-16: 16px;
+  --sp-22: 22px;
+
+  /* ---- Radius ---------------------------------------------------------- */
+  --r-badge: 6px;
+  --r-small: 8px;          /* small buttons, back button */
+  --r-panel: 9px;          /* inset panels, paired buttons */
+  --r-primary: 10px;       /* primary buttons, image stages */
+  --r-toggle: 14px;
+  --r-device: 22px;
+
+  /* ---- Borders --------------------------------------------------------- */
+  --bd: 2px;               /* almost everywhere */
+  --bd-fine: 1.5px;        /* badges, fine overlays */
+  --bd-crop: 3px;          /* crop box */
+
+  /* ---- Hit sizes ------------------------------------------------------- */
+  --hit-primary: 62px;
+  --hit-secondary: 52px;
+  --hit-min: 44px;
+  --hit-small: 34px;       /* back button, crop handles */
+
+  /* ---- Device canvas --------------------------------------------------- */
+  --device-w: 380px;
+  --device-h: 788px;
+}
+
+/* Cluster hues — assigned so adjacent groups never share a colour.
+   Read as a list by the overlay renderer. */
+:root {
+  --cluster-0: #ffd23f;
+  --cluster-1: #ff5fa2;
+  --cluster-2: #7be36b;
+  --cluster-3: #ff8a3d;
+  --cluster-4: #c79bff;
+  --cluster-5: #4be0c8;
+  --cluster-6: #ff6b6b;
+  --cluster-7: #9ee04b;
+}

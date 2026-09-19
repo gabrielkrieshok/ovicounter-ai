@@ -1,0 +1,41 @@
+import { createRouter, createWebHashHistory } from 'vue-router'
+
+/* Hash history: the build is a plain static site with no server, and must also
+   run from a service-worker cache with no network at all. Hash routing needs no
+   rewrite rule anywhere it is hosted. */
+
+/* The flow is linear, so routes are the flow (handoff §Interactions):
+ *
+ *   Welcome → Capture → (gate: pass | Refusal → Capture) → Crop
+ *           → [strip 1 only: Mark one egg] → Processing → Refine
+ *           → Your fixes → Strip result → Next strip → … → Session summary
+ *
+ * `screen` is the ratified screen name from the handoff's data-screen-label.
+ * Screens are named, never coded — use these names in code and in conversation.
+ */
+const routes = [
+  { path: '/', name: 'welcome', meta: { screen: 'Welcome', chrome: false }, component: () => import('@/views/WelcomeScreen.vue') },
+
+  // Built in step 6.
+  { path: '/capture', name: 'capture', meta: { screen: 'Capture' }, component: () => import('@/views/CaptureScreen.vue') },
+  { path: '/refusal', name: 'refusal', meta: { screen: 'Refusal', chrome: false }, component: () => import('@/views/RefusalScreen.vue') },
+
+  { path: '/crop', name: 'crop', meta: { screen: 'Crop' }, component: () => import('@/views/CropScreen.vue') },
+  { path: '/calibrate', name: 'calibrate', meta: { screen: 'Mark one egg' }, component: () => import('@/views/MarkOneEggScreen.vue') },
+  { path: '/processing', name: 'processing', meta: { screen: 'Processing' }, component: () => import('@/views/ProcessingScreen.vue') },
+  { path: '/refine', name: 'refine', meta: { screen: 'Refine' }, component: () => import('@/views/RefineScreen.vue') },
+
+  // Built in step 4.
+  { path: '/fixes', name: 'fixes', meta: { screen: 'Your fixes' }, component: () => import('@/views/YourFixesScreen.vue') },
+
+  // Built in step 5.
+  { path: '/result', name: 'result', meta: { screen: 'Strip result' }, component: () => import('@/views/StripResultScreen.vue') },
+  { path: '/summary', name: 'summary', meta: { screen: 'Session summary' }, component: () => import('@/views/SessionSummaryScreen.vue') },
+
+  { path: '/:pathMatch(.*)*', redirect: '/' },
+]
+
+export default createRouter({
+  history: createWebHashHistory(),
+  routes,
+})

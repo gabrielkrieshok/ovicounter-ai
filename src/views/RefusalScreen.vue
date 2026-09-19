@@ -1,0 +1,147 @@
+<script setup>
+import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+import AppButton from '@/components/AppButton.vue'
+import { DEMO_PHOTO } from '@/lib/samples'
+import { t } from '@/i18n'
+import { useStripStore } from '@/stores/strip'
+
+/* Refusal — the highest-stakes surface in the flow.
+ *
+ * The tool has declined to count a photograph the operator just took. Four
+ * rules govern it, and they are the reason this is a screen rather than a
+ * toast:
+ *
+ *   It blames the PHOTO, never the person. "Too far away to count", not "you
+ *   were too far away".
+ *
+ *   Exactly ONE instruction. The gate knows several things are wrong sometimes;
+ *   it reports the first one in dependency order and says only that, because an
+ *   operator given three fixes does none of them.
+ *
+ *   EVIDENCE the operator can check. Their photograph beside a countable one,
+ *   at the same size, so the difference is visible rather than asserted.
+ *
+ *   ONE way forward, and it goes back to the camera. No dismiss, no "continue
+ *   anyway", no dead end.
+ *
+ * Nothing here lands in the record: the strip counter does not advance, and the
+ * refusal is counted only so the session summary can report it.
+ */
+
+const router = useRouter()
+const strip = useStripStore()
+
+const reason = computed(() => strip.gate?.reason ?? 'tooFar')
+
+const copy = computed(() => ({
+  title: t(`refusal.${reason.value}Title`),
+  body: t(`refusal.${reason.value}Body`),
+}))
+
+onMounted(() => {
+  if (!strip.sourceUrl) router.replace({ name: 'capture' })
+})
+
+function takeAgain() {
+  /* The refused frame is finished with. Object URLs are not garbage collected
+     on their own, and a session is many photographs. */
+  if (strip.sourceUrl?.startsWith('blob:')) URL.revokeObjectURL(strip.sourceUrl)
+  strip.$reset()
+  router.replace({ name: 'capture' })
+}
+</script>
+
+<template>
+  <div class="refusal" :style="{ backgroundImage: `url(${strip.sourceUrl})` }">
+    <div class="scrim">
+      <div class="card">
+        <h1 class="title">{{ copy.title }}</h1>
+        <p class="body">{{ copy.body }}</p>
+
+        <div class="evidence">
+          <div class="side">
+            <div class="shot" :style="{ backgroundImage: `url(${strip.sourceUrl})` }" />
+            <div class="caption mono">{{ t('refusal.yourPhoto') }}</div>
+          </div>
+          <div class="side">
+            <!-- A strip the tool would accept, at the same size. The comparison
+                 is the argument; without it the refusal is just an assertion. -->
+            <div class="shot reference" :style="{ backgroundImage: `url(${DEMO_PHOTO})` }" />
+            <div class="caption mono">{{ t('refusal.closeEnough') }}</div>
+          </div>
+        </div>
+
+        <AppButton variant="filled" :size="62" :font="18" @click="takeAgain">
+          {{ t('refusal.takeAgain') }}
+        </AppButton>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.refusal {
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--stage-bg);
+}
+.scrim {
+  height: 100%;
+  background: var(--scrim);
+  display: flex;
+  align-items: center;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 100%;
+  background: var(--paper);
+  border: var(--bd) solid var(--ink);
+  border-radius: var(--r-primary);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0 0 6px;
+  font: 800 22px var(--font-sans);
+  letter-spacing: -0.01em;
+}
+.body {
+  margin: 0 0 var(--sp-16);
+  font: 400 15px var(--font-sans);
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.evidence {
+  display: flex;
+  gap: var(--sp-10);
+  margin-bottom: 18px;
+}
+.side { flex: 1; }
+.shot {
+  height: 84px;
+  border: var(--bd) solid var(--ink);
+  border-radius: var(--r-panel);
+  background-size: cover;
+  background-position: center;
+  background-color: var(--stage-bg);
+}
+/* Zoomed to the scale a countable photograph is taken at, so the two thumbnails
+   differ in the way the refusal is talking about. */
+.reference {
+  background-size: 300%;
+  background-position: 52% 35%;
+}
+.caption {
+  margin-top: 5px;
+  text-align: center;
+  font: 600 11px var(--font-mono);
+  color: var(--muted);
+}
+</style>

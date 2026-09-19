@@ -1,0 +1,61 @@
+# Copy that needs a decision
+
+Everything in `src/i18n/en.js` marked `RATIFIED` comes verbatim from the hi-fi
+handoff and is settled. This is the rest — strings written during the build
+because the handoff has no copy for that state. None of it has had design
+attention. All of it must survive translation to Spanish.
+
+| Where | String | Why it exists |
+| --- | --- | --- |
+| Welcome | The intro line — "Photograph a strip of ovitrap paper. The app marks what it finds. You check the marks — the count is yours." | The hi-fi opens straight onto the two buttons with no explanation at all. This says what the tool does in the operator's terms before they commit to a session, and states who owns the count. |
+| Welcome | "What the marks mean" + the four glyph lines | Not in the handoff. Shown only when the device has no session history — a first-time user — in the space the previous-sessions list occupies from then on. Justified by success criterion §10, "a first-time user completes a full session without training material": the mark language is the one thing here that has to be taught, and it is otherwise first met on Refine with several hundred rings already on screen. |
+| Welcome | "Resume this session" | The resume card is wireframe `2a` only; it was never drawn in hi-fi. |
+| Welcome | "Interrupted · {done} of {total} strips" | Same. The wireframe says "Interrupted yesterday · 4 of ~12 strips"; the `~` on a strip count reads as a machine estimate, which collides with the grey-`~`-means-machine rule, so it is dropped here. |
+| Capture | "{code} · {day}" | The hi-fi shows "SESSION A · TUE" — a mock placeholder. Real sessions need a naming scheme, and whether a technician needs a session code at all is unanswered. |
+| Refusal | "Too blurry to count" / "Hold the phone still against the table, and take it again." | The handoff says refusal copy varies by failure (too far / too blurry / too dark) but only draws "too far". Structure is fixed; this fills the blur case. |
+| Refusal | "Too dark to count" / "Move it into better light, and take it again." | Same, for the dark case. |
+| Mark one egg | "That spot is bare paper. Tap directly on an egg." | `measureBlobAt` legitimately refuses a tap that lands on paper, a stain or a fold, and the screen has to say something. Must not read as blaming the person. |
+| Processing | "LIGHT AND DARK SPLIT", "DARK SPECKS KEPT", "MARKS PLACED" | The hi-fi draws only the third buffer badge, "BOXES DRAWN". These are the other three in the same register. |
+| Strip result | "DEMO — NOT SAVED" / "NOT SAVED YET" | The handoff draws only "SAVED ON THIS PHONE ✓", which assumes a record was written. A demo writes none by promise, and nothing writes any until persistence exists, so the badge would otherwise be false in both cases. |
+| Session summary | The entire screen | Wireframe 2j only; it has never had a hi-fi pass. Strings are the wireframe's own words, which is the best source available but not a ratified one. The wireframe's "Route 3 — Tuesday · 47 min" implies a route naming scheme the app does not have, so it renders as weekday and elapsed minutes. |
+
+## Also unresolved
+
+- **The wordmark — decided (Aug 2026).** Design Brief v2 says the product is
+  "Ovicounter AI" everywhere; the hi-fi Welcome header drew only "Ovicounter".
+  Resolved in favour of the brief: the header now carries the v1 lockup — the
+  bot, then OVICOUNTER at 800 beside AI at 400, the weight contrast v1 got from
+  black against thin. It lives in `components/AppWordmark.vue` and deliberately
+  not in the i18n bundles, because a product name is not copy.
+
+- **"AI" is off the banned list — decided (Aug 2026).** It was on it in both
+  source documents (the handoff's copy rules, and Design Brief v2 §8), which is
+  almost certainly why the hi-fi wordmark reads only "Ovicounter" — the design
+  was following its own rule. That was a mistake in the documents: every other
+  entry on the list is mechanism vocabulary, and the product is named Ovicounter
+  AI.
+
+  **Both source documents still say otherwise** and should be corrected, or the
+  next person to read them will re-derive the same wrong conclusion.
+
+  The rest of the list stands, so the tool still never describes itself as doing
+  something with AI — that now falls out of the rules that carry the weight (the
+  machine finds and marks; nothing learns) rather than from forbidding a word.
+- **Band names.** none / few / many / heavy are placeholders per settled
+  decision §5.6, to be set per program from an explicit answer to "what count
+  would change what you do?". The default edges in `src/lib/bands.js`
+  (0 / 1–24 / 25–99 / 100+) are a shape to be filled in, not a claim.
+- **Two annotations in the hi-fi are notes to the reader, not app copy**, and
+  are deliberately not implemented: "A photo that can't be counted is refused
+  with one fix — see screen 2R." on Capture, and "magnifier sits above the
+  finger" on Your fixes.
+- **The running confirmed tally is not built.** Design Brief v2 calls for one on
+  the review step twice — §3 lists it as one of the five restructuring changes,
+  and §6.3 asks for it to be designed — but the ratified hi-fi draws no tally on
+  Your fixes, and its legend carries no numbers (unlike Strip result's, which
+  does). Built as drawn. The brief's argument for it is fatigue on a long
+  session, which is real and which the hi-fi may simply not have addressed.
+- **No stopping point is built** either. §6.3 asks for "that's enough" and what
+  diminishing returns looks like on a strip with 200 proposals versus 12. The
+  hi-fi has no such affordance, and on a 400-egg strip the question is a live
+  one.
