@@ -131,6 +131,20 @@ function done() {
   router.push({ name: 'fixes' })
 }
 
+/* The correction. Calibration is measured by the probe on Crop; when the
+   marks it produced look wrong, the operator marks an egg by hand and the
+   strip is scanned again from that. */
+function markAnEgg() {
+  router.push({ name: 'calibrate' })
+}
+
+/* The pink tick marks the calibration egg's size. The ratified caption calls
+   it "the egg you marked", which is only true when someone did — when the
+   probe measured it, the caption says what was actually measured. */
+const tickCaption = computed(() =>
+  strip.calibrationSource === 'probe' ? t('refine.tickCaptionAuto') : t('refine.tickCaption'),
+)
+
 onMounted(() => {
   if (!strip.working) router.replace({ name: 'welcome' })
 })
@@ -196,8 +210,12 @@ onMounted(() => {
           />
           <span class="tick" :style="{ left: tickOffset }" />
         </div>
-        <p class="hint">{{ t('refine.tickCaption') }}</p>
+        <p class="hint">{{ tickCaption }}</p>
       </div>
+
+      <button class="relink" type="button" @click="markAnEgg">
+        {{ t('refine.markAnEgg') }}
+      </button>
 
       <div class="footer">
         <AppButton variant="outline" :size="52" :font="15" class="grow-1" @click="backToStart">
@@ -341,6 +359,18 @@ onMounted(() => {
   background: var(--ink);
   border: 0;
   cursor: pointer;
+}
+
+.relink {
+  align-self: flex-start;
+  min-height: var(--hit-min);
+  margin: calc(-1 * var(--sp-8)) 0;
+  display: flex;
+  align-items: center;
+  font: 600 14px var(--font-sans);
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .footer {

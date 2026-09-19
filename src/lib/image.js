@@ -149,6 +149,45 @@ export const MIN_EGG_CONTRAST = 20
 export const MAX_BLOB_FRACTION = 0.25
 
 /**
+ * The photograph as one luminance plane, for measuring many blobs at once.
+ *
+ * `measureBlobAt` reads its own small window straight off the canvas, which is
+ * right for one tap. The calibration probe (cv/probe.js) asks the same question
+ * at a couple of thousand grid points, and two thousand `getImageData` calls on
+ * a 1200px canvas is most of a second on a mid-range phone. Reading the frame
+ * once and slicing windows out of it is the same measurement at a fraction of
+ * the cost.
+ */
+export function luminanceFrame(canvas) {
+  const width = canvas.width
+  const height = canvas.height
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  const { data } = ctx.getImageData(0, 0, width, height)
+  return { luma: luminance(data, width * height), width, height }
+}
+
+function luminance(rgba, count) {
+  const g = new Float32Array(count)
+  for (let i = 0, p = 0; i < count; i++, p += 4) {
+    g[i] = 0.299 * rgba[p] + 0.587 * rgba[p + 1] + 0.114 * rgba[p + 2]
+  }
+  return g
+}
+
+/** The probe window around a pixel, clipped to the frame. Null if degenerate. */
+function windowAround(cx, cy, width, height, windowPx) {
+  const half = Math.floor(windowPx / 2)
+  const x0 = Math.max(0, cx - half)
+  const y0 = Math.max(0, cy - half)
+  const x1 = Math.min(width, cx + half + 1)
+  const y1 = Math.min(height, cy + half + 1)
+  const w = x1 - x0
+  const h = y1 - y0
+  if (w < 3 || h < 3) return null
+  return { x0, y0, w, h }
+}
+
+/**
  * Measure the dark blob the operator tapped (Mark one egg).
  *
  * Plain-canvas region growing, no OpenCV — this runs before the pipeline is
@@ -173,24 +212,34 @@ export const MAX_BLOB_FRACTION = 0.25
 export function measureBlobAt(canvas, nx, ny, windowPx = 61) {
   const cx = Math.round(nx * canvas.width)
   const cy = Math.round(ny * canvas.height)
-  const half = Math.floor(windowPx / 2)
-
-  const x0 = Math.max(0, cx - half)
-  const y0 = Math.max(0, cy - half)
-  const x1 = Math.min(canvas.width, cx + half + 1)
-  const y1 = Math.min(canvas.height, cy + half + 1)
-  const w = x1 - x0
-  const h = y1 - y0
-  if (w < 3 || h < 3) return null
+  const win = windowAround(cx, cy, canvas.width, canvas.height, windowPx)
+  if (!win) return null
 
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  const { data } = ctx.getImageData(x0, y0, w, h)
+  const { data } = ctx.getImageData(win.x0, win.y0, win.w, win.h)
+  const g = luminance(data, win.w * win.h)
+  return measureBlobInWindow(g, win, cx, cy, canvas.width, canvas.height)
+}
 
-  // Luminance
-  const g = new Float32Array(w * h)
-  for (let i = 0, p = 0; i < g.length; i++, p += 4) {
-    g[i] = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2]
+/** The same measurement as `measureBlobAt`, against a frame from `luminanceFrame`. */
+export function measureBlobInFrame(frame, nx, ny, windowPx = 61) {
+  const cx = Math.round(nx * frame.width)
+  const cy = Math.round(ny * frame.height)
+  const win = windowAround(cx, cy, frame.width, frame.height, windowPx)
+  if (!win) return null
+
+  const g = new Float32Array(win.w * win.h)
+  for (let y = 0; y < win.h; y++) {
+    const row = (win.y0 + y) * frame.width + win.x0
+    g.set(frame.luma.subarray(row, row + win.w), y * win.w)
   }
+  return measureBlobInWindow(g, win, cx, cy, frame.width, frame.height)
+}
+
+/* `g` is the window's luminance, `win` its placement in a frame of
+   `frameW × frameH`, and (cx, cy) the tap in frame pixels. */
+function measureBlobInWindow(g, win, cx, cy, frameW, frameH) {
+  const { x0, y0, w, h } = win
 
   // Background = the paper. Take an upper quantile via a 256-bin histogram:
   // paper is the majority of any window, and a quantile ignores the dark tail
@@ -210,6 +259,7 @@ export function measureBlobAt(canvas, nx, ny, windowPx = 61) {
 
   // Seed: darkest pixel within a few px of the tap, so a slightly-off tap
   // still finds the egg.
+  const half = Math.floor(Math.max(w, h) / 2)
   const seekR = Math.min(8, half)
   let seed = -1
   let seedVal = Infinity
@@ -295,7 +345,7 @@ export function measureBlobAt(canvas, nx, ny, windowPx = 61) {
        near-black egg on a bleached demo strip and a faint sliver on embossed
        Guatemalan quilt paper. */
     contrast: localBg - seedVal,
-    x: (x0 + (minX + maxX) / 2) / canvas.width,
-    y: (y0 + (minY + maxY) / 2) / canvas.height,
+    x: (x0 + (minX + maxX) / 2) / frameW,
+    y: (y0 + (minY + maxY) / 2) / frameH,
   }
 }

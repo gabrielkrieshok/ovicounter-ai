@@ -136,6 +136,14 @@ export default {
     go: 'Looks right — go',
     // DRAFT — no copy drawn for a tap that lands on bare paper.
     missed: 'That spot is bare paper. Tap directly on an egg.',
+    /* DRAFT — a tap that disagrees with the probe's measurement (Sep 2026). More
+       than twice the median area is most likely a clump; less than half, a
+       fragment or a speck. Said before the operator commits, not after. */
+    tapBigger: 'That looks bigger than most eggs here. Pick another?',
+    tapSmaller: 'That looks smaller than most eggs here. Pick another?',
+    /* DRAFT — the way back when this screen was opened from Refine and the
+       operator decides the marks were fine after all. */
+    keepMarks: 'Keep the marks',
   },
 
   processing: {
@@ -163,6 +171,12 @@ export default {
       'Pink tick = the egg you marked. Sliding past it means your own egg would be lost.',
     backToStart: 'Back to start',
     marksLookRight: 'Marks look right →',
+    /* DRAFT — when the calibration was measured by the app rather than tapped,
+       "the egg you marked" would be false. Same sentence, true subject. */
+    tickCaptionAuto:
+      'Pink tick = the size of the eggs found here. Sliding past it means eggs that size would be lost.',
+    /* DRAFT — the way back to Mark one egg now that it is no longer the entry. */
+    markAnEgg: 'Marks look wrong? Mark an egg',
   },
 
   fixes: {

@@ -7,7 +7,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 /* The flow is linear, so routes are the flow (handoff §Interactions):
  *
  *   Welcome → Capture → (gate: pass | Refusal → Capture) → Crop
- *           → [strip 1 only: Mark one egg] → Processing → Refine
+ *           → [strip 1, only if the probe finds no egg: Mark one egg]
+ *           → Processing → Refine (⇄ Mark one egg when the marks look wrong)
  *           → Your fixes → Strip result → Next strip → … → Session summary
  *
  * `screen` is the ratified screen name from the handoff's data-screen-label.

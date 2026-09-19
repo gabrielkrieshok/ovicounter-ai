@@ -4,16 +4,25 @@ import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
+import { judgeTapAgainstProbe } from '@/cv/probe'
 import { t, tParts } from '@/i18n'
 import { useStripStore } from '@/stores/strip'
 
-/* Mark one egg — once per session.
+/* Mark one egg — the correction, no longer the entry.
  *
- * The fixed cost of the whole session, paid here and carried forward: the
- * measured egg sets the cutoff, the size filters and the watershed spacing for
- * every strip photographed under this light on this paper. Measured across the
- * bundled photographs an egg sits anywhere from ~44 to ~193 grey levels below
- * its paper, which is why this cannot be a shipped default.
+ * The measured egg sets the cutoff, the size filters and the watershed spacing
+ * for every strip photographed under this light on this paper. Measured across
+ * the bundled photographs an egg sits anywhere from ~44 to ~193 grey levels
+ * below its paper, which is why this cannot be a shipped default.
+ *
+ * Since Sep 2026 the first measurement is made by the probe (cv/probe.js) on
+ * Crop, because one tap turned out to be a sample of one: 434 or 1,192 marks on
+ * the same demo strip depending on where the finger landed. This screen is
+ * reached two ways — from Refine, when the marks look wrong, and automatically
+ * when the probe found too few eggs to describe. When the probe DID measure
+ * something, a tap is checked against it: a blob more than twice the probe's
+ * median area (or less than half) is more likely a clump or a fragment than an
+ * egg, and the screen says so before the operator commits to it.
  *
  * The echo — "Found N more the same size" — is a real scan with the parameters
  * this tap implies. It is the only honest way to show the operator what their
@@ -28,11 +37,20 @@ import { useStripStore } from '@/stores/strip'
 const router = useRouter()
 const strip = useStripStore()
 
+/* Reached from Refine as a correction, the strip already has marks. Until a
+   tap replaces them, the secondary button is the way back to them — a screen
+   with no exit but "change the calibration" would trap a curious operator. */
+const correcting = computed(() => strip.calibrationSource !== null && strip.marks.length > 0)
+
 const stage = ref(null)
 const measurement = ref(null)
 const echoCount = ref(null)
 const missed = ref(false)
 const busy = ref(false)
+
+/* 'bigger' | 'smaller' | null — how the tapped blob compares with the probe's
+   median egg, when there is a probe to compare against. */
+const mismatch = ref(null)
 
 /* `cover` rather than a CSS transform: it zooms by filling the frame with the
    middle of the strip, and — unlike scaling the stage — it keeps the mapping
@@ -60,14 +78,18 @@ async function onTap(event) {
     missed.value = true
     measurement.value = null
     echoCount.value = null
+    mismatch.value = null
     return
   }
 
   missed.value = false
   measurement.value = found
+  mismatch.value = judgeTapAgainstProbe(found, strip.probe)
   busy.value = true
   try {
-    const params = await strip.adoptCalibration(found)
+    /* Adopted now so the echo is a real scan with exactly these parameters.
+       "Looks right — go" is the commitment; "Pick another" replaces them. */
+    const params = await strip.adoptCalibration(found, 'tap')
     const result = await strip.scan({ params })
     /* "More the same size" — the egg they marked is one of them, so it is not
        one of the others. */
@@ -81,6 +103,11 @@ function pickAnother() {
   measurement.value = null
   echoCount.value = null
   missed.value = false
+  mismatch.value = null
+}
+
+function keepMarks() {
+  router.back()
 }
 
 function go() {
@@ -108,16 +135,35 @@ function go() {
       <div v-if="missed" class="echo">
         <span class="echo-text">{{ t('calibrate.missed') }}</span>
       </div>
-      <div v-else-if="echoCount !== null" class="echo">
-        <span class="echo-ring" />
-        <span class="echo-text">
-          {{ echoParts.before }}<b class="echo-count mono">{{ echoCount }}</b>{{ echoParts.after }}
+      <div v-else-if="echoCount !== null" class="echo" :class="{ stacked: mismatch }">
+        <!-- A tap that disagrees with the probe is said out loud, above the
+             echo, so the two signals — "this is unlike the others" and "this
+             finds only N" — are read together. -->
+        <span v-if="mismatch" class="echo-warn">
+          {{ t(mismatch === 'bigger' ? 'calibrate.tapBigger' : 'calibrate.tapSmaller') }}
+        </span>
+        <span class="echo-line">
+          <span class="echo-ring" />
+          <span class="echo-text">
+            {{ echoParts.before }}<b class="echo-count mono">{{ echoCount }}</b>{{ echoParts.after }}
+          </span>
         </span>
       </div>
     </div>
 
     <div class="footer">
       <AppButton
+        v-if="correcting && !measurement"
+        variant="outline"
+        :size="52"
+        :font="15"
+        class="grow-1"
+        @click="keepMarks"
+      >
+        {{ t('calibrate.keepMarks') }}
+      </AppButton>
+      <AppButton
+        v-else
         variant="outline"
         :size="52"
         :font="15"
@@ -189,7 +235,10 @@ function go() {
 .echo {
   position: absolute;
   left: var(--sp-14);
+  right: var(--sp-14);
   bottom: var(--sp-14);
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--sp-14));
   display: flex;
   align-items: center;
   gap: var(--sp-8);
@@ -197,6 +246,21 @@ function go() {
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-panel);
   padding: var(--sp-10) var(--sp-14);
+}
+.echo.stacked {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.echo-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+.echo-warn {
+  font: 600 14px var(--font-sans);
+  color: var(--ink);
+  line-height: 1.35;
 }
 .echo-ring {
   width: 14px;

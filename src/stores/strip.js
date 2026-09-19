@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 
 import { useCv } from '@/cv/use-cv'
 import { DEFAULT_PARAMS, seedParamsFromEgg } from '@/cv/params'
+import { probeForEgg } from '@/cv/probe'
 import { downscaledImageData, measureBlobAt, renderWorkingImage } from '@/lib/image'
 import { useSessionStore } from './session'
 
@@ -42,6 +43,16 @@ export const useStripStore = defineStore('strip', {
     /* The pipeline settings actually used, recorded alongside the marks so the
        number carries its provenance. */
     params: { ...DEFAULT_PARAMS },
+
+    /* What the calibration probe measured on THIS strip (cv/probe.js), or null
+       if it found too few eggs to describe. Kept so a tap on Mark one egg can be
+       checked against it. */
+    probe: null,
+
+    /* Where the parameters in hand came from: 'probe' (measured across the
+       strip, no tap), 'tap' (the operator marked an egg), or null before either.
+       Refine reads it to caption the pink tick truthfully. */
+    calibrationSource: null,
 
     /* Each: { id, x, y, w, h, source: 'machine' | 'hand', status: 'proposed' |
        'kept' | 'removed' | 'added', fromClump }. Positions normalised 0–1. */
@@ -127,37 +138,72 @@ export const useStripStore = defineStore('strip', {
     },
 
     /**
+     * Measure a representative egg across the whole strip, with no tap.
+     *
+     * This is now the FIRST source of calibration, and the tap is the
+     * correction. Measured on the demo strip, one tap gave 434 on one run and
+     * 1,192 on the next where the probe lands on 364 every time; a sample of
+     * one blob cannot describe a strip. Null when the probe finds too few eggs
+     * to describe — on a photograph below the resolution floor, or on nearly
+     * blank paper — and then Mark one egg is asked for.
+     */
+    probeForEgg() {
+      if (!this.working) return null
+      this.probe = probeForEgg(this.working.canvas)
+      return this.probe
+    },
+
+    /**
      * Adopt a measured egg as the session's calibration, and seed from it.
      *
-     * The tap sets the SIZE parameters — it is a direct measurement of an egg
-     * on this paper at this camera distance, and nothing else here can measure
-     * that.
+     * `measurement` is the probe's median egg (cv/probe.js) or the operator's
+     * tapped one; `source` records which. Either way it sets the SIZE
+     * parameters — it is a direct measurement of an egg on this paper at this
+     * camera distance, and nothing else here can measure that.
      *
-     * The CUTOFF comes from the sweep when the sweep finds a clean grain/egg
-     * step, and from the tap otherwise. This split is measured, not assumed:
-     * two taps a few millimetres apart on the demo strip produced echo counts
-     * of 128 and 4313 where the truth is around 364, because the tap reads
-     * contrast from ONE blob and a strip offers plenty of unrepresentative
-     * ones. The sweep reads the whole strip and lands on 50 regardless of where
-     * the finger went. On a field photograph, where grain and eggs overlap in
-     * contrast and the sweep finds no clean step, the tap is the only signal
-     * there is and it is used.
+     * The CUTOFF depends on the source.
+     *
+     * From a TAP, it comes from the sweep when the sweep finds a clean
+     * grain/egg step, and from the tap otherwise. This split is measured, not
+     * assumed: two taps a few millimetres apart on the demo strip produced
+     * echo counts of 128 and 4313 where the truth is around 364, because the
+     * tap reads contrast from ONE blob and a strip offers plenty of
+     * unrepresentative ones. The sweep reads the whole strip and lands on 50
+     * regardless of where the finger went. On a field photograph, where grain
+     * and eggs overlap in contrast and the sweep finds no clean step, the tap
+     * is the only signal there is and it is used.
+     *
+     * From the PROBE, the measured contrast is used as it is. The probe's
+     * contrast is already a population median over the clearest eggs on the
+     * strip, which is the very thing the sweep was compensating for. And the
+     * sweep deliberately takes the FIRST cutoff above the step, the edge of
+     * the grain regime: measured on the demo strip that is 50 and 562 marks,
+     * where the probe's own contrast gives 97 and 364 — on the plateau where
+     * the count is insensitive to the cutoff (60 → 376, 75 → 358, 97 → 364).
+     * Two hundred extra proposals on a 364-egg strip is two hundred taps for
+     * the operator, for no eggs.
      *
      * This does not rescue a tap that lands on a CLUMP: that inflates the
      * measured area, the size filter scales with it, and every single egg is
-     * then rejected as too small. The echo count is what surfaces that, and
-     * "Pick another" is the remedy.
+     * then rejected as too small. The probe comparison on Mark one egg catches
+     * it when there is a probe; the echo count surfaces it when there is not,
+     * and "Pick another" is the remedy.
      */
-    async adoptCalibration(measurement) {
+    async adoptCalibration(measurement, source = 'tap') {
       const { cv, ready } = useCv()
       await ready
 
       const session = useSessionStore()
-      session.setCalibration(measurement)
+      session.setCalibration({ ...measurement, source })
+      this.calibrationSource = source
 
       const seeded = { ...DEFAULT_PARAMS, ...seedParamsFromEgg(measurement) }
-      const swept = await cv.autoTune({ backgroundKernel: seeded.backgroundKernel })
+      if (source === 'probe') {
+        this.params = seeded
+        return this.params
+      }
 
+      const swept = await cv.autoTune({ backgroundKernel: seeded.backgroundKernel })
       this.params = swept.clean
         ? { ...seeded, contrastFloor: swept.params.contrastFloor }
         : seeded
@@ -169,6 +215,7 @@ export const useStripStore = defineStore('strip', {
       const session = useSessionStore()
       if (!session.calibration) return false
       this.params = { ...DEFAULT_PARAMS, ...seedParamsFromEgg(session.calibration) }
+      this.calibrationSource = session.calibration.source ?? 'tap'
       return true
     },
 

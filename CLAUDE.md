@@ -108,7 +108,8 @@ All copy lives in `src/i18n/en.js`, marked `RATIFIED` (verbatim from the
 handoff — do not reword) or `DRAFT` (written here, needs a decision). Draft
 strings are listed in `docs/copy-to-ratify.md`. Don't invent copy silently.
 
-Spanish (`src/i18n/es.js`) is deliberately empty and falls back to English.
+Spanish (`src/i18n/es.js`) is translated but has not had field review; any
+missing key falls back to English. `node tools/check-i18n.mjs` lists gaps.
 
 ## The CV pipeline
 
@@ -123,26 +124,40 @@ somewhere. The paper is therefore estimated by morphological closing with a
 kernel wider than an egg, subtracted, and cut at an absolute contrast.
 `lib/image.js` reached the same two-gate conclusion measuring the tapped egg.
 
-**Parameters come from the operator's tapped egg** (`src/cv/params.js`,
+**Parameters come from a measured egg** (`src/cv/params.js`,
 `seedParamsFromEgg`). Measured across the bundled photos, an egg sits ~193 grey
 levels below its paper on the demo strip and ~90 on Guatemala's embossed quilt
-paper — no shipped default serves both, which is why "Mark one egg" exists.
+paper — no shipped default serves both, which is why calibration exists.
 
-**The tap sets size; the sweep sets the cutoff** (`stores/strip.js`
-`adoptCalibration`). One tap reads contrast from ONE blob, and that is not
-enough: measured on the demo strip, taps a few millimetres apart gave echo
-counts of 128 and 4313 where the truth is ~364. Letting `cv/autotune.js` pick
-the cutoff when it finds a clean grain/egg step pulled the spread across 60 taps
-to 317–1431, mostly 365–568. On a field photograph the sweep finds no clean step
-and the tap's own contrast is used, because it is the only signal there is.
+**The egg is measured by the probe first; the tap is the correction** (decided
+Sep 2026, `docs/surpass-v1-brief.md` §1; this overrides the ratified one-tap
+entry). `src/cv/probe.js` `probeForEgg` walks a grid over the working image
+with the same `measureBlobAt` the tap uses, keeps the top quartile of hits by
+contrast and takes their medians. It runs on Crop → "Use this photo" for a
+session's first strip and the flow goes straight to Processing. Why: one tap is
+a sample of one blob. Measured on the demo strip, taps a few millimetres apart
+gave 434 and 1,192 marks where the truth is ~364; the probe gives 364 every
+time, in ~15ms. "Mark one egg" is still a screen — reached from Refine ("Marks
+look wrong? Mark an egg") and automatically when the probe finds fewer than 8
+eggs. A tap more than 2× off the probe's median area is flagged as bigger or
+smaller than most eggs before it is accepted. The harness imports the same
+function, so its number is the app's number.
 
-**Still open: a tap that lands on a CLUMP.** It inflates the measured area, the
-size filter scales with it, and every single egg is then rejected as too small.
-Nothing in the pipeline can see this — a clump is a well-formed dark blob. The
-echo count is what surfaces it and "Pick another" is the remedy. Marking three
-eggs instead of one would fix it properly, and the grant's own description of
-this tier says "the user marks 5–10 eggs" — but the ratified design says one
-tap, so that is a design decision, not an implementation one.
+**The measurement sets size; the cutoff depends on who measured** (`stores/strip.js`
+`adoptCalibration`). After a TAP the sweep in `cv/autotune.js` sets the cutoff
+when it finds a clean grain/egg step — that pulled the spread across 60 taps to
+317–1431, mostly 365–568 — and the tap's contrast is used otherwise. After the
+PROBE its own contrast is used as it is: it is already a population median, and
+the sweep's "first cutoff above the step" sits on the edge of the grain regime
+(50 → 562 marks on the demo) where the probe's contrast lands on the plateau
+(97 → 364; 60 → 376, 75 → 358). Measured Sep 2026; the first walk with the
+sweep still applied to the probe came back at 562.
+
+**A tap that lands on a CLUMP** inflates the measured area, the size filter
+scales with it, and every single egg is then rejected as too small. Nothing in
+the pipeline can see this — a clump is a well-formed dark blob. The probe
+comparison catches it when there is a probe; the echo count surfaces it when
+there is not, and "Pick another" is the remedy.
 
 ### The capture gate and the resolution floor
 

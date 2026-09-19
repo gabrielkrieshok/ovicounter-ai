@@ -116,6 +116,9 @@ export default {
     pickAnother: 'Elegir otro',
     go: 'Se ve bien — seguir',
     missed: 'Ahí solo hay papel. Toque directamente sobre un huevo.',
+    tapBigger: 'Eso parece más grande que la mayoría de los huevos aquí. ¿Elegir otro?',
+    tapSmaller: 'Eso parece más pequeño que la mayoría de los huevos aquí. ¿Elegir otro?',
+    keepMarks: 'Conservar las marcas',
   },
 
   processing: {
@@ -140,6 +143,9 @@ export default {
       'La marca rosa es el huevo que usted señaló. Pasarse de ahí haría que se perdiera su propio huevo.',
     backToStart: 'Volver al inicio',
     marksLookRight: 'Las marcas están bien →',
+    tickCaptionAuto:
+      'La marca rosa es el tamaño de los huevos encontrados aquí. Pasarse de ahí haría que se perdieran los huevos de ese tamaño.',
+    markAnEgg: '¿Las marcas se ven mal? Marque un huevo',
   },
 
   fixes: {

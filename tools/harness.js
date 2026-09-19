@@ -3,9 +3,13 @@
    worth of repeated runs without leaking the WASM heap.
    Not reachable from the app and not part of the build. */
 
-import { downscaledImageData, measureBlobAt, renderWorkingImage } from '@/lib/image.js'
+import { downscaledImageData, renderWorkingImage } from '@/lib/image.js'
 import { createCvClient } from '@/cv/client.js'
 import { seedParamsFromEgg } from '@/cv/params.js'
+/* The operator's tap, without a finger. The probe used to live here; it is now
+   the app's own first source of calibration and lives in src/cv/probe.js, so
+   what this harness reports is what the app produces. */
+import { probeForEgg } from '@/cv/probe.js'
 import { DEMO_PHOTO, FIELD_SAMPLES, REFUSAL_SAMPLE } from '@/lib/samples.js'
 
 const IMAGES = [
@@ -31,61 +35,6 @@ const log = []
 function note(message) {
   log.push(`${String(Math.round(performance.now())).padStart(6)}ms  ${message}`)
   dump.textContent = log.join('\n')
-}
-
-/**
- * Stand in for the operator's tap.
- *
- * "Mark one egg" is one finger on one egg. There is no finger here, so probe a
- * grid with the SAME measurement the screen uses — `measureBlobAt` already
- * refuses bare paper, stains and folds, so what comes back is a population of
- * real eggs — and take the median.
- *
- * The README's warning applies and is worth restating, because ignoring it cost
- * a round here: grid statistics are not how the screen is used, and the median
- * over every hit is not an egg. On the demo strip that median reported a 49px²
- * blob at contrast 41, when the eggs are 80px² and near-black — because most
- * grid points land on paper, and the most COMMON dark thing on a textured strip
- * is grain that scrapes past the contrast gate, not an egg.
- *
- * The screen does not ask for a typical dark speck. It asks the operator to tap
- * "one egg you can see clearly", so the selection has to model that: take the
- * hits in the top quartile by contrast — the ones that are unmistakably eggs —
- * and describe those. The grid is used only to FIND an egg, never to decide
- * what an egg is. The check that matters is still the drawn rings.
- */
-function probeForEgg(canvas) {
-  const found = []
-  for (let gy = 0.06; gy < 0.95; gy += 0.02) {
-    for (let gx = 0.06; gx < 0.95; gx += 0.02) {
-      const m = measureBlobAt(canvas, gx, gy, 41)
-      if (m) found.push(m)
-    }
-  }
-  if (found.length < 8) return null
-
-  const clear = found
-    .slice()
-    .sort((a, b) => b.contrast - a.contrast)
-    .slice(0, Math.max(4, Math.round(found.length * 0.25)))
-
-  const median = (pick) => {
-    const xs = clear.map(pick).sort((a, b) => a - b)
-    return xs[xs.length >> 1]
-  }
-  return {
-    areaPx: median((m) => m.areaPx),
-    rPx: median((m) => m.rPx),
-    contrast: median((m) => m.contrast),
-    /* The egg's long edge. An egg is an oval roughly twice as long as it is
-       wide, so the diameter of an equal-area circle badly understates it — and
-       the resolution floor in docs/gate-study-RESULTS.md was measured as a BOUNDING
-       BOX (15px works, 4px does not). Comparing the two would declare the demo
-       strip unreadable. */
-    longEdgePx: median((m) => Math.max(m.wPx, m.hPx)),
-    samples: found.length,
-    clear: clear.length,
-  }
 }
 
 function drawOverlay(canvas, working, detections) {

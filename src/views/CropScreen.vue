@@ -98,16 +98,31 @@ function straighten(delta) {
  * Confirming the crop is the handoff to the scan. The working image is baked
  * and handed to the worker here, so the next screen opens on work already
  * begun rather than starting it.
+ *
+ * On a session's first strip the calibration is MEASURED here rather than
+ * asked for: the probe (cv/probe.js) finds a representative egg across the
+ * whole strip and the flow goes straight to Processing. Mark one egg is only
+ * shown when the probe finds too few eggs to describe — and stays reachable
+ * from Refine as the correction when the marks look wrong. Measured on the demo
+ * strip, one tap gave 434 or 1,192 depending on where the finger landed; the
+ * probe gives 364. That is why the tap is no longer the entry.
  */
 async function useThisPhoto() {
   if (busy.value) return
   busy.value = true
   try {
     await strip.applyCrop()
-    if (session.needsCalibration) router.push({ name: 'calibrate' })
-    else {
+    if (!session.needsCalibration) {
       strip.useSessionCalibration()
       router.push({ name: 'processing' })
+      return
+    }
+    const probe = strip.probeForEgg()
+    if (probe) {
+      await strip.adoptCalibration(probe, 'probe')
+      router.push({ name: 'processing' })
+    } else {
+      router.push({ name: 'calibrate' })
     }
   } finally {
     busy.value = false

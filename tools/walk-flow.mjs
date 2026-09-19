@@ -1,10 +1,11 @@
 /* Walk the demo path in a real browser and screenshot each screen.
  *
- *   node tools/walk-flow.mjs [--port=5199] [--out=tools/shots]
+ *   node tools/walk-flow.mjs [--port=5199] [--out=tools/shots] [--width=900 --height=900]
  *
- * Clicks through Welcome → Crop → Mark one egg → Processing → Refine the way a
- * technician would, capturing the device frame at each stop and reporting any
- * console error along the way. Screens that only ever get looked at in isolation
+ * Clicks through Welcome → Crop → Processing → Refine the way a technician
+ * would — Mark one egg only if the probe fails to calibrate the strip on its
+ * own, which on the demo it must not — capturing the viewport at each stop and
+ * reporting any console error along the way. Screens that only ever get looked at in isolation
  * hide the failures that only happen in sequence — a stale canvas handed
  * between two of them, a worker still busy when the next screen asks it for
  * something.
@@ -24,6 +25,9 @@ const args = Object.fromEntries(
 )
 const port = args.port ?? '5199'
 const outDir = args.out ?? 'tools/shots'
+/* 900 wide keeps the phone frame; 1440 is the laptop layout; 390 is a phone. */
+const width = Number(args.width ?? 900)
+const height = Number(args.height ?? 900)
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -105,10 +109,10 @@ async function main() {
   await send('Runtime.enable')
   await send('Page.enable')
   await send('Emulation.setDeviceMetricsOverride', {
-    width: 900,
-    height: 900,
+    width,
+    height,
     deviceScaleFactor: 2,
-    mobile: false,
+    mobile: width < 500,
   })
 
   const evaluate = async (expression) => {
@@ -174,79 +178,86 @@ async function main() {
   await shot('flow-2-crop')
 
   console.log(`  click "Use this photo" → ${await clickText('Use this photo')}`)
-  await sleep(2500)
-  console.log(`Mark one egg (${await route()})`)
-  await shot('flow-3-calibrate-empty')
 
-  /* Tap an egg, and judge the tap the way the screen asks the operator to.
-   *
-   * A tap can miss (bare paper, which the screen refuses outright) or land on a
-   * CLUMP, which is worse because it succeeds: the measured "egg" is then three
-   * eggs wide, every size-dependent parameter scales off it, and the scan
-   * quietly rejects every single egg on the strip as too small. Nothing on the
-   * screen is red when that happens.
-   *
-   * What catches it is the echo — "Found N more the same size". A calibration
-   * off by a factor of three reads as a wildly low N, which is precisely the
-   * signal the design put there. So this walks candidate taps and keeps the best
-   * echo, exactly as an operator would reach for "Pick another".
-   */
-  /* `--good=99999` makes every candidate tap report instead of stopping at the
-     first acceptable one — that is how the spread across taps gets measured. */
-  const tap = await evaluate(`(async () => {
-    const GOOD_ECHO = ${Number(args.good ?? 250)};
-    const stage = document.querySelector('.stage-wrap');
-    if (!stage) return { note: 'no stage' };
-    const r = stage.getBoundingClientRect();
-    const frame = () => new Promise(res =>
-      requestAnimationFrame(() => requestAnimationFrame(res)));
-    const echo = () => {
-      const el = document.querySelector('.echo-count');
-      return el ? parseInt(el.textContent, 10) : null;
-    };
-    const attempts = [];
-    let best = null;
-    for (let gy = 0.15; gy <= 0.9; gy += 0.1) {
-      for (let gx = 0.15; gx <= 0.9; gx += 0.1) {
-        const x = r.left + r.width * gx, y = r.top + r.height * gy;
+  /* The probe (src/cv/probe.js) calibrates the strip on Crop with no tap, so
+     the demo must land on Processing, never on Mark one egg. If it does land
+     there the probe returned null on the one strip it is guaranteed to read. */
+  let landed = null
+  for (let i = 0; i < 40 && !landed; i++) {
+    await sleep(250)
+    const h = await route()
+    if (h === '#/processing' || h === '#/refine' || h === '#/calibrate') landed = h
+  }
+  let taps = 0
+  if (landed === '#/calibrate') {
+    console.log('Mark one egg (#/calibrate) — PROBE FAILED ON THE DEMO STRIP, tapping instead')
+    await sleep(1500)
+    await shot('flow-3-calibrate-empty')
+    taps = await tapForCalibration()
+    await shot('flow-4-calibrate-marked')
+    console.log(`  click "Looks right" → ${await clickText('Looks right')}`)
+    await sleep(700)
+  } else {
+    console.log(`Processing (${landed}) — calibrated by the probe, zero taps`)
+  }
+  await shot('flow-5-processing')
+
+  async function tapForCalibration() {
+    /* Tap an egg, and judge the tap the way the screen asks the operator to.
+     * A tap can miss (bare paper, refused outright) or land on a CLUMP, which
+     * is worse because it succeeds: every size-dependent parameter scales off
+     * it and the scan quietly rejects every single egg as too small. The echo
+     * — "Found N more the same size" — is what catches it, so this walks
+     * candidate taps and keeps the best echo, as "Pick another" would.
+     * `--good=99999` makes every candidate report, which is how the spread
+     * across taps was measured (434 vs 1,192 on the same strip). */
+    const tap = await evaluate(`(async () => {
+      const GOOD_ECHO = ${Number(args.good ?? 250)};
+      const stage = document.querySelector('.stage-wrap');
+      if (!stage) return { note: 'no stage' };
+      const r = stage.getBoundingClientRect();
+      const frame = () => new Promise(res =>
+        requestAnimationFrame(() => requestAnimationFrame(res)));
+      const echo = () => {
+        const el = document.querySelector('.echo-count');
+        return el ? parseInt(el.textContent, 10) : null;
+      };
+      const attempts = [];
+      let best = null;
+      for (let gy = 0.15; gy <= 0.9; gy += 0.1) {
+        for (let gx = 0.15; gx <= 0.9; gx += 0.1) {
+          const x = r.left + r.width * gx, y = r.top + r.height * gy;
+          for (const type of ['pointerdown','pointerup']) {
+            stage.dispatchEvent(new PointerEvent(type, {
+              clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true,
+            }));
+          }
+          await frame(); await frame();
+          for (let w = 0; w < 40 && echo() === null; w++) await frame();
+          const n = echo();
+          if (n !== null) {
+            attempts.push(gx.toFixed(2) + ',' + gy.toFixed(2) + ' → ' + n);
+            if (!best || n > best.n) best = { n, gx, gy };
+            if (n >= GOOD_ECHO) return { attempts, best, note: 'good echo, kept' };
+          }
+        }
+      }
+      if (best) {
+        const x = r.left + r.width * best.gx, y = r.top + r.height * best.gy;
         for (const type of ['pointerdown','pointerup']) {
           stage.dispatchEvent(new PointerEvent(type, {
             clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true,
           }));
         }
         await frame(); await frame();
-        // The echo is a real scan, so give it a moment to come back.
-        for (let w = 0; w < 40 && echo() === null; w++) await frame();
-        const n = echo();
-        if (n !== null) {
-          attempts.push(gx.toFixed(2) + ',' + gy.toFixed(2) + ' → ' + n);
-          if (!best || n > best.n) best = { n, gx, gy };
-          if (n >= GOOD_ECHO) return { attempts, best, note: 'good echo, kept' };
-        }
       }
-    }
-    // Nothing outstanding — settle on the best seen, as "Pick another" would.
-    if (best) {
-      const x = r.left + r.width * best.gx, y = r.top + r.height * best.gy;
-      for (const type of ['pointerdown','pointerup']) {
-        stage.dispatchEvent(new PointerEvent(type, {
-          clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true,
-        }));
-      }
-      await frame(); await frame();
-    }
-    return { attempts, best, note: 'settled on best' };
-  })()`)
-  console.log(`  taps: ${(tap.attempts ?? []).join('  |  ')}`)
-  console.log(`  ${tap.note}${tap.best ? ` — kept echo ${tap.best.n}` : ''}`)
-  await sleep(1200)
-  await sleep(2000)
-  await shot('flow-4-calibrate-marked')
-
-  console.log(`  click "Looks right" → ${await clickText('Looks right')}`)
-  await sleep(700)
-  console.log(`Processing (${await route()})`)
-  await shot('flow-5-processing')
+      return { attempts, best, note: 'settled on best' };
+    })()`)
+    console.log(`  taps: ${(tap.attempts ?? []).join('  |  ')}`)
+    console.log(`  ${tap.note}${tap.best ? ` — kept echo ${tap.best.n}` : ''}`)
+    await sleep(2000)
+    return (tap.attempts ?? []).length || 1
+  }
 
   await sleep(3000)
   console.log(`Refine (${await route()})`)
@@ -377,6 +388,15 @@ async function main() {
   console.log(`  ${numbers.sentence}`)
   console.log(`  ${numbers.legend}`)
 
+  /* The brief's acceptance window for the demo with no tap: 330–400. */
+  const machineTotal = parseInt(String(numbers.machine ?? '').replace(/[^0-9]/g, ''), 10)
+  const inWindow = machineTotal >= 330 && machineTotal <= 400
+  console.log(
+    `  calibration: ${taps} taps, machine total ${machineTotal} — ` +
+      (taps === 0 ? 'zero taps ✓' : 'TAPPED ✗') +
+      (inWindow ? ', in 330–400 ✓' : ', OUTSIDE 330–400 ✗'),
+  )
+
   /* The second strip is the loop's whole claim: calibration carries forward, so
      Mark one egg is skipped and the operator goes straight from crop to a
      scanned strip. If this lands on #/calibrate the carry-forward is broken. */
@@ -415,6 +435,60 @@ async function main() {
   console.log(`  ${receipt.figures}`)
   console.log(`  ${receipt.bands}`)
   console.log(`  ${receipt.saved}`)
+
+  /* The correction path. Mark one egg is no longer the entry, so the walk
+     above never sees it; this opens it from Refine on a fresh demo, taps once,
+     reports the echo and whether the tap was flagged against the probe, and
+     confirms "Looks right — go" lands back on Refine with new marks. */
+  console.log('\n--- correction path (Refine → Mark one egg) ---')
+  await evaluate(`location.hash = '#/'`)
+  await sleep(800)
+  await clickText('Try it with a demo photo')
+  await sleep(2500)
+  await clickText('Use this photo')
+  console.log(`  probe → ${(await waitForRoute('#/refine', 20000)) ? 'Refine' : 'NEVER REACHED REFINE'}`)
+  await sleep(600)
+  console.log(`  click "Mark an egg" → ${await clickText('Mark an egg')}`)
+  await sleep(600)
+  console.log(`  Mark one egg (${await route()})`)
+  const keep = await evaluate(`(() => {
+    const b = [...document.querySelectorAll('button')].find(b => b.textContent.includes('Keep the marks'));
+    return b ? (b.disabled ? 'present but disabled' : 'present') : 'MISSING';
+  })()`)
+  console.log(`  "Keep the marks" ${keep}`)
+  await shot('flow-15-correction-empty')
+  const correction = await evaluate(`(async () => {
+    const stage = document.querySelector('.stage-wrap');
+    const r = stage.getBoundingClientRect();
+    const frame = () => new Promise(res =>
+      requestAnimationFrame(() => requestAnimationFrame(res)));
+    const results = [];
+    for (const [gx, gy] of [[0.5, 0.5], [0.3, 0.4], [0.7, 0.6]]) {
+      const x = r.left + r.width * gx, y = r.top + r.height * gy;
+      for (const type of ['pointerdown','pointerup']) {
+        stage.dispatchEvent(new PointerEvent(type, {
+          clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true,
+        }));
+      }
+      for (let w = 0; w < 60; w++) {
+        await frame();
+        if (document.querySelector('.echo-count') || document.querySelector('.echo-text')) break;
+      }
+      const echo = document.querySelector('.echo-count')?.textContent ?? null;
+      const warn = document.querySelector('.echo-warn')?.textContent.trim() ?? null;
+      const missed = !echo && (document.querySelector('.echo-text')?.textContent ?? '');
+      results.push({ at: gx + ',' + gy, echo, warn, missed: echo ? null : missed });
+      if (echo) break;
+    }
+    return results;
+  })()`)
+  for (const c of correction) {
+    console.log(`  tap ${c.at} → ${c.echo ? `echo ${c.echo}` : `missed: ${c.missed}`}${c.warn ? ` · flagged: "${c.warn}"` : ''}`)
+  }
+  await shot('flow-16-correction-tapped')
+  console.log(`  click "Looks right" → ${await clickText('Looks right')}`)
+  console.log(`  → ${(await waitForRoute('#/refine', 20000)) ? 'back on Refine with the tap calibration' : 'NEVER RETURNED TO REFINE'}`)
+  await shot('flow-17-correction-refine')
 
   /* Persistence. The demo's promise — "Nothing is saved" — is checked against
      the database rather than taken on trust, and the storage layer is exercised
