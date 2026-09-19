@@ -61,19 +61,33 @@ with no network at all.
 
 ## Trying it
 
-Click **"Try it with a demo photo"** on the Welcome screen. That runs the whole
-flow on `public/samples/test-strip.png`, a bundled strip carrying several
-hundred eggs, and saves nothing.
+Click **"Try it with a demo photo"** on the Welcome screen. That runs a quick
+count on `public/samples/test-strip.png`, a bundled strip carrying several
+hundred eggs, and saves nothing. Three decisions from Welcome to a number: the
+demo button, "Use this photo", "Done — count them".
 
 The demo skips the camera — there is no photograph to take, the strip is
-already in the build — and opens on Crop with it in hand.
+already in the build — and opens on Crop with it in hand. Confirming the crop
+calibrates the strip automatically: a probe measures a representative egg
+across the whole photograph (`src/cv/probe.js`) and the marks appear. On the
+demo strip that lands on ~364 every time.
 
-**On "Mark one egg", tap directly on an egg.** The screen refuses a tap that
-lands on bare paper and says so. Then watch the echo chip: "Found N more the
-same size" is a real scan with the parameters your tap implies, and it is the
-signal that tells you whether you picked a good egg. On the demo strip a good
-tap reads somewhere around 350–550. A reading far below that usually means the
-tap landed on a clump rather than a single egg — press **"Pick another"**.
+**"Mark one egg" is the correction, not the entry.** From Refine, "Marks look
+wrong? Mark an egg" opens it; tap directly on an egg. The screen refuses a tap
+that lands on bare paper and says so, and it tells you when the egg you tapped
+is more than twice as big or small as the ones it measured itself — that
+usually means a clump. The echo chip, "Found N more the same size", is a real
+scan with the parameters your tap implies.
+
+**Two paths.** "Count one strip" is the short one above: photo → crop → marks →
+fix if wanted → number, no session, nothing saved unless you press "Start a
+session with these settings" on the result. "Start a new session" is the loop:
+calibration measured once and carried strip to strip, every strip saved, a
+summary at the end.
+
+On a laptop (900px and wider) the phone frame goes away and the strip screens
+split into two panes, photograph left. Add `?frame=1` to the URL to keep the
+380px frame for checking a screen against the hi-fi.
 
 ### Reviewing the marks
 
@@ -87,22 +101,26 @@ On **Your fixes**, the gestures split by how many fingers are on the glass:
 Culling gets the cheap unmodified gesture because culling is the job. On a
 laptop, use the **wheel** to zoom and **Shift-drag** to pan.
 
-Zoom out fully and you see the whole strip; that is what "zoom 1" means
-whatever shape the photograph is.
+Your fixes opens zoomed so the strip fills the pane. Zoom out fully and you
+see the whole strip; that is what "zoom 1" means whatever shape the photograph
+is.
 
 ### What works today
 
 All ten screens, and the whole session loop:
 
 Welcome → Capture → *(gate: pass, or Refusal → Capture)* → Crop →
-*(first strip only: Mark one egg)* → Processing → Refine → Your fixes →
-Strip result → *next strip* → Session summary.
+*(Mark one egg, only if the probe finds no egg)* → Processing → Refine →
+Your fixes → Strip result → *next strip* → Session summary. A quick count goes
+Crop → Processing → Your fixes → Strip result.
 
 Real computer vision throughout. The split cuts the actual binary mask along the
 drawn stroke and recounts that neighbourhood rather than estimating; the gate
 measures the frame rather than guessing at it; and the second strip skips Mark
 one egg, because calibration is established once per session and carried
-forward. That is the loop getting lighter, which is the product.
+forward. That is the loop getting lighter, which is the product. A strip
+nobody touched on Your fixes is never reported as "checked by you": the result
+shows the machine total in machine styling and the record says `checked: false`.
 
 Records are kept on the device in IndexedDB — the working photograph, the
 settings used, and every mark — and an interrupted session is offered back on
@@ -129,8 +147,12 @@ both talk to it on port 5199.
 node tools/walk-flow.mjs
 ```
 
-Clicks the demo path end to end, screenshots every screen into `tools/shots/`,
-and reports any console error or uncaught exception. **Run this after touching
+Walks the demo (a quick count), a two-strip session fed through the gallery
+picker, the Mark-one-egg correction path, an untouched pass and the camera
+refusal, screenshots every screen into `tools/shots/`, and reports any console
+error or uncaught exception. `--width=1440 --height=900` walks the laptop
+layout and measures the photograph's share of the viewport; `--width=390
+--height=844` is a phone. Exit code 1 if any check fails. **Run this after touching
 any screen.** It catches the failures that only happen in sequence and that
 looking at one screen at a time will not: it is how a reactive-Proxy-to-worker
 `DataCloneError` and a slider whose track had collapsed to zero height were both

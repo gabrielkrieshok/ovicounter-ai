@@ -24,6 +24,14 @@ export const useSessionStore = defineStore('session', {
        Welcome promises exactly that, so every write path checks this flag. */
     isDemo: false,
 
+    /* Quick count (Sep 2026, docs/surpass-v1-brief.md §4): photo → crop →
+       marks → fix if wanted → number, with no session and nothing saved unless
+       the person asks. The demo uses it. It is a session in every mechanical
+       sense — the strip store and the screens do not care — that never writes
+       and never appears in history, and can be PROMOTED to a real session from
+       the result ("Start a session with these settings"). */
+    isQuick: false,
+
     /* { x, y, wPx, hPx, areaPx, rPx, params } — the tapped egg, measured, plus
        the pipeline parameters seeded from it. Set once per session. */
     calibration: null,
@@ -63,9 +71,9 @@ export const useSessionStore = defineStore('session', {
     stripNumber: (s) => s.strips.length + 1,
     needsCalibration: (s) => s.calibration === null,
     counts: (s) => s.strips.map((r) => r.count),
-    /* A demo saves nothing by promise; everything else saves nothing yet
-       because there is nowhere to put it. Only say "saved" when both change. */
-    recordsPersist: (s) => !s.isDemo && s.storageReady,
+    /* A demo saves nothing by promise, a quick count saves nothing by design,
+       and a real session saves only when the device can. */
+    recordsPersist: (s) => !s.isDemo && !s.isQuick && s.storageReady,
     bandsSoFar: (s) => s.strips.map((r) => bandFor(r.count, s.bands).letter),
   },
 
@@ -82,10 +90,11 @@ export const useSessionStore = defineStore('session', {
       this.resumable = await storage.findUnfinishedSession()
     },
 
-    async start({ demo = false } = {}) {
+    async start({ demo = false, quick = false } = {}) {
       this.id = `s${Date.now().toString(36)}`
       this.startedAt = new Date().toISOString()
       this.isDemo = demo
+      this.isQuick = quick
       this.calibration = null
       this.strips = []
       this.refusals = 0
@@ -94,9 +103,42 @@ export const useSessionStore = defineStore('session', {
       /* Written at the START, not at the end. A session that is interrupted has
          to be findable, and a record only written on a clean exit is exactly
          the record that goes missing when the exit is not clean. */
-      if (!demo && this.storageReady) {
+      if (this.recordsPersist) {
         await storage.putSession(this.snapshot())
       }
+    },
+
+    /**
+     * A quick count's next strip. Each quick count stands alone: the previous
+     * strip is dropped (it was never saved, as promised) and the calibration is
+     * cleared so the probe measures the new photograph afresh.
+     */
+    countAnother() {
+      this.strips = []
+      this.calibration = null
+    },
+
+    /**
+     * "Start a session with these settings": the quick count becomes strip 1 of
+     * a real session, with its calibration carried forward and its record —
+     * the one thing the person has just asked to keep — written now.
+     */
+    async promote(workingCanvas) {
+      this.isQuick = false
+      if (!this.recordsPersist) return false
+      await storage.putSession(this.snapshot())
+      const record = this.strips[this.strips.length - 1]
+      if (record) {
+        const photo = workingCanvas ? await storage.canvasToBlob(workingCanvas) : null
+        await storage.putStrip({
+          key: `${this.id}:${record.index}`,
+          sessionId: this.id,
+          index: record.index,
+          photo,
+          ...record,
+        })
+      }
+      return true
     },
 
     /** Pick up a session that was interrupted rather than finished. */
@@ -108,6 +150,7 @@ export const useSessionStore = defineStore('session', {
       this.id = record.id
       this.startedAt = record.startedAt
       this.isDemo = false
+      this.isQuick = false
       this.refusals = record.refusals ?? 0
       this.calibration = record.calibration ?? null
       this.strips = strips.map((s) => ({ ...s }))
@@ -131,7 +174,7 @@ export const useSessionStore = defineStore('session', {
 
     setCalibration(calibration) {
       this.calibration = calibration
-      if (!this.isDemo && this.storageReady && this.id) {
+      if (this.recordsPersist && this.id) {
         storage.putSession(this.snapshot()).catch(() => {
           /* The session record is rewritten on every strip; losing this one
              write costs a re-calibration on resume, not the session. */
@@ -152,7 +195,7 @@ export const useSessionStore = defineStore('session', {
       const index = this.strips.length
       this.strips.push({ ...record, index })
 
-      if (this.isDemo || !this.storageReady) return false
+      if (!this.recordsPersist) return false
 
       /* The photograph is part of the record, not an illustration of it. */
       const photo = workingCanvas ? await storage.canvasToBlob(workingCanvas) : null
@@ -184,8 +227,9 @@ export const useSessionStore = defineStore('session', {
         wasDemo: this.isDemo,
       }
       this.lastFinished = finished
-      // A demo saves nothing. Welcome says so, so this must be true.
-      if (!this.isDemo) {
+      // A demo saves nothing, and a quick count is not a session at all — it
+      // ends without a summary and never enters the history.
+      if (!this.isDemo && !this.isQuick) {
         this.previous.unshift(finished)
         if (this.storageReady) {
           storage
@@ -200,6 +244,7 @@ export const useSessionStore = defineStore('session', {
       this.id = null
       this.startedAt = null
       this.isDemo = false
+      this.isQuick = false
       this.calibration = null
       this.strips = []
       this.refusals = 0

@@ -1,10 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import ImageStage from '@/components/ImageStage.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
 import { t } from '@/i18n'
+import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
 /* Processing — the scan, made watchable.
@@ -23,7 +24,9 @@ import { useStripStore } from '@/stores/strip'
  * it exists.
  */
 
+const route = useRoute()
 const router = useRouter()
+const session = useSessionStore()
 const strip = useStripStore()
 
 /* Long enough to register as a step, short enough that four of them do not
@@ -81,7 +84,11 @@ onMounted(async () => {
   marks.value = strip.marks
   await wait(STEP_HOLD_MS)
 
-  router.replace({ name: 'refine' })
+  /* A quick count goes straight to the marks; the sliders are one link away
+     on Your fixes for anyone who wants them. A session tunes first. A
+     correction made from Refine goes back to Refine (`?then=refine`). */
+  const next = route.query.then === 'refine' ? 'refine' : session.isQuick ? 'fixes' : 'refine'
+  router.replace({ name: next })
 })
 </script>
 

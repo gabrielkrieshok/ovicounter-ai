@@ -67,6 +67,7 @@ export default {
     marksAdded: 'usted agregó uno',
     resumeAction: 'Continuar esta sesión',
     resumeStatus: 'Interrumpida · {done} contadas hasta ahora',
+    countOne: 'Contar una tira',
   },
 
   capture: {
@@ -157,6 +158,7 @@ export default {
     legendAdded: '+ agregada',
     undo: '↩ deshacer',
     done: 'Listo — contarlas',
+    adjust: '¿Las marcas se ven mal? Ajústelas',
   },
 
   result: {
@@ -171,6 +173,9 @@ export default {
     notSavedYet: 'AÚN NO SE GUARDA',
     endSession: 'Terminar sesión',
     nextStrip: 'Siguiente tira →',
+    notSavedQuick: 'NO GUARDADO',
+    countAnother: 'Contar otra',
+    startSession: 'Iniciar una sesión con estos ajustes',
   },
 
   summary: {

@@ -78,6 +78,9 @@ export default {
        estimate. */
     resumeAction: 'Resume this session',
     resumeStatus: 'Interrupted · {done} counted so far',
+    /* DRAFT — the third door (Sep 2026, brief §4): photo → crop → marks → fix
+       if wanted → number. No session, nothing saved unless the person asks. */
+    countOne: 'Count one strip',
   },
 
   capture: {
@@ -189,6 +192,9 @@ export default {
     legendAdded: '+ added',
     undo: '↩ undo',
     done: 'Done — count them',
+    /* DRAFT — a quick count arrives here without passing Refine; this is the
+       way to the sliders for anyone who wants them. */
+    adjust: 'Marks look wrong? Adjust them',
   },
 
   result: {
@@ -208,6 +214,11 @@ export default {
     notSavedYet: 'NOT SAVED YET',
     endSession: 'End session',
     nextStrip: 'Next strip →',
+    /* DRAFT — the quick-count result (Sep 2026, brief §4). "Yet" would be a
+       promise, and a quick count never saves. */
+    notSavedQuick: 'NOT SAVED',
+    countAnother: 'Count another',
+    startSession: 'Start a session with these settings',
   },
 
   summary: {

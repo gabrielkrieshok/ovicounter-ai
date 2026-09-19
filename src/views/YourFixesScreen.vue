@@ -8,6 +8,7 @@ import MarkLayer from '@/components/MarkLayer.vue'
 import ZoomPanStage from '@/components/ZoomPanStage.vue'
 import { t } from '@/i18n'
 import { markAt } from '@/lib/marks'
+import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
 /* Your fixes — where the count stops being the machine's and becomes the
@@ -25,6 +26,7 @@ import { useStripStore } from '@/stores/strip'
  */
 
 const router = useRouter()
+const session = useSessionStore()
 const strip = useStripStore()
 const stage = ref(null)
 
@@ -55,6 +57,11 @@ function onAdd(point) {
 async function onStroke(points) {
   const usable = points.filter(Boolean)
   if (usable.length > 1) await strip.splitAlong(usable)
+}
+
+/* A quick count skipped Refine on the way here; this is the way to it. */
+function adjust() {
+  router.push({ name: 'refine' })
 }
 
 function done() {
@@ -108,6 +115,9 @@ function done() {
     </div>
 
     <div class="footer">
+      <button v-if="session.isQuick" class="relink" type="button" @click="adjust">
+        {{ t('fixes.adjust') }}
+      </button>
       <div class="legend">
         <span class="item kept"><span class="ring" />{{ t('fixes.legendKept') }}</span>
         <span class="item removed">{{ t('fixes.legendRemoved') }}</span>
@@ -232,6 +242,17 @@ function done() {
 .undo:disabled {
   color: var(--disabled);
   border-color: var(--rule-idle);
+}
+
+.relink {
+  min-height: var(--hit-min);
+  margin-top: calc(-1 * var(--sp-8));
+  display: flex;
+  align-items: center;
+  font: 600 14px var(--font-sans);
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* Laptop: stage left at full height, header top-right, legend and Done

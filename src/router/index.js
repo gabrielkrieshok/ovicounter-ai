@@ -11,6 +11,10 @@ import { createRouter, createWebHashHistory } from 'vue-router'
  *           → Processing → Refine (⇄ Mark one egg when the marks look wrong)
  *           → Your fixes → Strip result → Next strip → … → Session summary
  *
+ * A quick count (Welcome "Count one strip", and the demo) takes the short way:
+ * Capture → Crop → Processing → Your fixes → Strip result, with Refine one link
+ * away on Your fixes and no summary. `session.isQuick` decides at Processing.
+ *
  * `screen` is the ratified screen name from the handoff's data-screen-label.
  * Screens are named, never coded — use these names in code and in conversation.
  */

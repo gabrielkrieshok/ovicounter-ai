@@ -26,6 +26,15 @@ conversation — they are the handoff's `data-screen-label` values:
 **Welcome · Capture · Refusal · Crop · Mark one egg · Processing · Refine ·
 Your fixes · Strip result · Session summary**
 
+Two paths through them (Sep 2026, `docs/surpass-v1-brief.md` §4). A **session**:
+Capture → Crop → Processing → Refine → Your fixes → Strip result → Next strip …
+→ Session summary, calibration carried strip to strip, every strip saved. A
+**quick count** ("Count one strip", and the demo): Capture → Crop → Processing
+→ Your fixes → Strip result, three decisions from Welcome, no session, nothing
+saved unless "Start a session with these settings" is pressed — which makes
+that strip 1 of a real session. `session.isQuick` is the switch; Refine is one
+link away on Your fixes.
+
 ## Stack — decided, don't relitigate
 
 - **Vue 3 + Vite + Pinia**, Composition API, `<script setup>`. Hash routing, so

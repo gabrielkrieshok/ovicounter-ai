@@ -52,7 +52,9 @@ function endSession() {
         </div>
       </div>
 
-      <button v-if="session.isActive" class="item" type="button" @click="endSession">
+      <!-- Not for a quick count: there is no session to end and no summary to
+           show. Home ends it. -->
+      <button v-if="session.isActive && !session.isQuick" class="item" type="button" @click="endSession">
         {{ t('menu.endSession') }}
       </button>
 

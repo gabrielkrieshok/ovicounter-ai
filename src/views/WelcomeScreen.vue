@@ -14,8 +14,13 @@ import { t } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
-/* Welcome. Three doors: new session, demo, history. No tab bar — the flow is
-   linear, so navigation chrome went away with it. */
+/* Welcome. Four doors: new session, count one strip, demo, history. No tab
+   bar — the flow is linear, so navigation chrome went away with it.
+
+   "Count one strip" (Sep 2026, brief §4) is the short path: photo → crop →
+   marks → fix if wanted → number. No session, nothing saved unless asked. It
+   is what V1 did in two steps, and the demo uses it — from Welcome the demo
+   reaches a number in three decisions. */
 
 const route = useRoute()
 const router = useRouter()
@@ -42,6 +47,9 @@ const sessions = computed(() => {
    not something a transition can hide. */
 onMounted(async () => {
   preloadCv()
+  /* A quick count that was left mid-way is not a session: nothing to resume,
+     nothing to summarise. Coming home ends it. */
+  if (session.isQuick) session.end()
   await session.openStorage()
 })
 
@@ -77,11 +85,16 @@ async function startSession() {
   router.push({ name: 'capture' })
 }
 
-/* The demo runs the whole flow on a bundled strip and saves nothing. It skips
+async function countOne() {
+  await session.start({ quick: true })
+  router.push({ name: 'capture' })
+}
+
+/* The demo is a quick count on a bundled strip, and saves nothing. It skips
    Capture, because there is no photograph to take — the strip is already in the
    build — and lands on Crop with it in hand. */
 async function startDemo() {
-  await session.start({ demo: true })
+  await session.start({ demo: true, quick: true })
   strip.beginFromPhoto(DEMO_PHOTO)
   router.push({ name: 'crop' })
 }
@@ -122,6 +135,9 @@ async function startDemo() {
 
       <AppButton variant="filled" :size="62" :font="18" @click="startSession">
         {{ t('welcome.startSession') }}
+      </AppButton>
+      <AppButton variant="outline" :size="52" :font="16" @click="countOne">
+        {{ t('welcome.countOne') }}
       </AppButton>
       <AppButton variant="outline" :size="52" :font="16" @click="startDemo">
         {{ t('welcome.tryDemo') }}

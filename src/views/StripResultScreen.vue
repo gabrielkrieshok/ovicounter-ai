@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
@@ -63,8 +63,12 @@ const sentence = computed(() =>
    saved in a real session either. */
 const savedBadge = computed(() => {
   if (session.recordsPersist) return t('result.saved')
-  return session.isDemo ? t('result.notSavedDemo') : t('result.notSavedYet')
+  if (session.isDemo) return t('result.notSavedDemo')
+  if (session.isQuick) return t('result.notSavedQuick')
+  return t('result.notSavedYet')
 })
+
+const quick = computed(() => session.isQuick)
 
 onMounted(() => {
   if (!strip.working) {
@@ -83,7 +87,11 @@ onMounted(() => {
       cropBox: { ...strip.cropBox },
       quarterTurns: strip.quarterTurns,
       straightenAngle: strip.straightenAngle,
-      gate: strip.gate,
+      /* Raw, not the store's reactive Proxy: IndexedDB structured-clones the
+         record and a Proxy throws DataCloneError — the same failure the worker
+         boundary had. The demo never showed it because a demo has no gate
+         verdict; the first real session through the gallery picker did. */
+      gate: strip.gate ? toRaw(strip.gate) : null,
       params: { ...strip.params },
         marks: strip.marks.map((m) => ({ ...m })),
         machineTotal: strip.machineTotal,
@@ -95,9 +103,11 @@ onMounted(() => {
         band: band.value.key,
       },
       strip.working?.canvas,
-    ).catch(() => {
+    ).catch((error) => {
       /* Writing failed — a full disk, or private browsing. The badge below
-         reads from `recordsPersist`, so the screen will not claim otherwise. */
+         reads from `recordsPersist`, so the screen will not claim otherwise.
+         Said in the console too, so the flow walker sees it. */
+      console.error('strip record not written:', error)
       session.storageReady = false
     })
   }
@@ -125,6 +135,36 @@ function nextStrip() {
 
 function endSession() {
   router.push({ name: 'summary' })
+}
+
+/* Quick count: the next strip stands alone — the probe measures it afresh and
+   this one is dropped, as the badge above promised. */
+function countAnother() {
+  const wasDemo = session.isDemo
+  session.countAnother()
+  strip.$reset()
+  if (wasDemo) {
+    strip.beginFromPhoto(DEMO_PHOTO)
+    router.push({ name: 'crop' })
+  } else {
+    router.push({ name: 'capture' })
+  }
+}
+
+/* The person asked to keep going: this strip becomes strip 1 of a real
+   session, saved now, with its calibration carried to the next. Not offered on
+   the demo, whose calibration belongs to a bundled photograph and would be
+   carried onto real paper. */
+async function startSessionFromHere() {
+  await session.promote(strip.working?.canvas)
+  strip.$reset()
+  router.push({ name: 'capture' })
+}
+
+function backHome() {
+  session.end()
+  strip.$reset()
+  router.push({ name: 'welcome' })
 }
 </script>
 
@@ -172,7 +212,26 @@ function endSession() {
       </span>
     </div>
 
-    <div class="footer" :class="{ ready }">
+    <div v-if="quick" class="footer stack" :class="{ ready }">
+      <AppButton variant="filled" :size="62" :font="17" :disabled="!ready" @click="countAnother">
+        {{ t('result.countAnother') }}
+      </AppButton>
+      <AppButton
+        v-if="!session.isDemo"
+        variant="outline"
+        :size="52"
+        :font="15"
+        :disabled="!ready"
+        @click="startSessionFromHere"
+      >
+        {{ t('result.startSession') }}
+      </AppButton>
+      <AppButton v-else variant="outline" :size="52" :font="15" :disabled="!ready" @click="backHome">
+        {{ t('summary.backHome') }}
+      </AppButton>
+    </div>
+
+    <div v-else class="footer" :class="{ ready }">
       <AppButton
         variant="outline"
         :size="52"
@@ -291,6 +350,10 @@ function endSession() {
   transition: opacity 0.12s linear;
 }
 .footer.ready { opacity: 1; }
+.footer.stack {
+  flex-direction: column;
+  padding-top: var(--sp-10);
+}
 .grow-1 { flex: 1; }
 .grow-14 { flex: 1.4; }
 
