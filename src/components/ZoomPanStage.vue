@@ -37,7 +37,9 @@ const props = defineProps({
   maxZoom: { type: Number, default: 8 },
 })
 
-const emit = defineEmits(['tap', 'stroke', 'add'])
+/* `navigate` fires on any zoom or pan the operator makes. Your fixes counts
+   it as review: someone who zoomed in to look at the marks has looked. */
+const emit = defineEmits(['tap', 'stroke', 'add', 'navigate'])
 
 const root = ref(null)
 const canvas = ref(null)
@@ -205,6 +207,7 @@ function onPointerMove(event) {
       x: midpoint.x - (gesture.midpoint.x - gesture.pan.x) * (scale.value / (fitScale.value * gesture.zoom)),
       y: midpoint.y - (gesture.midpoint.y - gesture.pan.y) * (scale.value / (fitScale.value * gesture.zoom)),
     })
+    emit('navigate')
     return
   }
 
@@ -216,6 +219,7 @@ function onPointerMove(event) {
 
   if (gesture.kind === 'pan') {
     pan.value = clampPan({ x: gesture.pan.x + dx, y: gesture.pan.y + dy })
+    emit('navigate')
     return
   }
 
@@ -264,6 +268,7 @@ function onPointerUp(event) {
 function onWheel(event) {
   event.preventDefault()
   zoomAbout(localPoint(event), zoom.value * (event.deltaY < 0 ? 1.15 : 1 / 1.15))
+  emit('navigate')
 }
 
 function resetView() {

@@ -24,6 +24,10 @@ import { t } from '@/i18n'
 const props = defineProps({
   count: { type: Number, required: true },
   bands: { type: Array, required: true },
+  /* The count is the machine's, not a person's: nobody checked the marks. It
+     is drawn the way every machine number in this app is drawn — grey,
+     smaller, with a leading `~` — and nothing on the scale goes black. */
+  machine: { type: Boolean, default: false },
 })
 
 const active = computed(() => bandFor(props.count, props.bands))
@@ -60,7 +64,7 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
 </script>
 
 <template>
-  <div class="scale" ref="root">
+  <div class="scale" :class="{ machine }" ref="root">
     <div class="zones">
       <span
         v-for="band in bands"
@@ -84,7 +88,7 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
     </div>
 
     <div ref="countEl" class="count mono" :style="{ left: countLeft ?? `${pointer}%` }">
-      {{ count }}
+      <template v-if="machine">~</template>{{ count }}
     </div>
     <div class="stem" :style="{ left: `${pointer}%` }" />
   </div>
@@ -150,5 +154,23 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
   height: 16px;
   margin-left: -1px;
   background: var(--ink);
+}
+
+/* Machine count: never black, never large, always `~`. */
+.machine .count {
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.machine .zone.active {
+  background: var(--disabled);
+  border-color: var(--disabled);
+}
+.machine .label.active {
+  font-weight: 600;
+  color: var(--muted);
+}
+.machine .stem {
+  background: var(--disabled);
 }
 </style>

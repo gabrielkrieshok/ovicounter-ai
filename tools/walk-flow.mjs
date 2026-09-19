@@ -376,17 +376,20 @@ async function main() {
   console.log(`Strip result (${await route()})`)
   await shot('flow-10-result')
 
-  const numbers = await evaluate(`(() => ({
+  const readResult = () => evaluate(`(() => ({
     machine: document.querySelector('.machine')?.textContent.trim(),
+    machineStyled: !!document.querySelector('.scale.machine'),
     count: document.querySelector('.count')?.textContent.trim(),
     band: document.querySelector('.label.active')?.textContent.trim(),
     sentence: document.querySelector('.sentence')?.textContent.replace(/\\s+/g, ' ').trim(),
     legend: [...document.querySelectorAll('.legend .item')]
       .map(e => e.textContent.trim()).join(' · '),
   }))()`)
+  const numbers = await readResult()
   console.log(`  machine ${numbers.machine} → human ${numbers.count} (${numbers.band})`)
   console.log(`  ${numbers.sentence}`)
   console.log(`  ${numbers.legend}`)
+  console.log(`  reviewed strip → ${numbers.machineStyled ? 'MACHINE STYLED ✗ (fixes were made)' : 'human count ✓'}`)
 
   /* The brief's acceptance window for the demo with no tap: 330–400. */
   const machineTotal = parseInt(String(numbers.machine ?? '').replace(/[^0-9]/g, ''), 10)
@@ -489,6 +492,20 @@ async function main() {
   console.log(`  click "Looks right" → ${await clickText('Looks right')}`)
   console.log(`  → ${(await waitForRoute('#/refine', 20000)) ? 'back on Refine with the tap calibration' : 'NEVER RETURNED TO REFINE'}`)
   await shot('flow-17-correction-refine')
+
+  /* The untouched pass. Straight through Your fixes without a single gesture:
+     the result must not show a black human count or say "checked by you". */
+  console.log('\n--- untouched pass (Your fixes → Done with no gestures) ---')
+  await clickText('Marks look right')
+  await sleep(1200)
+  await clickText('Done')
+  await sleep(1200)
+  const untouched = await readResult()
+  console.log(`  ${untouched.sentence}`)
+  console.log(`  count "${untouched.count}" · legend "${untouched.legend || '(none)'}"`)
+  const ok = untouched.machineStyled && /^~/.test(untouched.count ?? '') && !/checked by you/.test(untouched.sentence ?? '')
+  console.log(`  untouched strip → ${ok ? 'machine styling, no human count ✓' : 'CLAIMS A CHECK ✗'}`)
+  await shot('flow-18-result-untouched')
 
   /* Persistence. The demo's promise — "Nothing is saved" — is checked against
      the database rather than taken on trust, and the storage layer is exercised

@@ -162,6 +162,7 @@ export default {
   result: {
     title: 'Tira {n} — lista',
     sentence: '{n} huevos, revisados por usted — esta tira es {band}',
+    unchecked: '~{n} encontrados por la aplicación. Usted no hizo cambios.',
     legendMachine: '{n} de la máquina',
     legendRemoved: '✕ {n} quitadas',
     legendAdded: '+ {n} agregadas',

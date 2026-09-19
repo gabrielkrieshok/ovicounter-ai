@@ -56,7 +56,11 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
 3. **A machine guess and a human judgment never look like the same kind of
    thing.** Machine count grey with a leading `~`; human count black, larger,
    no `~`. Marks: dashed blue = proposed, solid green = kept, red ✕ = removed,
-   pink + = added. Shape carries the meaning redundantly with colour.
+   pink + = added. Shape carries the meaning redundantly with colour. **A
+   strip nobody touched on Your fixes has no human count**: `strip.reviewed`
+   (any remove, add, split, zoom or pan) decides, `finishReview` puts untouched
+   proposals back to `proposed`, Strip result shows the machine total in
+   machine styling, and the record carries `checked: false`.
 4. **Nothing learns at runtime**, and no copy implies learning, teaching or
    recounting.
 5. **Nothing implies upload.** "Measuring on this phone", never "loading".

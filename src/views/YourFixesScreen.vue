@@ -58,6 +58,9 @@ async function onStroke(points) {
 }
 
 function done() {
+  /* If nothing was touched, the proposals go back to being proposals and the
+     result says so. See stores/strip.js `finishReview`. */
+  strip.finishReview()
   router.push({ name: 'result' })
 }
 </script>
@@ -77,6 +80,7 @@ function done() {
         @tap="onTap"
         @add="onAdd"
         @stroke="onStroke"
+        @navigate="strip.noteReview()"
         v-slot="{ rect, stage: size, hold, stroke }"
       >
         <MarkLayer :marks="strip.marks" :rect="rect" :stage="size" />

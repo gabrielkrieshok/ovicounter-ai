@@ -19,6 +19,13 @@ import { useStripStore } from '@/stores/strip'
  * the operator has touched the marks — and the human's count stands black and
  * unqualified on the band scale below it. The two are never allowed to look
  * like the same kind of thing.
+ *
+ * Unless nobody checked. If the operator went straight through Your fixes
+ * without removing, adding, splitting or even zooming in, there is no human
+ * count to show: the machine total stands on the scale in machine styling, the
+ * sentence says the marks were not checked, and the record says so too. The
+ * alternative — "1,193 eggs, checked by you" with 0 removed and 0 added — was
+ * what this screen used to say, and it broke the one rule that matters most.
  */
 
 const router = useRouter()
@@ -30,8 +37,12 @@ const strip = useStripStore()
    have read it. */
 const ready = ref(false)
 
+const checked = computed(() => strip.reviewed)
 const humanCount = computed(() => strip.humanCount)
-const band = computed(() => bandFor(humanCount.value, session.bands))
+/* The number on the scale: the person's when they checked, the machine's when
+   they did not. Never both, never mixed. */
+const shownCount = computed(() => (checked.value ? humanCount.value : strip.machineTotal))
+const band = computed(() => bandFor(shownCount.value, session.bands))
 
 /* Machine marks the operator kept — not the machine's total, which is in the
    header. This is a breakdown of the human's own judgments. */
@@ -42,7 +53,9 @@ const keptMachine = computed(
 /* One translatable string with the band name lifted out, so a translator
    can put the band wherever their grammar wants it. */
 const sentence = computed(() =>
-  tParts('result.sentence', 'band', { n: humanCount.value }),
+  checked.value
+    ? tParts('result.sentence', 'band', { n: humanCount.value })
+    : { before: t('result.unchecked', { n: strip.machineTotal }), after: '' },
 )
 
 /* The badge must not claim a record was saved unless one was. The demo promises
@@ -74,7 +87,11 @@ onMounted(() => {
       params: { ...strip.params },
         marks: strip.marks.map((m) => ({ ...m })),
         machineTotal: strip.machineTotal,
-        count: humanCount.value,
+        /* Whether a person reviewed the marks. When false, `count` is the
+           machine's total and the marks are still `proposed` — the record
+           carries no human judgment it did not get. */
+        checked: checked.value,
+        count: shownCount.value,
         band: band.value.key,
       },
       strip.working?.canvas,
@@ -116,18 +133,23 @@ function endSession() {
     <header class="head">
       <span class="title">{{ t('result.title', { n: session.strips.length }) }}</span>
       <!-- Struck through, grey, mono, with a leading `~`. Everything about it
-           says "superseded". -->
-      <span class="machine mono">~{{ strip.machineTotal }}</span>
+           says "superseded" — so it only appears when something superseded it. -->
+      <span v-if="checked" class="machine mono">~{{ strip.machineTotal }}</span>
     </header>
 
     <div class="count-block">
-      <BandScale :count="humanCount" :bands="session.bands" />
-      <p class="sentence">
-        {{ sentence.before }}<b>{{ t(`bands.${band.key}`).toUpperCase() }}</b>{{ sentence.after }}
+      <BandScale :count="shownCount" :bands="session.bands" :machine="!checked" />
+      <p class="sentence" :class="{ unchecked: !checked }">
+        <template v-if="checked">
+          {{ sentence.before }}<b>{{ t(`bands.${band.key}`).toUpperCase() }}</b>{{ sentence.after }}
+        </template>
+        <template v-else>{{ sentence.before }}</template>
       </p>
     </div>
 
-    <div class="legend">
+    <!-- The legend is a breakdown of the person's judgments. With none made
+         there is nothing to break down. -->
+    <div v-if="checked" class="legend">
       <span class="item machine-kept">
         <span class="ring" />{{ t('result.legendMachine', { n: keptMachine }) }}
       </span>
@@ -209,6 +231,10 @@ function endSession() {
   text-align: center;
   font: 400 15px var(--font-sans);
   color: var(--ink-soft);
+}
+.sentence.unchecked {
+  color: var(--muted);
+  padding-bottom: var(--sp-14);
 }
 
 .legend {

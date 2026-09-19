@@ -66,6 +66,13 @@ export const useStripStore = defineStore('strip', {
        duplicate is not a cosmetic problem. */
     recorded: false,
 
+    /* Whether the operator did anything at all on Your fixes — removed, added,
+       split, or so much as zoomed or panned to look. Tapping straight through
+       used to produce "1,193 eggs, checked by you" with nothing removed and
+       nothing added, which is a machine count wearing a human's clothes. This
+       is what lets the result say which it was, and it goes into the record. */
+    reviewed: false,
+
     /* One entry per human judgment, newest last. Undo has to be exact rather
        than approximate — these are the operator's decisions, and the record is
        the product. Each entry carries what is needed to put the marks back
@@ -250,8 +257,9 @@ export const useStripStore = defineStore('strip', {
     },
 
     /**
-     * The operator has signed off. Every proposal they did not remove becomes a
-     * judgment they made — which is the whole claim the count rests on.
+     * Arriving on Your fixes, the proposals are shown as kept — green — because
+     * that is what they will be if the operator does nothing but look. Whether
+     * they actually looked is tracked separately in `reviewed`.
      */
     acceptRemainingMarks() {
       for (const mark of this.marks) {
@@ -259,11 +267,31 @@ export const useStripStore = defineStore('strip', {
       }
     },
 
+    /** Any act of review — including just zooming in to look. */
+    noteReview() {
+      this.reviewed = true
+    },
+
+    /**
+     * The operator pressed Done. If they never touched the strip, the machine's
+     * proposals go back to being proposals: a mark nobody looked at is not a
+     * human judgment, and the record must not say it was. The result then shows
+     * the machine total, styled as one, and no human count.
+     */
+    finishReview() {
+      if (this.reviewed) return true
+      for (const mark of this.marks) {
+        if (mark.source === 'machine' && mark.status === 'kept') mark.status = 'proposed'
+      }
+      return false
+    },
+
     /** Tap a mark: kept becomes removed, and tapping again puts it back. */
     toggleMark(id) {
       const mark = this.marks.find((m) => m.id === id)
       if (!mark) return
 
+      this.reviewed = true
       const was = mark.status
       if (was === 'added') {
         // A hand-added egg has no machine proposal underneath to fall back to,
@@ -279,6 +307,7 @@ export const useStripStore = defineStore('strip', {
 
     /** Place an egg the scan missed. */
     addMark(point) {
+      this.reviewed = true
       const size = Math.sqrt(this.params.medianEggArea / Math.PI) * 2
       const mark = {
         id: nextMarkId++,
@@ -311,6 +340,8 @@ export const useStripStore = defineStore('strip', {
       await ready
 
       const { detections, region } = await cv.split(points, this.params)
+      /* Drawing the stroke was an act of review even when it cut nothing. */
+      this.reviewed = true
       if (!region || !detections.length) return 0
 
       const inside = (m) =>

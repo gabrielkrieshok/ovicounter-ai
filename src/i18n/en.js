@@ -195,6 +195,9 @@ export default {
     // RATIFIED
     title: 'Strip {n} — done',
     sentence: '{n} eggs, checked by you — this strip is {band}',
+    /* DRAFT — the operator went through Your fixes without touching anything.
+       No band, no "checked by you": a machine count is shown as one. */
+    unchecked: '~{n} found by the app. You made no changes.',
     legendMachine: '{n} machine',
     legendRemoved: '✕ {n} removed',
     legendAdded: '+ {n} added',
