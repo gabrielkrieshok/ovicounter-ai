@@ -4,6 +4,41 @@ Written Sep 19, 2026 from a side-by-side run of `main` (V1) and `v2` in a
 headless browser at 1440px and 390px. Decisions below are Gabriel's, made the
 same day. Work the items in order; each is one or two sessions.
 
+## Status — Sep 19, 2026
+
+All four items built, each in its own commit on `v2`, verified with
+`tools/walk-flow.mjs` at 900 (framed), 1440×900 and 390×844.
+
+| Item | Done-when | Measured |
+| --- | --- | --- |
+| 1 | Refine with zero taps, 330–400 at both widths | 0 taps, **364** at 1440 and 390 |
+| 2 | untouched demo never shows a black human count | "~364 found by the app. You made no changes.", machine styling |
+| 3 | photograph ≥60% of 1440 on Refine and Your fixes | **65%** on both; eggs visible inside rings at zoom 1 |
+| 4 | demo to a result in ≤3 decisions | **3** (demo · Use this photo · Done) |
+
+Decisions made along the way that the brief did not settle, flagged for review:
+
+- **The sweep no longer overrides a probe-measured cutoff.** With it, the first
+  walk came back at 562: the sweep takes the first cutoff above the grain step
+  (50), the probe's own contrast lands on the plateau (97 → 364). The sweep
+  still applies after a tap, where it was compensating for a sample of one.
+- **Your fixes opens at cover on the phone too**, not only on the laptop. The
+  reason given ("a band one third of the height") applies to both. Zoom 1 is
+  still the whole strip.
+- **Refine is contain on the laptop**, cover in the frame (the hi-fi).
+- **The demo's result offers "Back to home", not "Start a session with these
+  settings"**: the demo's calibration belongs to a bundled photograph and would
+  be carried onto real paper.
+- **"Keep the marks"** was added to Mark one egg when opened from Refine;
+  without it the only exits were to change the calibration or abandon the strip.
+- **The Welcome wordmark is 16px, not 20px** — the header row needed 370px in
+  336px, which is what clipped the menu button.
+- **Found and fixed on the way:** no real session had ever saved a strip. The
+  record passed the gate verdict as a reactive Proxy and IndexedDB's structured
+  clone threw, silently. The demo never showed it because a demo has no gate.
+
+New draft copy is listed in `docs/copy-to-ratify.md`.
+
 ## What the comparison found
 
 | | V1 (`main`) | V2 (`v2`) |
