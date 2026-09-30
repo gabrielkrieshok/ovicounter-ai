@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
+import StripHeader from '@/components/StripHeader.vue'
 import { t } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -132,10 +134,11 @@ async function useThisPhoto() {
 
 <template>
   <div class="crop">
-    <header class="head">
-      <span class="title">{{ t('crop.title') }}</span>
-      <span class="badge mono">{{ t('crop.stripBadge', { n: session.stripNumber }) }}</span>
-    </header>
+    <StripHeader class="head" :title="t('crop.title')">
+      <template #aside>
+        <StatusBadge>{{ t('crop.stripBadge', { n: session.stripNumber }) }}</StatusBadge>
+      </template>
+    </StripHeader>
 
     <div class="body">
       <ImageStage ref="stage" :src="strip.sourceUrl" fit="contain" v-slot="{ rect }">
@@ -190,18 +193,18 @@ async function useThisPhoto() {
       </ImageStage>
 
       <div class="tools">
-        <button class="chip" type="button" @click="rotate(-1)">{{ t('crop.rotateLeft') }}</button>
-        <button class="chip" type="button" @click="straighten(-STRAIGHTEN_STEP)">
+        <button class="chip t-title" type="button" @click="rotate(-1)">{{ t('crop.rotateLeft') }}</button>
+        <button class="chip t-title" type="button" @click="straighten(-STRAIGHTEN_STEP)">
           {{ t('crop.straighten') }}
         </button>
-        <button class="chip" type="button" @click="rotate(1)">{{ t('crop.rotateRight') }}</button>
+        <button class="chip t-title" type="button" @click="rotate(1)">{{ t('crop.rotateRight') }}</button>
       </div>
 
-      <p class="caption">{{ t('crop.caption') }}</p>
+      <p class="caption t-body">{{ t('crop.caption') }}</p>
     </div>
 
     <div class="footer">
-      <AppButton variant="primary" :disabled="busy" @click="useThisPhoto">
+      <AppButton variant="primary" bar :disabled="busy" @click="useThisPhoto">
         {{ t('crop.useThisPhoto') }}
       </AppButton>
     </div>
@@ -214,21 +217,6 @@ async function useThisPhoto() {
   background: var(--stage-bg);
   display: flex;
   flex-direction: column;
-}
-
-.head {
-  padding: var(--sp-14) var(--sp-16);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.title {
-  font: 700 15px var(--font-sans);
-  color: var(--paper);
-}
-.badge {
-  font: 500 12px var(--font-mono);
-  color: var(--disabled);
 }
 
 /* The stage owns the whole area between header and footer, with the tools and
@@ -267,12 +255,14 @@ async function useThisPhoto() {
   pointer-events: none;
 }
 
+/* 44px, up from the handoff's 34 — every tap target is at least 44. The grip
+   drawn inside stays small so it does not hide the corner it is placing. */
 .handle {
   position: absolute;
-  width: var(--hit-small);
-  height: var(--hit-small);
-  margin-left: calc(var(--hit-small) / -2);
-  margin-top: calc(var(--hit-small) / -2);
+  width: var(--hit-min);
+  height: var(--hit-min);
+  margin-left: calc(var(--hit-min) / -2);
+  margin-top: calc(var(--hit-min) / -2);
   display: grid;
   place-items: center;
   touch-action: none;
@@ -288,55 +278,51 @@ async function useThisPhoto() {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 130px;
+  bottom: 72px;
   display: flex;
   justify-content: center;
   gap: var(--sp-10);
 }
 .chip {
-  height: var(--hit-min);
+  min-height: var(--hit-min);
   padding: 0 var(--sp-14);
   display: flex;
   align-items: center;
   background: var(--paper);
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-small);
-  font: 600 14px var(--font-sans);
+  color: var(--ink);
 }
 
 .caption {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 64px;
+  bottom: var(--sp-16);
   margin: 0;
   padding: 0 var(--sp-16);
   text-align: center;
-  font: 400 12px var(--font-sans);
-  color: var(--disabled);
+  color: var(--paper);
 }
 
 .footer {
-  padding: 0 var(--sp-16) 18px;
+  flex: none;
 }
 
-/* Laptop: the photograph left at full height, title top-right, the confirm
-   bottom-right. The rotate chips and caption stay over the photograph. */
+/* Laptop (brief §5): header and the confirm on the left, the photograph on
+   the right at full height with the rotate tools and caption over it. */
 .wide .crop {
   display: grid;
-  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
   grid-template-rows: auto 1fr auto;
+  background: var(--paper);
 }
-.wide .crop > .head {
-  grid-column: 2;
-  grid-row: 1;
-}
+.wide .crop > .head { grid-column: 1; grid-row: 1; }
+.wide .crop > .footer { grid-column: 1; grid-row: 3; }
 .wide .crop > .body {
-  grid-column: 1;
-  grid-row: 1 / -1;
-}
-.wide .crop > .footer {
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 1 / -1;
+  background: var(--stage-bg);
+  border-left: var(--bd) solid var(--ink);
 }
 </style>

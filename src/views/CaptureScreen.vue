@@ -2,6 +2,8 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import StatusBadge from '@/components/StatusBadge.vue'
+import StripHeader from '@/components/StripHeader.vue'
 import { useCv } from '@/cv/use-cv'
 import { WORKING_LONG_EDGE, downscaledImageData } from '@/lib/image'
 import { t } from '@/i18n'
@@ -165,23 +167,20 @@ async function pickFile(event) {
 
 <template>
   <div class="capture">
-    <header class="head">
-      <span class="strip-n">{{ t('capture.strip', { n: session.stripNumber }) }}</span>
-      <span class="session mono">{{ session.id ?? '' }}</span>
-    </header>
+    <StripHeader class="head" :title="t('capture.strip', { n: session.stripNumber })" />
 
     <div class="viewfinder">
       <video ref="video" class="feed" playsinline muted />
 
-      <div v-if="cameraError" class="no-camera">{{ t('capture.noCamera') }}</div>
+      <div v-if="cameraError" class="no-camera t-body">{{ t('capture.noCamera') }}</div>
 
       <div class="guide" />
-      <span class="caption">{{ t('capture.guide') }}</span>
+      <span class="caption t-title">{{ t('capture.guide') }}</span>
 
       <div class="bar">
         <button class="gallery" type="button" @click="fileInput.click()" aria-label="Open photo" />
         <button class="shutter" type="button" :disabled="busy || !!cameraError" @click="shutter" />
-        <span class="from">{{ t('capture.fromPhotos') }}</span>
+        <span class="from t-label">{{ t('capture.fromPhotos') }}</span>
       </div>
 
       <input
@@ -194,11 +193,19 @@ async function pickFile(event) {
     </div>
 
     <div class="panel">
-      <div class="panel-title">{{ t('capture.checkedTitle') }}</div>
+      <div class="panel-title t-title">{{ t('capture.checkedTitle') }}</div>
       <div class="chips">
-        <span v-for="chip in chips" :key="chip.key" class="chip" :class="{ ok: chip.ok }">
+        <!-- A check that has passed is ink; one that has not stays muted, so
+             the row is a live report rather than a row of decorative ticks. -->
+        <StatusBadge
+          v-for="chip in chips"
+          :key="chip.key"
+          class="chip"
+          :class="{ ok: chip.ok }"
+          :tone="chip.ok ? 'ink' : 'muted'"
+        >
           {{ chip.label }}
-        </span>
+        </StatusBadge>
       </div>
     </div>
   </div>
@@ -210,21 +217,6 @@ async function pickFile(event) {
   background: var(--stage-bg);
   display: flex;
   flex-direction: column;
-}
-
-.head {
-  padding: var(--sp-14) var(--sp-16);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.strip-n {
-  font: 700 15px var(--font-sans);
-  color: var(--paper);
-}
-.session {
-  font: 500 12px var(--font-mono);
-  color: var(--disabled);
 }
 
 .viewfinder {
@@ -239,20 +231,18 @@ async function pickFile(event) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: #000;
+  background: var(--ink);
 }
 .no-camera {
   position: absolute;
   inset: auto var(--sp-22) 55%;
   text-align: center;
-  font: 500 14px var(--font-sans);
   color: var(--paper);
-  line-height: 1.45;
 }
 
 .guide {
   position: absolute;
-  inset: 56px 22px 120px;
+  inset: 56px 22px 132px;
   border: var(--bd) dashed var(--cyan);
   border-radius: var(--r-badge);
   pointer-events: none;
@@ -261,13 +251,11 @@ async function pickFile(event) {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 130px;
+  bottom: 142px;
   margin: 0 auto;
   width: fit-content;
-  font: 600 13px var(--font-sans);
   background: var(--scrim);
   color: var(--paper);
-  border-radius: var(--r-badge);
   padding: 6px var(--sp-12);
 }
 
@@ -277,34 +265,34 @@ async function pickFile(event) {
   right: 0;
   bottom: 0;
   padding: var(--sp-16) 20px var(--sp-22);
-  background: linear-gradient(transparent, rgba(20, 16, 12, 0.72));
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .gallery {
-  width: 52px;
-  height: 52px;
+  width: var(--hit-secondary);
+  height: var(--hit-secondary);
   border: var(--bd) solid var(--paper);
   border-radius: var(--r-small);
-  background: rgba(255, 253, 249, 0.15);
   box-shadow: var(--halo-dark);
 }
+/* The shutter is this screen's one action, so it takes the action's look:
+   a 76px square in safety yellow with an ink rule, like every primary bar. */
 .shutter {
-  width: 62px;
-  height: 62px;
-  border: 3px solid var(--paper);
-  border-radius: 50%;
-  background: rgba(255, 253, 249, 0.25);
-  box-shadow: var(--halo-dark);
+  width: var(--hit-primary);
+  height: var(--hit-primary);
+  border: var(--bd) solid var(--ink);
+  outline: var(--bd) solid var(--paper);
+  background: var(--action);
 }
-.shutter:disabled { opacity: 0.4; }
+.shutter:disabled {
+  background: var(--panel);
+}
 .from {
-  width: 52px;
-  font: 500 11px var(--font-sans);
+  width: var(--hit-secondary);
   color: var(--paper);
   text-align: center;
-  line-height: 1.3;
 }
 
 .file {
@@ -316,50 +304,33 @@ async function pickFile(event) {
 }
 
 .panel {
+  flex: none;
   background: var(--panel);
   border-top: var(--bd) solid var(--ink);
   padding: var(--sp-12) var(--sp-16) var(--sp-14);
 }
 .panel-title {
-  font: 700 13px var(--font-sans);
-  margin-bottom: 6px;
+  margin-bottom: var(--sp-8);
 }
 .chips {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--sp-8);
 }
-.chip {
-  font: 500 12px var(--font-sans);
-  color: var(--disabled);
-  border: var(--bd-fine) solid var(--rule-idle);
-  border-radius: var(--r-badge);
-  padding: 4px var(--sp-8);
-  background: var(--paper);
-}
-/* A check that has actually passed reads as ink; one that has not stays muted,
-   so the row is a live report rather than a row of decorative ticks. */
-.chip.ok {
-  color: var(--ink);
-  border-color: var(--ink);
-}
 
-/* Laptop: viewfinder left at full height, strip number top-right, the live
-   checks bottom-right. */
+/* Laptop (brief §5): strip number and the live checks on the left, the
+   viewfinder on the right at full height. */
 .wide .capture {
   display: grid;
-  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
   grid-template-rows: auto 1fr auto;
+  background: var(--paper);
 }
-.wide .capture > .head {
-  grid-column: 2;
-  grid-row: 1;
-}
+.wide .capture > .head { grid-column: 1; grid-row: 1; }
+.wide .capture > .panel { grid-column: 1; grid-row: 3; }
 .wide .capture > .viewfinder {
-  grid-column: 1;
-  grid-row: 1 / -1;
-}
-.wide .capture > .panel {
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 1 / -1;
+  border-left: var(--bd) solid var(--ink);
 }
 </style>

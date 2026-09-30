@@ -57,23 +57,23 @@ function takeAgain() {
   <div class="refusal" :style="{ backgroundImage: `url(${strip.sourceUrl})` }">
     <div class="scrim">
       <div class="card">
-        <h1 class="title">{{ copy.title }}</h1>
-        <p class="body">{{ copy.body }}</p>
+        <h1 class="title t-display">{{ copy.title }}</h1>
+        <p class="body t-body">{{ copy.body }}</p>
 
         <div class="evidence">
           <div class="side">
             <div class="shot" :style="{ backgroundImage: `url(${strip.sourceUrl})` }" />
-            <div class="caption mono">{{ t('refusal.yourPhoto') }}</div>
+            <div class="caption t-label">{{ t('refusal.yourPhoto') }}</div>
           </div>
           <div class="side">
             <!-- A strip the tool would accept, at the same size. The comparison
                  is the argument; without it the refusal is just an assertion. -->
             <div class="shot reference" :style="{ backgroundImage: `url(${DEMO_PHOTO})` }" />
-            <div class="caption mono">{{ t('refusal.closeEnough') }}</div>
+            <div class="caption t-label">{{ t('refusal.closeEnough') }}</div>
           </div>
         </div>
 
-        <AppButton variant="primary" @click="takeAgain">
+        <AppButton class="again" variant="primary" bar @click="takeAgain">
           {{ t('refusal.takeAgain') }}
         </AppButton>
       </div>
@@ -93,10 +93,11 @@ function takeAgain() {
   background: var(--scrim);
   display: flex;
   align-items: center;
-  padding: 18px;
-  box-sizing: border-box;
+  padding: var(--sp-16);
 }
 
+/* Square, 3px, one instruction and one way forward (Field Manual brief §4). It
+   blames the photograph, never the person. */
 .card {
   width: 100%;
   max-width: 560px;
@@ -104,26 +105,21 @@ function takeAgain() {
   background: var(--paper);
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-primary);
-  padding: 20px;
-  box-sizing: border-box;
+  padding: 20px 20px 0;
 }
 
 .title {
-  margin: 0 0 6px;
-  font: 800 22px var(--font-sans);
-  letter-spacing: -0.01em;
+  margin: 0 0 var(--sp-10);
 }
 .body {
   margin: 0 0 var(--sp-16);
-  font: 400 15px var(--font-sans);
   color: var(--ink);
-  line-height: 1.45;
 }
 
 .evidence {
   display: flex;
   gap: var(--sp-10);
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 .side { flex: 1; }
 .shot {
@@ -141,9 +137,14 @@ function takeAgain() {
   background-position: 52% 35%;
 }
 .caption {
-  margin-top: 5px;
+  margin-top: var(--sp-5);
   text-align: center;
-  font: 600 11px var(--font-mono);
   color: var(--muted);
+}
+
+/* Take it again runs the card's full width at its foot, as a bar. */
+.again {
+  margin: 0 -20px;
+  width: calc(100% + 40px);
 }
 </style>
