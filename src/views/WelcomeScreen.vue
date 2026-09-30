@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import { preloadCv } from '@/cv/use-cv'
-import MarkKey from '@/components/MarkKey.vue'
+import MarkIntro from '@/components/MarkIntro.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import { bandFor } from '@/lib/bands'
 import { SESSION_HISTORY } from '@/lib/dev-fixtures'
@@ -101,10 +101,10 @@ async function startDemo() {
     <section class="doors">
       <p class="intro" :class="wide ? 't-display' : 't-body'">{{ t('app.intro') }}</p>
 
-      <!-- The mark language is the one thing here that has to be learned. On
-           the laptop it sits under the intro; on the phone it is shown until
-           this device has history, in the space the history then takes. -->
-      <MarkKey v-if="wide" class="key-inline" layout="row" />
+      <!-- The mark language is the one thing here that has to be learned, so
+           it is shown rather than listed: a strip with the four marks on it,
+           each labelled — a picture of the job about to be done. -->
+      <MarkIntro class="picture" />
 
       <div class="actions">
         <!-- On the phone, above the doors: an interrupted session is unfinished
@@ -127,11 +127,6 @@ async function startDemo() {
           </AppButton>
         </div>
       </div>
-
-      <section v-if="!wide && !sessions.length" class="legend">
-        <h2 class="section t-label">{{ t('welcome.marksTitle') }}</h2>
-        <MarkKey />
-      </section>
 
       <p class="note t-body">{{ t('welcome.demoNote') }}</p>
     </section>
@@ -293,9 +288,7 @@ async function startDemo() {
 .wide .history .resume {
   margin-bottom: var(--sp-16);
 }
-.key-inline {
-  padding: var(--sp-12) 0;
-  border-top: var(--bd-inner) solid var(--ink);
-  border-bottom: var(--bd-inner) solid var(--ink);
+.wide .picture {
+  max-width: 560px;
 }
 </style>

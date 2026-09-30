@@ -60,7 +60,6 @@ export default {
     stripCount: '{n} tiras',
     demoNote:
       'La foto de ejemplo recorre todo el proceso con una tira incluida. No se guarda nada.',
-    marksTitle: 'Qué significan las marcas',
     resumeDay: 'Continuar el {day}',
     resumeNext: 'Sin terminar · sigue la tira {n}',
     countOne: 'Contar una tira',

@@ -138,6 +138,14 @@ function leave() {
   color: var(--paper);
 }
 
+/* A long language's WORKS OFFLINE ("FUNCIONA SIN CONEXIÓN") wraps to two short
+   lines rather than sliding under the wordmark. */
+.right > :deep(.badge) {
+  white-space: normal;
+  max-width: 160px;
+  text-align: center;
+}
+
 .counter {
   color: var(--action);
   font-size: 13px;

@@ -58,14 +58,6 @@ export default {
     previousSessions: 'Previous sessions',
     stripCount: '{n} strips',
     demoNote: 'The demo photo runs the whole flow on a bundled strip. Nothing is saved.',
-    /* DRAFT — not in the handoff at all.
-       Shown only when this device has no session history, i.e. to a first-time
-       user, in the space the previous-sessions list occupies from then on. The
-       justification is success criterion §10: "a first-time user completes a
-       full session without training material." The mark language is the one
-       thing here that genuinely has to be taught, and it is otherwise first met
-       on Refine with several hundred rings already on screen. */
-    marksTitle: 'What the marks mean',
     /* DRAFT — the resume card exists only as wireframe 2a, never designed in
        hi-fi. The wireframe reads "Interrupted yesterday · 4 of ~12 strips", but
        nothing knows how many strips a sitting was going to be — there is no cap
