@@ -75,6 +75,12 @@
      never narrower than --device-w, the width everything was designed at. */
   --laptop-min: 900px;
   --pane-share: 35%;
+  /* The app sits on the desk as a panel rather than running edge to edge
+     (Sep 30, 2026). The gutter grows with the window — 16px at 900, 40px from
+     about 1330 — and the panel stops growing at --laptop-max-w, so a wide
+     monitor adds desk around it rather than stretching a strip across it. */
+  --laptop-gutter: clamp(16px, 3vw, 40px);
+  --laptop-max-w: 1600px;
 }
 
 /* Cluster hues — assigned so adjacent groups never share a colour.

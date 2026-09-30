@@ -86,15 +86,16 @@ provide('wideLayout', wide)
   position: relative;
 }
 
-/* Laptop: no frame, the whole viewport. */
+/* Laptop: not the phone frame, but not edge to edge either — a panel on the
+   same desk, with the frame's border and corners, filling the window less a
+   gutter. Screens still just fill `.device`; none of them knows about this. */
 .harness.wide {
-  display: block;
+  padding: var(--laptop-gutter);
 }
 .device.wide {
   width: 100%;
-  height: 100dvh;
-  border: 0;
-  border-radius: 0;
+  max-width: var(--laptop-max-w);
+  height: calc(100dvh - 2 * var(--laptop-gutter));
 }
 
 /* Below the frame's own width there is nothing to frame — go full-bleed and

@@ -57,7 +57,8 @@ link away on Your fixes.
   controls, legend and actions in a right column never narrower than 380px
   (`1fr minmax(var(--device-w), var(--pane-share))`). Same components, tokens
   and copy; each screen carries its own `.wide` rules and App.vue provides
-  `wideLayout`. `?frame=1` in the page URL keeps the frame at any width for
+  `wideLayout`. The app is a bordered panel on the desk with a gutter
+  (`--laptop-gutter`, max `--laptop-max-w`), not edge to edge (Sep 30, 2026). `?frame=1` in the page URL keeps the frame at any width for
   checking against the hi-fi. All three modes are the same code.
 
 Ask before adding any dependency beyond vue, vue-router, pinia, vite and
