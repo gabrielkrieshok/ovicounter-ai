@@ -165,6 +165,9 @@ export const useSessionStore = defineStore('session', {
         startedAt: this.startedAt,
         endedAt: null,
         counts: this.counts,
+        /* Strips finished without anyone checking the marks (`checked: false`),
+           so Welcome can say so beside the session. Older records lack it. */
+        unchecked: this.strips.filter((r) => r.checked === false).length,
         refusals: this.refusals,
         /* Carried so a resumed session does not ask the operator to mark an egg
            a second time — the whole point of calibrating once per sitting. */

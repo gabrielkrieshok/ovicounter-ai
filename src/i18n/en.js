@@ -72,8 +72,11 @@ export default {
        and no plan — so the total is dropped rather than guessed at. The `~`
        would also collide with the rule that a leading `~` means a machine
        estimate. */
-    resumeAction: 'Resume this session',
-    resumeStatus: 'Interrupted · {done} counted so far',
+    /* DRAFT (Field Manual brief §4) — the resume card, first in the history
+       column. Replaces "Resume this session" / "Interrupted · {done} counted
+       so far". */
+    resumeDay: 'Resume {day}',
+    resumeNext: 'Unfinished · strip {n} next',
     /* DRAFT — the third door (Sep 2026, brief §4): photo → crop → marks → fix
        if wanted → number. No session, nothing saved unless the person asks. */
     countOne: 'Count one strip',
@@ -265,6 +268,7 @@ export default {
   /* DRAFT — the dashed badge for a strip whose marks nobody checked. */
   badge: {
     notChecked: 'Not checked',
+    notCheckedCount: '{n} not checked',
   },
 
   bands: {

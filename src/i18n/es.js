@@ -61,8 +61,8 @@ export default {
     demoNote:
       'La foto de ejemplo recorre todo el proceso con una tira incluida. No se guarda nada.',
     marksTitle: 'Qué significan las marcas',
-    resumeAction: 'Continuar esta sesión',
-    resumeStatus: 'Interrumpida · {done} contadas hasta ahora',
+    resumeDay: 'Continuar el {day}',
+    resumeNext: 'Sin terminar · sigue la tira {n}',
     countOne: 'Contar una tira',
   },
 
@@ -204,6 +204,7 @@ export default {
 
   badge: {
     notChecked: 'Sin revisar',
+    notCheckedCount: '{n} sin revisar',
   },
 
   bands: {

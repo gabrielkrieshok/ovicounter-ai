@@ -19,7 +19,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
  * Screens are named, never coded — use these names in code and in conversation.
  */
 const routes = [
-  { path: '/', name: 'welcome', meta: { screen: 'Welcome', chrome: false }, component: () => import('@/views/WelcomeScreen.vue') },
+  { path: '/', name: 'welcome', meta: { screen: 'Welcome' }, component: () => import('@/views/WelcomeScreen.vue') },
 
   // Built in step 6.
   { path: '/capture', name: 'capture', meta: { screen: 'Capture' }, component: () => import('@/views/CaptureScreen.vue') },

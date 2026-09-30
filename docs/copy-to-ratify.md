@@ -9,7 +9,7 @@ attention. All of it must survive translation to Spanish.
 | --- | --- | --- |
 | Welcome | The intro line — "Photograph a strip of ovitrap paper. The app marks what it finds. You check the marks — the count is yours." | The hi-fi opens straight onto the two buttons with no explanation at all. This says what the tool does in the operator's terms before they commit to a session, and states who owns the count. |
 | Welcome | "What the marks mean" + the four glyph lines | Not in the handoff. Shown only when the device has no session history — a first-time user — in the space the previous-sessions list occupies from then on. Justified by success criterion §10, "a first-time user completes a full session without training material": the mark language is the one thing here that has to be taught, and it is otherwise first met on Refine with several hundred rings already on screen. |
-| Welcome | "Resume this session" | The resume card is wireframe `2a` only; it was never drawn in hi-fi. |
+| Welcome | "Resume {day}" / "Unfinished · strip {n} next" | Field Manual brief §4: the resume card, first in the history (laptop) or above the doors (phone). Replaces "Resume this session" / "Interrupted · {done} counted so far". The wireframe's "of ~12" stays out: nothing knows a sitting's total. |
 | Welcome | "Interrupted · {done} of {total} strips" | Same. The wireframe says "Interrupted yesterday · 4 of ~12 strips"; the `~` on a strip count reads as a machine estimate, which collides with the grey-`~`-means-machine rule, so it is dropped here. |
 | Welcome | "Count one strip" | The third door (Sep 2026, brief §4): the V1 path of photo → number, beside sessions. No session, nothing saved unless the person asks. The demo button uses this path. |
 | Your fixes | "Marks look wrong? Adjust them" | A quick count arrives on Your fixes without passing Refine (the shortest path is three decisions). This is the way to the sliders; shown only on a quick count. |
@@ -34,6 +34,7 @@ attention. All of it must survive translation to Spanish.
 | Your fixes | "Looked at close up · {n} of {total} parts" | Coverage: parts of the strip wholly on screen at zoom ≥ 2. The person's effort, never the machine's count. |
 | Your fixes | "Zoom out" / "Zoom in" | Accessible names for the ZoomRail buttons; not visible. |
 | Strip result | "Not looked at close up: {n} of {total} parts" | Open question 1 (Sep 30): Done counts every mark not removed, including machine marks in parts nobody looked at close up. They stay blue on the thumbnail and `proposed` in the record, and this line says how many parts that was. |
+| Welcome | "{n} not checked" | Dashed badge on a previous session with strips nobody checked. Session records now carry `unchecked`; older ones show nothing. |
 
 ## Also unresolved
 

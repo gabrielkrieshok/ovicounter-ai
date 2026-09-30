@@ -1,10 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import AppMenu from '@/components/AppMenu.vue'
 import AppWordmark from '@/components/AppWordmark.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
 import { t } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -18,8 +19,9 @@ import { useStripStore } from '@/stores/strip'
  *
  * It is NOT ON REFUSAL. That screen's whole discipline is one instruction and
  * one way forward; a home button and a menu would give three ways out of the
- * one place the operator most needs a single one. Nor on Welcome, which is
- * already home and carries the wordmark itself.
+ * one place the operator most needs a single one. It IS on Welcome since the
+ * Field Manual pass (Sep 30, 2026): one bar on every screen carries the name,
+ * and there it also carries WORKS OFFLINE ✓.
  *
  * And LEAVING MID-STRIP ASKS FIRST. Finished strips are written to the device
  * as they are counted, so going home costs only the strip in hand, and the
@@ -27,6 +29,7 @@ import { useStripStore } from '@/stores/strip'
  * that, rather than a generic warning that would be either alarming or false.
  */
 
+const route = useRoute()
 const router = useRouter()
 const session = useSessionStore()
 const strip = useStripStore()
@@ -73,7 +76,8 @@ function leave() {
     </div>
 
     <div class="right">
-      <slot />
+      <!-- On Welcome only: the promise belongs before anything starts. -->
+      <StatusBadge v-if="route.name === 'welcome'" on-dark>{{ t('app.offline') }}</StatusBadge>
       <button
         class="burger"
         type="button"
