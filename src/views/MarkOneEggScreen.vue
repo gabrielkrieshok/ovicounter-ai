@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
+import StripHeader from '@/components/StripHeader.vue'
 import { judgeTapAgainstProbe } from '@/cv/probe'
 import { t, tParts } from '@/i18n'
 import { useStripStore } from '@/stores/strip'
@@ -121,10 +122,9 @@ function go() {
 
 <template>
   <div class="calibrate">
-    <div class="head">
-      <h1 class="title">{{ t('calibrate.title') }}</h1>
-      <p class="sub">{{ t('calibrate.sub') }}</p>
-    </div>
+    <StripHeader class="head" :title="t('calibrate.title')">
+      <p class="sub t-body">{{ t('calibrate.sub') }}</p>
+    </StripHeader>
 
     <div class="stage-wrap" @pointerup="onTap">
       <ImageStage
@@ -137,18 +137,18 @@ function go() {
       <span v-if="ringStyle" class="ring" :style="ringStyle" />
 
       <div v-if="missed" class="echo">
-        <span class="echo-text">{{ t('calibrate.missed') }}</span>
+        <span class="echo-text t-body">{{ t('calibrate.missed') }}</span>
       </div>
       <div v-else-if="echoCount !== null" class="echo" :class="{ stacked: mismatch }">
         <!-- A tap that disagrees with the probe is said out loud, above the
              echo, so the two signals — "this is unlike the others" and "this
              finds only N" — are read together. -->
-        <span v-if="mismatch" class="echo-warn">
+        <span v-if="mismatch" class="echo-warn t-body">
           {{ t(mismatch === 'bigger' ? 'calibrate.tapBigger' : 'calibrate.tapSmaller') }}
         </span>
         <span class="echo-line">
           <span class="echo-ring" />
-          <span class="echo-text">
+          <span class="echo-text t-body">
             {{ echoParts.before }}<b class="echo-count mono">{{ echoCount }}</b>{{ echoParts.after }}
           </span>
         </span>
@@ -159,6 +159,7 @@ function go() {
       <AppButton
         v-if="correcting && !measurement"
         variant="secondary"
+        bar
         class="grow-1"
         @click="keepMarks"
       >
@@ -167,6 +168,7 @@ function go() {
       <AppButton
         v-else
         variant="secondary"
+        bar
         class="grow-1"
         :disabled="!measurement"
         @click="pickAnother"
@@ -175,6 +177,7 @@ function go() {
       </AppButton>
       <AppButton
         variant="primary"
+        bar
         class="grow-13"
         :disabled="!measurement || busy"
         @click="go"
@@ -193,20 +196,8 @@ function go() {
   flex-direction: column;
 }
 
-.head {
-  padding: var(--sp-22) 20px var(--sp-14);
-}
-.title {
-  margin: 0;
-  font: 800 22px var(--font-sans);
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-}
 .sub {
-  margin: 6px 0 0;
-  font: 400 15px var(--font-sans);
-  color: var(--ink);
-  line-height: 1.45;
+  margin: 0;
 }
 
 .stage-wrap {
@@ -214,8 +205,6 @@ function go() {
   position: relative;
   min-height: 0;
   overflow: hidden;
-  border-top: var(--bd) solid var(--ink);
-  border-bottom: var(--bd) solid var(--ink);
   touch-action: none;
 }
 
@@ -256,52 +245,43 @@ function go() {
   gap: var(--sp-8);
 }
 .echo-warn {
-  font: 600 14px var(--font-sans);
   color: var(--ink);
-  line-height: 1.35;
 }
 .echo-ring {
+  flex: none;
   width: 14px;
   height: 14px;
   border: 2.5px dashed var(--blue);
   border-radius: 50%;
 }
-.echo-text {
-  font: 600 14px var(--font-sans);
-}
-.echo-count {
-  font: 700 15px var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
 
 .footer {
+  flex: none;
   display: flex;
-  align-items: center;
-  gap: var(--sp-10);
-  padding: var(--sp-16);
+  border-top: var(--bd) solid var(--ink);
 }
-.grow-1 { flex: 1; }
-.grow-13 { flex: 1.3; }
+.footer .grow-1 {
+  flex: 1;
+  border-top-width: 0;
+  border-right-width: var(--bd);
+}
+.footer .grow-13 {
+  flex: 1.3;
+  border-top-width: 0;
+}
 
-/* Laptop: photograph left, instruction top-right, buttons bottom-right. */
+/* Laptop (brief §5): instruction and buttons on the left, the photograph on
+   the right. */
 .wide .calibrate {
   display: grid;
-  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
   grid-template-rows: auto 1fr auto;
 }
-.wide .calibrate > .head {
-  grid-column: 2;
-  grid-row: 1;
-}
+.wide .calibrate > .head { grid-column: 1; grid-row: 1; }
+.wide .calibrate > .footer { grid-column: 1; grid-row: 3; }
 .wide .calibrate > .stage-wrap {
-  grid-column: 1;
-  grid-row: 1 / -1;
-  border-top: 0;
-  border-bottom: 0;
-  border-right: var(--bd) solid var(--ink);
-}
-.wide .calibrate > .footer {
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 1 / -1;
+  border-left: var(--bd) solid var(--ink);
 }
 </style>

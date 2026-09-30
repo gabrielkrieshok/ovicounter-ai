@@ -201,7 +201,6 @@ onMounted(async () => {
 }
 .rail-label {
   margin-top: var(--sp-5);
-  font-size: 11px;
   color: var(--disabled);
   overflow-wrap: anywhere;
 }

@@ -37,12 +37,12 @@ function endSession() {
   <div v-if="props.open" class="scrim" @click="emit('close')">
     <div class="sheet" @click.stop>
       <div class="group">
-        <div class="group-label">{{ t('menu.language') }}</div>
+        <div class="group-label t-label">{{ t('menu.language') }}</div>
         <div class="locales">
           <button
             v-for="locale in availableLocales"
             :key="locale"
-            class="locale"
+            class="locale t-title"
             :class="{ active: i18n.locale === locale }"
             type="button"
             @click="setLocale(locale)"
@@ -54,11 +54,11 @@ function endSession() {
 
       <!-- Not for a quick count: there is no session to end and no summary to
            show. Home ends it. -->
-      <button v-if="session.isActive && !session.isQuick" class="item" type="button" @click="endSession">
+      <AppButton v-if="session.isActive && !session.isQuick" variant="secondary" @click="endSession">
         {{ t('menu.endSession') }}
-      </button>
+      </AppButton>
 
-      <p class="about">{{ t('menu.about') }}</p>
+      <p class="about t-body">{{ t('menu.about') }}</p>
 
       <AppButton variant="secondary" @click="emit('close')">
         {{ t('menu.close') }}
@@ -94,24 +94,22 @@ function endSession() {
 }
 
 .group-label {
-  font: 600 13px var(--font-sans);
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  color: var(--ink);
   margin-bottom: var(--sp-8);
 }
 .locales {
   display: flex;
   gap: var(--sp-8);
 }
+/* The active language is filled, so the state is not colour alone. */
 .locale {
   flex: 1;
-  height: var(--hit-min);
-  border: var(--bd) solid var(--rule-idle);
+  min-height: var(--hit-min);
+  padding: 0 var(--sp-5);
+  border: var(--bd) solid var(--ink);
   border-radius: var(--r-panel);
   background: var(--paper);
-  font: 600 15px var(--font-sans);
-  color: var(--muted);
+  color: var(--ink);
 }
 .locale.active {
   border-color: var(--ink);
@@ -119,19 +117,8 @@ function endSession() {
   color: var(--paper);
 }
 
-.item {
-  height: var(--hit-min);
-  border: var(--bd) solid var(--ink);
-  border-radius: var(--r-panel);
-  background: var(--paper);
-  font: 600 15px var(--font-sans);
-  text-align: center;
-}
-
 .about {
   margin: 0;
-  font: 400 13px var(--font-sans);
   color: var(--muted);
-  line-height: 1.45;
 }
 </style>

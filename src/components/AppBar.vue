@@ -94,8 +94,8 @@ function leave() {
 
   <div v-if="confirming" class="confirm" @click="confirming = false">
     <div class="confirm-sheet" @click.stop>
-      <h2 class="title">{{ t('menu.leaveTitle') }}</h2>
-      <p class="body">{{ t('menu.leaveBody') }}</p>
+      <h2 class="title t-display">{{ t('menu.leaveTitle') }}</h2>
+      <p class="body t-body">{{ t('menu.leaveBody') }}</p>
       <!-- Staying is the filled, larger, first button. The destructive path is
            available but never the one the thumb falls on. -->
       <AppButton variant="primary" @click="confirming = false">
@@ -190,13 +190,9 @@ function leave() {
 
 .title {
   margin: 0;
-  font: 800 20px var(--font-sans);
-  letter-spacing: -0.01em;
 }
 .body {
   margin: 0 0 4px;
-  font: 400 15px var(--font-sans);
   color: var(--ink);
-  line-height: 1.45;
 }
 </style>

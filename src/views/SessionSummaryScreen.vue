@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
+import StripHeader from '@/components/StripHeader.vue'
 import { bandHistogram } from '@/lib/bands'
 import { t, weekday } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
@@ -48,33 +49,32 @@ function backHome() {
 
 <template>
   <div class="summary">
-    <header class="head">
-      <h1 class="title">{{ t('summary.title') }}</h1>
-      <p class="meta mono" v-if="finished">
+    <StripHeader class="head" :title="t('summary.title')">
+      <p v-if="finished" class="meta t-label">
         {{ t('summary.meta', { day, minutes: finished.minutes }) }}
       </p>
-    </header>
+    </StripHeader>
 
     <div class="figures" v-if="finished">
       <div class="figure">
-        <span class="value mono">{{ finished.counts.length }}</span>
-        <span class="caption">{{ t('summary.stripsCounted') }}</span>
+        <span class="value t-tally">{{ finished.counts.length }}</span>
+        <span class="caption t-title">{{ t('summary.stripsCounted') }}</span>
       </div>
       <div class="figure">
-        <span class="value mono">{{ finished.refusals }}</span>
-        <span class="caption">{{ t('summary.retakesAsked') }}</span>
+        <span class="value t-tally">{{ finished.refusals }}</span>
+        <span class="caption t-title">{{ t('summary.retakesAsked') }}</span>
       </div>
     </div>
 
     <div class="bands">
-      <div class="bands-label">{{ t('summary.bands') }}</div>
+      <div class="bands-label t-label">{{ t('summary.bands') }}</div>
       <div class="rows">
         <div v-for="row in histogram" :key="row.band.key" class="row">
-          <span class="name">{{ t(`bands.${row.band.key}`) }}</span>
+          <span class="name t-label">{{ t(`bands.${row.band.key}`) }}</span>
           <!-- A bar, so the shape of the route is readable without reading the
                numbers — the same reason the history cards on Welcome use filled
                and outlined badges. -->
-          <span class="bar">
+          <span class="meter">
             <span
               class="fill"
               :class="{ loud: row.band.heavyweight }"
@@ -83,18 +83,18 @@ function backHome() {
               }"
             />
           </span>
-          <span class="tally mono">{{ row.count }}</span>
+          <span class="tally t-label">{{ row.count }}</span>
         </div>
       </div>
     </div>
 
-    <p class="saved">
+    <p class="saved t-body">
       <template v-if="finished?.wasDemo">{{ t('summary.demoNotSaved') }}</template>
       <template v-else>✓ {{ t('summary.saved') }}</template>
     </p>
 
     <div class="footer">
-      <AppButton variant="primary" @click="backHome">
+      <AppButton variant="primary" bar @click="backHome">
         {{ t('summary.backHome') }}
       </AppButton>
     </div>
@@ -109,52 +109,31 @@ function backHome() {
   flex-direction: column;
 }
 
-.head {
-  padding: 26px 20px var(--sp-16);
-}
-.title {
-  margin: 0;
-  font: 800 26px var(--font-sans);
-  letter-spacing: -0.02em;
-}
 .meta {
-  margin: 6px 0 0;
-  font: 500 13px var(--font-mono);
+  margin: 0;
   color: var(--muted);
 }
 
 .figures {
   display: flex;
-  gap: var(--sp-10);
-  padding: 0 var(--sp-16);
+  border-bottom: var(--bd) solid var(--ink);
 }
 .figure {
   flex: 1;
-  border: var(--bd) solid var(--ink);
-  border-radius: var(--r-panel);
-  padding: var(--sp-14);
+  padding: var(--sp-14) var(--sp-16);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--sp-5);
 }
-.value {
-  font: 700 32px var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-.caption {
-  font: 500 13px var(--font-sans);
-  color: var(--muted);
+.figure + .figure {
+  border-left: var(--bd) solid var(--ink);
 }
 
 .bands {
-  padding: var(--sp-22) 20px 0;
+  padding: var(--sp-22) var(--sp-16) 0;
 }
 .bands-label {
-  font: 600 13px var(--font-sans);
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  color: var(--ink);
   margin-bottom: var(--sp-10);
 }
 .rows {
@@ -168,16 +147,15 @@ function backHome() {
   gap: var(--sp-10);
 }
 .name {
-  width: 56px;
-  font: 500 14px var(--font-sans);
+  width: 64px;
 }
-.bar {
+/* Not `.bar`: that is AppButton's class for a flush action bar, and a rule
+   here by that name would style the Back to home button as a meter. */
+.meter {
   flex: 1;
-  height: 14px;
+  height: 16px;
   background: var(--panel);
-  border: var(--bd-fine) solid var(--rule-idle);
-  border-radius: 4px;
-  overflow: hidden;
+  border: var(--bd-inner) solid var(--ink);
 }
 .fill {
   display: block;
@@ -188,29 +166,27 @@ function backHome() {
   background: var(--ink);
 }
 .tally {
-  width: 22px;
+  width: 28px;
   text-align: right;
-  font: 600 14px var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
 .saved {
   margin: auto 0 0;
-  padding: var(--sp-16) 20px;
-  font: 400 13px var(--font-sans);
+  padding: var(--sp-16);
   color: var(--muted);
-  line-height: 1.45;
-  border-top: var(--bd) solid var(--panel);
 }
 
 .footer {
-  padding: 0 var(--sp-16) var(--sp-22);
+  flex: none;
 }
 
-/* Laptop: a readable column, as on Welcome. */
+/* Laptop: a readable column, as on Welcome, ruled at its sides. */
 .wide .summary {
   width: 100%;
   max-width: 560px;
   margin: 0 auto;
+  border-left: var(--bd) solid var(--ink);
+  border-right: var(--bd) solid var(--ink);
 }
 </style>

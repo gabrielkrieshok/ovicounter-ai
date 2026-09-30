@@ -11,6 +11,7 @@ same day. Work the items in order, one or two commits each, each one working.
 | 1 | no Archivo/Plex in `src` `public`; fonts precached and render offline; contrast passes; walk passes at 390 and 1440 | grep empty; all 8 faces in `sw.js` PRECACHE and `document.fonts.load` ok for each with the network off (production build, SW-controlled); `check-contrast` passes; walk ✓ at 390×844 and 1440×900 (photo 61%) |
 | 2 | no screen sets its own font, colour or border outside the parts and roles | Parts built: AppButton (primary/secondary/quiet), AppBar (counter), StripHeader, MarkKey, JudgmentTally, BandScale and StatusBadge (restyled; BandBadge folded in). Adopted where an equivalent existed: every button, Your fixes, Strip result, Refine, Welcome. Overview and ZoomRail are built in item 3 with the stage they drive. **Grep not yet clean — 44 `font:` rules and 4 colour literals remain, all in screens item 4 restyles; closed there.** Walk ✓ at 390 and 1440. |
 | 3 | walk passes; photo ≥60% of 1440; untouched pass still 3 decisions with machine styling at 390 | Walk ✓ at 390×844 and 1440×900; photo **61%** at 1440; 3 decisions and machine styling ✓ at both. Phone stage at zoom 1: strip fills **37%** of the stage height (179 of 478px) — was 34% (179 of 523) before Field Manual. A fixed band would have given 52%; Gabriel chose to collapse it at zoom 1. Tap-to-remove verified on a real mark at 390 (tally 1, undo → 0). Coverage counts 2 of 8 after two rail zooms. |
+| 4 | every screen restyled with the parts and roles; walk after each | Strip result, Welcome, Refine, Crop, Capture, Refusal, Processing, Session summary, Mark one egg, the menu and the leave dialog — one commit each (Crop/Capture/Refusal together; Summary, Mark one egg and the modals together). Walk ✓ at 390×844 and 1440×900 after each. **Item 2's grep is now clean: no `font:`/`font-size:` rule and no colour literal in `src/views/`.** |
 
 Decisions made along the way, flagged for review:
 
@@ -52,6 +53,17 @@ Decisions made along the way, flagged for review:
   parts" (DRAFT). An untouched strip still falls back to the machine count. On
   the laptop, where eggs are visible at zoom 1, a person who reviews without
   zooming leaves every mark blue — coverage asks for zoom ≥ 2 everywhere.
+- **The laptop flip (item 5) was done screen by screen** as each was restyled,
+  so every stage screen already has controls left, photo right; item 5's
+  own commit is the desk colour and the panel edge.
+- **Hit sizes raised where they were below 44:** Crop's corner handles (34 →
+  44) and Refine's photo toggle (34 → 44). Capture's shutter is 76, up from 62,
+  and square in yellow as the screen's one action.
+- **Capture's header no longer prints the raw session id** beside the strip
+  number; it was an internal key, not a name.
+- **Three scoped-class collisions found on the way** — a parent's scoped rule
+  also styles a child component's root: `.scrim` (menu), `.rail` (ZoomRail),
+  `.bar` (AppButton on Session summary). Each renamed in the parent.
 - `--desk` keeps its old value until item 5 retires it for `--panel`.
 
 Reference images are in `docs/field-manual-refs/`. They are mockups, not
