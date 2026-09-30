@@ -201,7 +201,7 @@ async function useThisPhoto() {
     </div>
 
     <div class="footer">
-      <AppButton variant="paper" :size="62" :font="18" :disabled="busy" @click="useThisPhoto">
+      <AppButton variant="primary" :disabled="busy" @click="useThisPhoto">
         {{ t('crop.useThisPhoto') }}
       </AppButton>
     </div>

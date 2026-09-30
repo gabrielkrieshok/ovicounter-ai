@@ -9,6 +9,7 @@ same day. Work the items in order, one or two commits each, each one working.
 | Item | Done-when | Measured |
 | --- | --- | --- |
 | 1 | no Archivo/Plex in `src` `public`; fonts precached and render offline; contrast passes; walk passes at 390 and 1440 | grep empty; all 8 faces in `sw.js` PRECACHE and `document.fonts.load` ok for each with the network off (production build, SW-controlled); `check-contrast` passes; walk ✓ at 390×844 and 1440×900 (photo 61%) |
+| 2 | no screen sets its own font, colour or border outside the parts and roles | Parts built: AppButton (primary/secondary/quiet), AppBar (counter), StripHeader, MarkKey, JudgmentTally, BandScale and StatusBadge (restyled; BandBadge folded in). Adopted where an equivalent existed: every button, Your fixes, Strip result, Refine, Welcome. Overview and ZoomRail are built in item 3 with the stage they drive. **Grep not yet clean — 44 `font:` rules and 4 colour literals remain, all in screens item 4 restyles; closed there.** Walk ✓ at 390 and 1440. |
 
 Decisions made along the way, flagged for review:
 
@@ -21,6 +22,13 @@ Decisions made along the way, flagged for review:
   the system font, as it did with Archivo.
 - **`font-synthesis: none`**: until items 2–4 move every screen onto the roles,
   old 700/800 sans rules render at Barlow 600 rather than a fake bold.
+- **No strip total on the app bar.** It reads `STRIP 2`, not the mockup's
+  `2/8`: nothing knows how many strips a sitting will be, the same reason the
+  resume card dropped its total in Aug.
+- **The bot icon is out of the wordmark.** No mockup draws it; it remains the
+  favicon and install icon. Say if it should come back.
+- **Refine's photo toggle is 44px**, up from the hi-fi's 34 — it was below the
+  tap-target minimum.
 - `--desk` keeps its old value until item 5 retires it for `--panel`.
 
 Reference images are in `docs/field-manual-refs/`. They are mockups, not

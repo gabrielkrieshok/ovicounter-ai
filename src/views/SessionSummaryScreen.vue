@@ -94,7 +94,7 @@ function backHome() {
     </p>
 
     <div class="footer">
-      <AppButton variant="filled" :size="62" :font="18" @click="backHome">
+      <AppButton variant="primary" @click="backHome">
         {{ t('summary.backHome') }}
       </AppButton>
     </div>

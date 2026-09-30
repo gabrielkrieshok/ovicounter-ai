@@ -5,7 +5,10 @@ import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import BandScale from '@/components/BandScale.vue'
 import ImageStage from '@/components/ImageStage.vue'
+import JudgmentTally from '@/components/JudgmentTally.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
+import StripHeader from '@/components/StripHeader.vue'
 import { bandFor } from '@/lib/bands'
 import { DEMO_PHOTO } from '@/lib/samples'
 import { t, tParts } from '@/i18n'
@@ -170,12 +173,13 @@ function backHome() {
 
 <template>
   <div class="result">
-    <header class="head">
-      <span class="title">{{ t('result.title', { n: session.strips.length }) }}</span>
+    <StripHeader class="head" :title="t('result.title', { n: session.strips.length })">
       <!-- Struck through, grey, mono, with a leading `~`. Everything about it
            says "superseded" — so it only appears when something superseded it. -->
-      <span v-if="checked" class="machine mono">~{{ strip.machineTotal }}</span>
-    </header>
+      <template v-if="checked" #aside>
+        <span class="machine t-count-machine">~{{ strip.machineTotal }}</span>
+      </template>
+    </StripHeader>
 
     <div class="count-block">
       <BandScale :count="shownCount" :bands="session.bands" :machine="!checked" />
@@ -189,13 +193,15 @@ function backHome() {
 
     <!-- The legend is a breakdown of the person's judgments. With none made
          there is nothing to break down. -->
-    <div v-if="checked" class="legend">
-      <span class="item machine-kept">
-        <span class="ring" />{{ t('result.legendMachine', { n: keptMachine }) }}
-      </span>
-      <span class="item removed">{{ t('result.legendRemoved', { n: strip.removedCount }) }}</span>
-      <span class="item added">{{ t('result.legendAdded', { n: strip.addedCount }) }}</span>
-    </div>
+    <JudgmentTally
+      v-if="checked"
+      class="legend"
+      :cells="[
+        { kind: 'kept', n: keptMachine },
+        { kind: 'removed', n: strip.removedCount },
+        { kind: 'added', n: strip.addedCount },
+      ]"
+    />
 
     <div class="thumb">
       <ImageStage
@@ -207,35 +213,31 @@ function backHome() {
         <MarkLayer :marks="strip.marks" :rect="rect" :stage="stage" />
       </ImageStage>
       <!-- Only claims a record was saved when one actually was. -->
-      <span class="saved mono" :class="{ pending: !session.recordsPersist }">
+      <StatusBadge class="saved" :tone="session.recordsPersist ? 'ink' : 'muted'">
         {{ savedBadge }}
-      </span>
+      </StatusBadge>
     </div>
 
     <div v-if="quick" class="footer stack" :class="{ ready }">
-      <AppButton variant="filled" :size="62" :font="17" :disabled="!ready" @click="countAnother">
+      <AppButton variant="primary" :disabled="!ready" @click="countAnother">
         {{ t('result.countAnother') }}
       </AppButton>
       <AppButton
         v-if="!session.isDemo"
-        variant="outline"
-        :size="52"
-        :font="15"
+        variant="secondary"
         :disabled="!ready"
         @click="startSessionFromHere"
       >
         {{ t('result.startSession') }}
       </AppButton>
-      <AppButton v-else variant="outline" :size="52" :font="15" :disabled="!ready" @click="backHome">
+      <AppButton v-else variant="secondary" :disabled="!ready" @click="backHome">
         {{ t('summary.backHome') }}
       </AppButton>
     </div>
 
     <div v-else class="footer" :class="{ ready }">
       <AppButton
-        variant="outline"
-        :size="52"
-        :font="15"
+        variant="secondary"
         class="grow-1"
         :disabled="!ready"
         @click="endSession"
@@ -243,9 +245,7 @@ function backHome() {
         {{ t('result.endSession') }}
       </AppButton>
       <AppButton
-        variant="filled"
-        :size="62"
-        :font="17"
+        variant="primary"
         class="grow-14"
         :disabled="!ready"
         @click="nextStrip"
@@ -264,21 +264,7 @@ function backHome() {
   flex-direction: column;
 }
 
-.head {
-  padding: var(--sp-14) 20px;
-  background: var(--panel);
-  border-bottom: var(--bd) solid var(--ink);
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-.title {
-  font: 700 16px var(--font-sans);
-}
 .machine {
-  font: 500 14px var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--disabled);
   text-decoration: line-through;
 }
 
@@ -297,25 +283,7 @@ function backHome() {
 }
 
 .legend {
-  display: flex;
-  justify-content: center;
-  gap: var(--sp-16);
-  padding: var(--sp-14) 20px;
-}
-.item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font: 500 14px var(--font-sans);
-}
-.item.machine-kept { color: var(--green); }
-.item.removed { font-weight: 600; color: var(--red); }
-.item.added { font-weight: 600; color: var(--pink); }
-.ring {
-  width: 11px;
-  height: 11px;
-  border: 2.5px solid var(--green);
-  border-radius: 50%;
+  margin: var(--sp-10) 0;
 }
 
 .thumb {
@@ -331,15 +299,6 @@ function backHome() {
   position: absolute;
   right: var(--sp-10);
   bottom: var(--sp-8);
-  font: 500 11px var(--font-mono);
-  background: var(--paper);
-  border: var(--bd-fine) solid var(--ink);
-  border-radius: var(--r-badge);
-  padding: 2px 6px;
-}
-.saved.pending {
-  color: var(--muted);
-  border-color: var(--rule-idle);
 }
 
 .footer {

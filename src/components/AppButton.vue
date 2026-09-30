@@ -1,26 +1,30 @@
 <script setup>
-/* The one button.
+/* The one button, in three weights (Field Manual brief §2).
  *
- * Height carries the hierarchy (62 primary / 52 secondary / 44 minimum), and
- * everything else follows from it: radius is r-primary at 62 and r-panel below,
- * weight is 700 when filled and 600 when outlined. Only font size varies enough
- * across the handoff to be worth a prop.
+ * `primary` — safety yellow, black `title` label, 3px ink outline, 76px. The
+ * one thing to do next on a screen, and never more than one per screen. With
+ * `bar` it runs edge to edge and keeps only the rule on top, the way the Done
+ * bar sits at the foot of Your fixes.
  *
- * `paper` is the filled button drawn on the dark stage — Crop's "Use this
- * photo". Same weight and radius as `filled`, inverted so it reads as primary
- * against #2a241d instead of disappearing into it. */
+ * `secondary` — white, 3px ink outline, 52px. The other way out.
+ *
+ * `quiet` — underlined ink text in a ≥44px row. For a detour that must be
+ * findable and must not compete: "Marks look wrong? Adjust them". Ink, not blue —
+ * blue means a mark and nothing else.
+ *
+ * Heights are minimums, so a secondary beside a primary in one row stretches to
+ * match it instead of sitting 24px short. */
 defineProps({
-  variant: { type: String, default: 'filled' }, // filled | outline | paper
-  size: { type: Number, default: 62 }, // 62 | 52 | 44
-  font: { type: Number, default: 18 },
+  variant: { type: String, default: 'primary' }, // primary | secondary | quiet
+  bar: { type: Boolean, default: false },
 })
 </script>
 
 <template>
   <button
     class="btn"
-    :class="[`v-${variant}`, size >= 62 ? 'r-primary' : 'r-panel']"
-    :style="{ height: `${size}px`, fontSize: `${font}px` }"
+    :class="[`v-${variant}`, variant === 'quiet' ? 't-body' : 't-title', { bar }]"
+    type="button"
   >
     <slot />
   </button>
@@ -28,47 +32,57 @@ defineProps({
 
 <style scoped>
 .btn {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-sans);
-  line-height: 1;
-  border: var(--bd) solid transparent;
+  text-align: center;
 }
 
-.r-primary { border-radius: var(--r-primary); }
-.r-panel { border-radius: var(--r-panel); }
-
-.v-filled {
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 700;
-}
-
-.v-outline {
-  background: var(--paper);
+.v-primary,
+.v-secondary {
+  width: 100%;
+  padding: var(--sp-8) var(--sp-16);
+  border: var(--bd) solid var(--ink);
+  border-radius: var(--r-primary);
   color: var(--ink);
-  border-color: var(--ink);
-  font-weight: 600;
 }
-
-.v-paper {
+.v-primary {
+  min-height: var(--hit-primary);
+  background: var(--action);
+}
+.v-secondary {
+  min-height: var(--hit-secondary);
   background: var(--paper);
-  color: var(--ink);
-  border-color: var(--ink);
-  font-weight: 700;
 }
 
-.btn:active { opacity: 0.85; }
+.v-primary.bar {
+  border-width: var(--bd) 0 0;
+}
+
+.v-quiet {
+  align-self: flex-start;
+  min-height: var(--hit-min);
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.btn:active {
+  opacity: 0.85;
+}
 
 .btn:disabled {
-  color: var(--disabled);
-  border-color: var(--rule-idle);
+  cursor: default;
   opacity: 1;
 }
-.v-filled:disabled {
-  background: var(--rule-idle);
-  color: var(--paper);
+.v-primary:disabled,
+.v-secondary:disabled {
+  background: var(--panel);
+  color: var(--disabled);
+  border-color: var(--rule-idle);
+}
+.v-quiet:disabled {
+  color: var(--disabled);
 }
 </style>

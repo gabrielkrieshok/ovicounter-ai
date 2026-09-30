@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
+import StripHeader from '@/components/StripHeader.vue'
 import { t } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -152,12 +153,19 @@ onMounted(() => {
 
 <template>
   <div class="refine">
-    <header class="head">
-      <span class="title">{{ t('refine.title') }}</span>
-      <button class="toggle" type="button" @click="showOriginal = !showOriginal">
-        {{ t('refine.photoToggle') }}
-      </button>
-    </header>
+    <StripHeader class="head" :title="t('refine.title')">
+      <template #aside>
+        <button
+          class="toggle t-label"
+          :class="{ on: showOriginal }"
+          type="button"
+          :aria-pressed="showOriginal"
+          @click="showOriginal = !showOriginal"
+        >
+          {{ t('refine.photoToggle') }}
+        </button>
+      </template>
+    </StripHeader>
 
     <!-- The whole strip, at every width (Sep 30, 2026). The hi-fi draws cover in
          the phone frame, but a strip is far wider than it is tall and cover
@@ -217,15 +225,15 @@ onMounted(() => {
         <p class="hint">{{ tickCaption }}</p>
       </div>
 
-      <button class="relink" type="button" @click="markAnEgg">
+      <AppButton variant="quiet" @click="markAnEgg">
         {{ t('refine.markAnEgg') }}
-      </button>
+      </AppButton>
 
       <div class="footer">
-        <AppButton variant="outline" :size="52" :font="15" class="grow-1" @click="backToStart">
+        <AppButton variant="secondary" class="grow-1" @click="backToStart">
           {{ t('refine.backToStart') }}
         </AppButton>
-        <AppButton variant="filled" :size="52" :font="15" class="grow-13" @click="done">
+        <AppButton variant="primary" class="grow-13" @click="done">
           {{ t('refine.marksLookRight') }}
         </AppButton>
       </div>
@@ -241,26 +249,21 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.head {
-  padding: var(--sp-14) 20px;
-  background: var(--panel);
-  border-bottom: var(--bd) solid var(--ink);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.title {
-  font: 700 16px var(--font-sans);
-}
+/* 44px, up from the handoff's 34 — every tap target is at least 44. Filled
+   while the marks are hidden, so the state is not colour alone. */
 .toggle {
-  height: var(--hit-small);
+  min-height: var(--hit-min);
   padding: 0 var(--sp-10);
   display: flex;
   align-items: center;
-  font: 600 12px var(--font-sans);
-  border: var(--bd-fine) solid var(--ink);
+  border: var(--bd) solid var(--ink);
   border-radius: var(--r-badge);
   background: var(--paper);
+  color: var(--ink);
+}
+.toggle.on {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .stage-wrap {
@@ -365,18 +368,6 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.relink {
-  align-self: flex-start;
-  min-height: var(--hit-min);
-  margin: calc(-1 * var(--sp-8)) 0;
-  display: flex;
-  align-items: center;
-  font: 600 14px var(--font-sans);
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
-}
 
 .footer {
   display: flex;

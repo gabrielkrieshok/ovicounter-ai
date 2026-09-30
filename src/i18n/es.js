@@ -61,10 +61,6 @@ export default {
     demoNote:
       'La foto de ejemplo recorre todo el proceso con una tira incluida. No se guarda nada.',
     marksTitle: 'Qué significan las marcas',
-    marksProposed: 'la aplicación encontró algo',
-    marksKept: 'usted la conservó',
-    marksRemoved: 'usted la quitó',
-    marksAdded: 'usted agregó uno',
     resumeAction: 'Continuar esta sesión',
     resumeStatus: 'Interrumpida · {done} contadas hasta ahora',
     countOne: 'Contar una tira',
@@ -153,9 +149,6 @@ export default {
     title: 'Revise las marcas',
     sub: 'Toque una marca para quitarla · mantenga pulsado el papel vacío para agregar un huevo',
     splitHint: 'trace una línea sobre un grupo para separarlo',
-    legendKept: 'de la máquina, conservada',
-    legendRemoved: '✕ quitada',
-    legendAdded: '+ agregada',
     undo: '↩ deshacer',
     done: 'Listo — contarlas',
     adjust: '¿Las marcas se ven mal? Ajústelas',
@@ -165,9 +158,6 @@ export default {
     title: 'Tira {n} — lista',
     sentence: '{n} huevos, revisados por usted — esta tira es {band}',
     unchecked: '~{n} encontrados por la aplicación. Usted no hizo cambios.',
-    legendMachine: '{n} de la máquina',
-    legendRemoved: '✕ {n} quitadas',
-    legendAdded: '+ {n} agregadas',
     saved: 'GUARDADO EN ESTE TELÉFONO ✓',
     notSavedDemo: 'EJEMPLO — NO SE GUARDÓ',
     notSavedYet: 'AÚN NO SE GUARDA',
@@ -188,6 +178,24 @@ export default {
       'Registro guardado en este teléfono — fotos, ajustes y cada marca que usted revisó.',
     demoNotSaved: 'Esto fue el ejemplo. No se guardó nada.',
     backHome: 'Volver al inicio',
+  },
+
+  markKey: {
+    found: 'encontrada por la aplicación',
+    kept: 'usted la conservó',
+    removed: 'usted la quitó',
+    added: 'usted agregó uno',
+  },
+
+  tally: {
+    kept: 'conservadas',
+    removed: 'quitadas',
+    added: 'agregadas',
+    split: 'separadas',
+  },
+
+  badge: {
+    notChecked: 'Sin revisar',
   },
 
   bands: {

@@ -92,6 +92,9 @@ export const useStripStore = defineStore('strip', {
 
     removedCount: (s) => s.marks.filter((m) => m.status === 'removed').length,
     addedCount: (s) => s.marks.filter((m) => m.status === 'added').length,
+    /* Splits still standing — each is one entry in the undo history, and undoing
+       a split pops it, so this never counts a split the person took back. */
+    splitCount: (s) => s.history.filter((h) => h.type === 'split').length,
   },
 
   actions: {

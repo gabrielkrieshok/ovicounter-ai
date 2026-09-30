@@ -73,7 +73,7 @@ function takeAgain() {
           </div>
         </div>
 
-        <AppButton variant="filled" :size="62" :font="18" @click="takeAgain">
+        <AppButton variant="primary" @click="takeAgain">
           {{ t('refusal.takeAgain') }}
         </AppButton>
       </div>

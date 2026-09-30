@@ -6,7 +6,8 @@ import AppButton from '@/components/AppButton.vue'
 import AppMenu from '@/components/AppMenu.vue'
 import AppWordmark from '@/components/AppWordmark.vue'
 import { preloadCv } from '@/cv/use-cv'
-import BandBadge from '@/components/BandBadge.vue'
+import MarkKey from '@/components/MarkKey.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
 import { bandFor } from '@/lib/bands'
 import { SESSION_HISTORY } from '@/lib/dev-fixtures'
 import { DEMO_PHOTO } from '@/lib/samples'
@@ -103,7 +104,7 @@ async function startDemo() {
         <!-- 16, not the 20 the frame was first built with: at 20 the row
              needs 370px in a 336px header and the menu button was clipped. -->
         <AppWordmark :size="16" />
-        <span class="offline mono">{{ t('app.offline') }}</span>
+        <StatusBadge class="offline">{{ t('app.offline') }}</StatusBadge>
         <!-- Welcome has no app bar — it is already home — so the menu is
              reachable from its own header instead. -->
         <button
@@ -129,13 +130,13 @@ async function startDemo() {
         </span>
       </button>
 
-      <AppButton variant="filled" :size="62" :font="18" @click="startSession">
+      <AppButton variant="primary" @click="startSession">
         {{ t('welcome.startSession') }}
       </AppButton>
-      <AppButton variant="outline" :size="52" :font="16" @click="countOne">
+      <AppButton variant="secondary" @click="countOne">
         {{ t('welcome.countOne') }}
       </AppButton>
-      <AppButton variant="outline" :size="52" :font="16" @click="startDemo">
+      <AppButton variant="secondary" @click="startDemo">
         {{ t('welcome.tryDemo') }}
       </AppButton>
     </div>
@@ -146,12 +147,7 @@ async function startDemo() {
          on this space is their own sessions. -->
     <section v-if="!sessions.length" class="legend">
       <h2 class="section">{{ t('welcome.marksTitle') }}</h2>
-      <ul class="marks">
-        <li><span class="glyph ring proposed" />{{ t('welcome.marksProposed') }}</li>
-        <li><span class="glyph ring kept" />{{ t('welcome.marksKept') }}</li>
-        <li><span class="glyph removed">✕</span>{{ t('welcome.marksRemoved') }}</li>
-        <li><span class="glyph added">+</span>{{ t('welcome.marksAdded') }}</li>
-      </ul>
+      <MarkKey class="key" />
     </section>
 
     <template v-if="sessions.length">
@@ -170,12 +166,11 @@ async function startDemo() {
           </div>
 
           <div v-if="i === 0" class="badges">
-            <BandBadge
+            <StatusBadge
               v-for="(band, j) in badges(s.counts)"
               :key="j"
-              :letter="band.letter"
-              :filled="band.heavyweight"
-            />
+              :tone="band.heavyweight ? 'filled' : 'muted'"
+            >{{ band.letter }}</StatusBadge>
             <span v-if="overflow(s.counts)" class="more mono">+{{ overflow(s.counts) }}</span>
           </div>
           <div v-else class="run mono">{{ letterRun(s.counts) }}</div>
@@ -232,11 +227,6 @@ async function startDemo() {
 
 .offline {
   flex: none;
-  font: 600 11px var(--font-mono);
-  color: var(--muted);
-  border: var(--bd-fine) solid var(--rule-idle);
-  border-radius: var(--r-badge);
-  padding: 4px 8px;
 }
 
 .actions {
@@ -275,40 +265,9 @@ async function startDemo() {
   letter-spacing: 0.06em;
 }
 
-.marks {
-  list-style: none;
-  margin: 0;
+.key {
   padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-10);
 }
-.marks li {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-12);
-  font: 400 14px var(--font-sans);
-  color: var(--ink);
-}
-/* The same shapes and colours the marks themselves use — shape carrying the
-   meaning redundantly with colour, exactly as on the strip. */
-.glyph {
-  flex: none;
-  width: 18px;
-  display: grid;
-  place-items: center;
-  font: 700 16px var(--font-sans);
-}
-.glyph.ring {
-  height: 14px;
-  width: 14px;
-  margin: 0 2px;
-  border-radius: 50%;
-}
-.glyph.proposed { border: 2.5px dashed var(--blue); }
-.glyph.kept { border: 2.5px solid var(--green); }
-.glyph.removed { color: var(--red); }
-.glyph.added { color: var(--pink); }
 
 .cards {
   padding: 0 var(--sp-16);

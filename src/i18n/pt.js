@@ -67,10 +67,6 @@ export default {
     demoNote:
       'A foto de exemplo percorre todo o processo com uma tira incluída. Nada é guardado.',
     marksTitle: 'O que querem dizer as marcas',
-    marksProposed: 'a aplicação encontrou algo',
-    marksKept: 'mantida por si',
-    marksRemoved: 'retirada por si',
-    marksAdded: 'acrescentada por si',
     resumeAction: 'Retomar esta sessão',
     resumeStatus: 'Interrompida · {done} contadas até agora',
     countOne: 'Contar uma tira',
@@ -159,9 +155,6 @@ export default {
     title: 'Verifique as marcas',
     sub: 'Toque numa marca para a retirar · mantenha premido o papel vazio para acrescentar um ovo',
     splitHint: 'trace uma linha sobre um aglomerado para o separar',
-    legendKept: 'da máquina, mantida',
-    legendRemoved: '✕ retirada',
-    legendAdded: '+ acrescentada',
     undo: '↩ anular',
     done: 'Concluído — contá-las',
     adjust: 'As marcas parecem erradas? Ajuste-as',
@@ -171,9 +164,6 @@ export default {
     title: 'Tira {n} — concluída',
     sentence: '{n} ovos, verificados por si — nível desta tira: {band}',
     unchecked: '~{n} encontrados pela aplicação. Não fez alterações.',
-    legendMachine: '{n} da máquina',
-    legendRemoved: '✕ {n} retiradas',
-    legendAdded: '+ {n} acrescentadas',
     saved: 'GUARDADO NESTE TELEMÓVEL ✓',
     notSavedDemo: 'EXEMPLO — NÃO GUARDADO',
     notSavedYet: 'AINDA NÃO GUARDADO',
@@ -194,6 +184,24 @@ export default {
       'Registo guardado neste telemóvel — fotos, definições e cada marca que verificou.',
     demoNotSaved: 'Isto foi o exemplo. Nada foi guardado.',
     backHome: 'Voltar ao início',
+  },
+
+  markKey: {
+    found: 'encontrada pela aplicação',
+    kept: 'mantida por si',
+    removed: 'retirada por si',
+    added: 'acrescentada por si',
+  },
+
+  tally: {
+    kept: 'mantidas',
+    removed: 'retiradas',
+    added: 'acrescentadas',
+    split: 'separadas',
+  },
+
+  badge: {
+    notChecked: 'Não verificada',
   },
 
   bands: {

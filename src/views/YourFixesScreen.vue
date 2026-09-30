@@ -4,7 +4,9 @@ import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import MagnifierLoupe from '@/components/MagnifierLoupe.vue'
+import MarkKey from '@/components/MarkKey.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
+import StripHeader from '@/components/StripHeader.vue'
 import ZoomPanStage from '@/components/ZoomPanStage.vue'
 import { t } from '@/i18n'
 import { markAt } from '@/lib/marks'
@@ -74,10 +76,9 @@ function done() {
 
 <template>
   <div class="fixes">
-    <header class="head">
-      <h1 class="title">{{ t('fixes.title') }}</h1>
-      <p class="sub">{{ t('fixes.sub') }}</p>
-    </header>
+    <StripHeader class="head" :title="t('fixes.title')">
+      <p class="sub t-body">{{ t('fixes.sub') }}</p>
+    </StripHeader>
 
     <div class="stage-wrap">
       <ZoomPanStage
@@ -114,24 +115,22 @@ function done() {
     </div>
 
     <div class="footer">
-      <button v-if="session.isQuick" class="relink" type="button" @click="adjust">
+      <AppButton v-if="session.isQuick" variant="quiet" @click="adjust">
         {{ t('fixes.adjust') }}
-      </button>
+      </AppButton>
       <div class="legend">
-        <span class="item kept"><span class="ring" />{{ t('fixes.legendKept') }}</span>
-        <span class="item removed">{{ t('fixes.legendRemoved') }}</span>
-        <span class="item added">{{ t('fixes.legendAdded') }}</span>
-        <button
+        <MarkKey layout="row" :show="['kept', 'removed', 'added']" />
+        <AppButton
           class="undo"
-          type="button"
+          variant="secondary"
           :disabled="!strip.history.length"
           @click="strip.undo()"
         >
           {{ t('fixes.undo') }}
-        </button>
+        </AppButton>
       </div>
 
-      <AppButton variant="filled" :size="62" :font="18" @click="done">
+      <AppButton variant="primary" @click="done">
         {{ t('fixes.done') }}
       </AppButton>
     </div>
@@ -146,19 +145,8 @@ function done() {
   flex-direction: column;
 }
 
-.head {
-  padding: var(--sp-14) 20px;
-  background: var(--panel);
-  border-bottom: var(--bd) solid var(--ink);
-}
-.title {
-  margin: 0;
-  font: 700 16px var(--font-sans);
-}
 .sub {
-  margin: 2px 0 0;
-  font: 400 13px var(--font-sans);
-  color: var(--ink);
+  margin: 0;
 }
 
 .stage-wrap {
@@ -203,61 +191,12 @@ function done() {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px var(--sp-12);
+  gap: var(--sp-8) var(--sp-12);
   margin-bottom: var(--sp-12);
 }
-/* A label never breaks inside itself — in Spanish and Portuguese it did,
-   leaving "✕" on one line and "retirada" under it. A long language wraps whole
-   items onto a second row instead; English still fits on one. */
-.item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-  font: 500 13px var(--font-sans);
-  color: var(--ink);
-}
-.item.removed {
-  font-weight: 600;
-  color: var(--red);
-}
-.item.added {
-  font-weight: 600;
-  color: var(--pink);
-}
-.ring {
-  width: 11px;
-  height: 11px;
-  border: 2.5px solid var(--green);
-  border-radius: 50%;
-}
-
 .undo {
+  width: auto;
   margin-left: auto;
-  height: var(--hit-min);
-  padding: 0 var(--sp-14);
-  display: flex;
-  align-items: center;
-  font: 600 14px var(--font-sans);
-  border: var(--bd) solid var(--ink);
-  border-radius: var(--r-small);
-  background: var(--paper);
-}
-.undo:disabled {
-  color: var(--disabled);
-  border-color: var(--rule-idle);
-}
-
-.relink {
-  min-height: var(--hit-min);
-  margin-top: calc(-1 * var(--sp-8));
-  display: flex;
-  align-items: center;
-  font: 600 14px var(--font-sans);
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
 }
 
 /* Laptop: stage left at full height, header top-right, legend and Done

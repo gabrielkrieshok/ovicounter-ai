@@ -66,10 +66,6 @@ export default {
        thing here that genuinely has to be taught, and it is otherwise first met
        on Refine with several hundred rings already on screen. */
     marksTitle: 'What the marks mean',
-    marksProposed: 'the app found something',
-    marksKept: 'you kept it',
-    marksRemoved: 'you removed it',
-    marksAdded: 'you added one',
     /* DRAFT — the resume card exists only as wireframe 2a, never designed in
        hi-fi. The wireframe reads "Interrupted yesterday · 4 of ~12 strips", but
        nothing knows how many strips a sitting was going to be — there is no cap
@@ -187,9 +183,6 @@ export default {
     title: 'Check the marks',
     sub: 'Tap a mark to remove it · press and hold empty paper to add an egg',
     splitHint: 'draw a line across a clump to split it',
-    legendKept: 'machine, kept',
-    legendRemoved: '✕ removed',
-    legendAdded: '+ added',
     undo: '↩ undo',
     done: 'Done — count them',
     /* DRAFT — a quick count arrives here without passing Refine; this is the
@@ -204,9 +197,6 @@ export default {
     /* DRAFT — the operator went through Your fixes without touching anything.
        No band, no "checked by you": a machine count is shown as one. */
     unchecked: '~{n} found by the app. You made no changes.',
-    legendMachine: '{n} machine',
-    legendRemoved: '✕ {n} removed',
-    legendAdded: '+ {n} added',
     saved: 'SAVED ON THIS PHONE ✓',
     /* DRAFT — the handoff draws only the saved state, because it assumes a
        record was written. These cover the two cases where none was. */
@@ -233,6 +223,31 @@ export default {
     saved: 'Record saved on this phone — photos, settings, and every mark you checked.',
     demoNotSaved: 'This was the demo. Nothing was saved.',
     backHome: 'Back to home',
+  },
+
+  /* DRAFT (Field Manual brief, Sep 30, 2026) — the mark language in one
+     wording everywhere (components/MarkKey.vue). Replaces Welcome's four lines
+     and Your fixes' "machine, kept" / "✕ removed" / "+ added" legend; "found by
+     the app" is new, the other three were Welcome's. */
+  markKey: {
+    found: 'found by the app',
+    kept: 'you kept it',
+    removed: 'you removed it',
+    added: 'you added one',
+  },
+
+  /* DRAFT — labels under the judgment tally's numerals
+     (components/JudgmentTally.vue). Human judgments only. */
+  tally: {
+    kept: 'kept',
+    removed: 'removed',
+    added: 'added',
+    split: 'split',
+  },
+
+  /* DRAFT — the dashed badge for a strip whose marks nobody checked. */
+  badge: {
+    notChecked: 'Not checked',
   },
 
   bands: {

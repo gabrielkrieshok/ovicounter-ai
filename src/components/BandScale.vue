@@ -79,7 +79,7 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
       <span
         v-for="band in bands"
         :key="band.key"
-        class="label"
+        class="label t-label"
         :class="{ active: band.key === active.key }"
         :style="{ flex: band.weight }"
       >
@@ -111,8 +111,8 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
 .zone {
   height: 28px;
   background: var(--panel);
-  border: var(--bd-fine) solid var(--rule-idle);
-  border-radius: 4px;
+  border: var(--bd) solid var(--rule-idle);
+  border-radius: var(--r-panel);
 }
 .zone.active {
   background: var(--ink);
@@ -129,12 +129,13 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
 }
 .label {
   text-align: center;
-  font: 500 13px var(--font-sans);
   color: var(--muted);
 }
 .label.active {
-  font-weight: 700;
   color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 .count {
@@ -150,9 +151,9 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
 .stem {
   position: absolute;
   bottom: 58px;
-  width: 2px;
+  width: 3px;
   height: 16px;
-  margin-left: -1px;
+  margin-left: -1.5px;
   background: var(--ink);
 }
 
@@ -167,8 +168,8 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
   border-color: var(--disabled);
 }
 .machine .label.active {
-  font-weight: 600;
   color: var(--muted);
+  text-decoration: none;
 }
 .machine .stem {
   background: var(--disabled);

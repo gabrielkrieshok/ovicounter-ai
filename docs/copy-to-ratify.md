@@ -26,6 +26,9 @@ attention. All of it must survive translation to Spanish.
 | Strip result | "~{n} found by the app. You made no changes." | Shown instead of "{n} eggs, checked by you — this strip is {band}" when the operator did nothing on Your fixes (no remove, add, split, zoom or pan). The count stays grey with a leading `~` and no band is named. Before this, tapping straight through read "1,193 eggs, checked by you" with 0 removed and 0 added. |
 | Strip result | "DEMO — NOT SAVED" / "NOT SAVED YET" | The handoff draws only "SAVED ON THIS PHONE ✓", which assumes a record was written. A demo writes none by promise, and nothing writes any until persistence exists, so the badge would otherwise be false in both cases. |
 | Session summary | The entire screen | Wireframe 2j only; it has never had a hi-fi pass. Strings are the wireframe's own words, which is the best source available but not a ratified one. The wireframe's "Route 3 — Tuesday · 47 min" implies a route naming scheme the app does not have, so it renders as weekday and elapsed minutes. |
+| Everywhere (MarkKey) | "found by the app" / "you kept it" / "you removed it" / "you added one" | Field Manual brief §2: one wording for the mark language on every screen. "found by the app" is new; the other three were Welcome's. Replaces Welcome's "the app found something" and Your fixes' "machine, kept" / "✕ removed" / "+ added" (the last two were RATIFIED and are retired by the brief). |
+| Your fixes, Strip result (JudgmentTally) | "kept" / "removed" / "added" / "split" | Labels under the tally numerals. Replace Strip result's RATIFIED "{n} machine" / "✕ {n} removed" / "+ {n} added", retired by the brief. |
+| Welcome, Strip result (StatusBadge) | "Not checked" | Dashed badge for a strip whose marks nobody checked (`checked: false`). |
 
 ## Also unresolved
 

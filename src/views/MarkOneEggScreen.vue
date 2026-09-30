@@ -158,9 +158,7 @@ function go() {
     <div class="footer">
       <AppButton
         v-if="correcting && !measurement"
-        variant="outline"
-        :size="52"
-        :font="15"
+        variant="secondary"
         class="grow-1"
         @click="keepMarks"
       >
@@ -168,9 +166,7 @@ function go() {
       </AppButton>
       <AppButton
         v-else
-        variant="outline"
-        :size="52"
-        :font="15"
+        variant="secondary"
         class="grow-1"
         :disabled="!measurement"
         @click="pickAnother"
@@ -178,9 +174,7 @@ function go() {
         {{ t('calibrate.pickAnother') }}
       </AppButton>
       <AppButton
-        variant="filled"
-        :size="62"
-        :font="17"
+        variant="primary"
         class="grow-13"
         :disabled="!measurement || busy"
         @click="go"

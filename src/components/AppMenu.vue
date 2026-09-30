@@ -60,7 +60,7 @@ function endSession() {
 
       <p class="about">{{ t('menu.about') }}</p>
 
-      <AppButton variant="outline" :size="52" :font="15" @click="emit('close')">
+      <AppButton variant="secondary" @click="emit('close')">
         {{ t('menu.close') }}
       </AppButton>
     </div>
