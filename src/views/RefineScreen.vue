@@ -187,14 +187,14 @@ onMounted(() => {
         />
       </ImageStage>
 
-      <p v-if="lostGhosts.length && !showOriginal" class="ghost-caption">
+      <p v-if="lostGhosts.length && !showOriginal" class="ghost-caption t-label">
         {{ t('refine.ghostCaption') }}
       </p>
     </div>
 
     <div class="controls">
       <div class="control">
-        <label class="label" for="split">{{ t('refine.lightDarkSplit') }}</label>
+        <label class="label t-title" for="split">{{ t('refine.lightDarkSplit') }}</label>
         <div class="track">
           <input
             id="split"
@@ -209,7 +209,7 @@ onMounted(() => {
       </div>
 
       <div class="control">
-        <label class="label" for="speck">{{ t('refine.speckSize') }}</label>
+        <label class="label t-title" for="speck">{{ t('refine.speckSize') }}</label>
         <div class="track">
           <input
             id="speck"
@@ -222,21 +222,22 @@ onMounted(() => {
           />
           <span class="tick" :style="{ left: tickOffset }" />
         </div>
-        <p class="hint">{{ tickCaption }}</p>
+        <p class="hint t-body">{{ tickCaption }}</p>
       </div>
 
       <AppButton variant="quiet" @click="markAnEgg">
         {{ t('refine.markAnEgg') }}
       </AppButton>
 
-      <div class="footer">
-        <AppButton variant="secondary" class="grow-1" @click="backToStart">
-          {{ t('refine.backToStart') }}
-        </AppButton>
-        <AppButton variant="primary" class="grow-13" @click="done">
-          {{ t('refine.marksLookRight') }}
-        </AppButton>
-      </div>
+    </div>
+
+    <div class="footer">
+      <AppButton variant="secondary" bar class="back" @click="backToStart">
+        {{ t('refine.backToStart') }}
+      </AppButton>
+      <AppButton variant="primary" bar class="go" @click="done">
+        {{ t('refine.marksLookRight') }}
+      </AppButton>
     </div>
   </div>
 </template>
@@ -280,30 +281,28 @@ onMounted(() => {
   border: var(--bd-fine) solid var(--ink);
   border-radius: var(--r-badge);
   padding: 6px var(--sp-10);
-  font: 500 12px var(--font-sans);
   color: var(--ink);
 }
 
 .controls {
+  flex: none;
   border-top: var(--bd) solid var(--ink);
-  padding: var(--sp-16) 20px;
+  padding: var(--sp-16);
   display: flex;
   flex-direction: column;
   gap: var(--sp-16);
 }
 .label {
   display: block;
-  margin-bottom: var(--sp-8);
-  font: 600 14px var(--font-sans);
+  margin-bottom: var(--sp-14);
 }
 .hint {
-  margin: 6px 0 0;
-  font: 400 12px var(--font-sans);
+  margin: var(--sp-14) 0 0;
   color: var(--muted);
 }
 
-/* 8px track, 24px ink thumb — the handoff's geometry, which no stock range
-   input provides.
+/* An 8px ink-outlined track and a 28px square black thumb (Field Manual brief
+   §4), inside a 44px touch band.
 
    The track is a real element and the input is a transparent 44px band laid
    over it. Painting the track on the input itself does not survive this app's
@@ -312,17 +311,18 @@ onMounted(() => {
 .track {
   position: relative;
   height: 8px;
-  border-radius: 4px;
+  border: var(--bd-inner) solid var(--ink);
   background: var(--track-progress);
 }
+/* The calibration tick: pink, because it marks the egg the calibration was
+   measured from — the mark language's "added by a person" hue. */
 .tick {
   position: absolute;
-  top: -4px;
-  margin-left: -1.5px;
-  width: 3px;
-  height: 16px;
+  top: -8px;
+  margin-left: -2px;
+  width: 4px;
+  height: 20px;
   background: var(--pink);
-  border-radius: 2px;
   pointer-events: none;
 }
 
@@ -347,10 +347,10 @@ onMounted(() => {
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
-  margin-top: calc((var(--hit-min) - 24px) / 2);
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  margin-top: calc((var(--hit-min) - 28px) / 2);
+  border-radius: 0;
   background: var(--ink);
   border: 0;
   cursor: pointer;
@@ -360,43 +360,39 @@ onMounted(() => {
   background: transparent;
 }
 .slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
   background: var(--ink);
   border: 0;
   cursor: pointer;
 }
 
-
 .footer {
+  flex: none;
   display: flex;
-  gap: var(--sp-10);
 }
-.grow-1 { flex: 1; }
-.grow-13 { flex: 1.3; }
+.footer .back {
+  flex: 1;
+  border-right-width: var(--bd);
+}
+.footer .go {
+  flex: 1.3;
+}
 
-/* Laptop: stage left at full height, header and controls in the right pane. */
+/* Laptop (brief §5): header, sliders and actions on the left; the photograph
+   on the right at full height. */
 .wide .refine {
   display: grid;
-  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
-  grid-template-rows: auto 1fr;
+  grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
+  grid-template-rows: auto auto 1fr auto;
 }
-.wide .refine > .head {
-  grid-column: 2;
-  grid-row: 1;
-}
+.wide .refine > .head { grid-column: 1; grid-row: 1; }
+.wide .refine > .controls { grid-column: 1; grid-row: 2; border-top: 0; }
+.wide .refine > .footer { grid-column: 1; grid-row: 4; }
 .wide .refine > .stage-wrap {
-  grid-column: 1;
-  grid-row: 1 / -1;
-  border-right: var(--bd) solid var(--ink);
-}
-.wide .refine > .controls {
   grid-column: 2;
-  grid-row: 2;
-  border-top: 0;
-}
-.wide .refine .footer {
-  margin-top: auto;
+  grid-row: 1 / -1;
+  border-left: var(--bd) solid var(--ink);
 }
 </style>
