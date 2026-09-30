@@ -283,6 +283,31 @@ function resetView() {
   pan.value = { x: 0, y: 0 }
 }
 
+/* For the zoom buttons (ZoomRail): the same zoom the wheel does, about the
+   middle of the stage, for people who do not know they can pinch. */
+function zoomBy(factor) {
+  const s = stageSize.value
+  if (!s.width || !s.height || !natural.value.width) return
+  zoomAbout({ x: s.width / 2, y: s.height / 2 }, zoom.value * factor)
+  emit('navigate')
+}
+
+/* What the stage is showing, as a box in normalised image coordinates clipped
+   to the strip — what the Overview outlines, and what coverage is measured
+   against. The whole strip at zoom 1. */
+const viewport = computed(() => {
+  const r = rect.value
+  const s = stageSize.value
+  if (!r.width || !r.height) return { x0: 0, y0: 0, x1: 1, y1: 1 }
+  const clip = (v) => Math.min(1, Math.max(0, v))
+  return {
+    x0: clip(-r.left / r.width),
+    y0: clip(-r.top / r.height),
+    x1: clip((s.width - r.left) / r.width),
+    y1: clip((s.height - r.top) / r.height),
+  }
+})
+
 async function load(source) {
   if (!source) {
     painted.value = null
@@ -340,11 +365,54 @@ function paint() {
   ctx.drawImage(source, r.left, r.top, r.width, r.height)
 }
 
+/* Where the stage's top-left sat on the page at the last measure. When the
+   stage is resized from above — Your fixes' overview band arriving as the
+   operator zooms past 1 — the photograph is kept where it was on screen by
+   moving the pan by however far the stage itself moved, so nothing jumps
+   under a pinch. */
+let lastOrigin = null
+
 function measure() {
   const el = root.value
   if (!el) return
+  const bounds = el.getBoundingClientRect()
+  const before = lastOrigin && natural.value.width ? {
+    x: lastOrigin.x + rect.value.left,
+    y: lastOrigin.y + rect.value.top,
+  } : null
   stageSize.value = { width: el.clientWidth, height: el.clientHeight }
+  if (before) {
+    const after = { x: bounds.left + rect.value.left, y: bounds.top + rect.value.top }
+    pan.value = clampPan({
+      x: pan.value.x + (before.x - after.x),
+      y: pan.value.y + (before.y - after.y),
+    })
+    rebaseGesture(bounds.left - lastOrigin.x, bounds.top - lastOrigin.y)
+  }
+  lastOrigin = { x: bounds.left, y: bounds.top }
   paint()
+}
+
+/* A gesture in flight remembers its fingers in stage coordinates, and the
+   stage just moved under them by (dx, dy). Shift what it remembers, and start
+   a pinch or pan afresh from here — otherwise its next move would recompute
+   the pan from the old origin and undo the correction above. */
+function rebaseGesture(dx, dy) {
+  if (!dx && !dy) return
+  for (const [id, p] of pointers) pointers.set(id, { x: p.x - dx, y: p.y - dy })
+  if (!gesture) return
+  if (gesture.start) gesture.start = { x: gesture.start.x - dx, y: gesture.start.y - dy }
+  if (gesture.kind === 'pinch' && pointers.size >= 2) {
+    const [a, b] = [...pointers.values()]
+    gesture.distance = Math.hypot(a.x - b.x, a.y - b.y) || 1
+    gesture.midpoint = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+    gesture.zoom = zoom.value
+    gesture.pan = { ...pan.value }
+  } else if (gesture.kind === 'pan') {
+    gesture.pan = { ...pan.value }
+    const p = [...pointers.values()][0]
+    if (p) gesture.start = { ...p }
+  }
 }
 
 onMounted(() => {
@@ -362,7 +430,7 @@ onBeforeUnmount(() => {
 watch(() => props.src, load)
 watch(rect, paint)
 
-defineExpose({ toImage, toStage, rect, resetView, zoom })
+defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, viewport, natural })
 </script>
 
 <template>
@@ -377,7 +445,14 @@ defineExpose({ toImage, toStage, rect, resetView, zoom })
     @wheel="onWheel"
   >
     <canvas ref="canvas" class="photo" />
-    <slot :rect="rect" :stage="stageSize" :hold="hold" :stroke="stroke" :zoom="zoom" />
+    <slot
+      :rect="rect"
+      :stage="stageSize"
+      :hold="hold"
+      :stroke="stroke"
+      :zoom="zoom"
+      :viewport="viewport"
+    />
   </div>
 </template>
 

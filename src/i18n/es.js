@@ -147,11 +147,18 @@ export default {
 
   fixes: {
     title: 'Revise las marcas',
-    sub: 'Toque una marca para quitarla · mantenga pulsado el papel vacío para agregar un huevo',
-    splitHint: 'trace una línea sobre un grupo para separarlo',
     undo: '↩ deshacer',
     done: 'Listo — contarlas',
     adjust: '¿Las marcas se ven mal? Ajústelas',
+    cellTap: 'Tocar = quitar',
+    cellHold: 'Mantener = agregar',
+    cellLine: 'Línea = separar',
+    step1: 'Toque una marca para quitarla',
+    step2: 'Mantenga pulsado el papel vacío para agregar un huevo',
+    step3: 'Trace una línea sobre un grupo para separarlo',
+    lookedAt: 'Revisado de cerca · {n} de {total} partes',
+    zoomOut: 'Alejar',
+    zoomIn: 'Acercar',
   },
 
   result: {

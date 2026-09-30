@@ -10,6 +10,7 @@ same day. Work the items in order, one or two commits each, each one working.
 | --- | --- | --- |
 | 1 | no Archivo/Plex in `src` `public`; fonts precached and render offline; contrast passes; walk passes at 390 and 1440 | grep empty; all 8 faces in `sw.js` PRECACHE and `document.fonts.load` ok for each with the network off (production build, SW-controlled); `check-contrast` passes; walk ✓ at 390×844 and 1440×900 (photo 61%) |
 | 2 | no screen sets its own font, colour or border outside the parts and roles | Parts built: AppButton (primary/secondary/quiet), AppBar (counter), StripHeader, MarkKey, JudgmentTally, BandScale and StatusBadge (restyled; BandBadge folded in). Adopted where an equivalent existed: every button, Your fixes, Strip result, Refine, Welcome. Overview and ZoomRail are built in item 3 with the stage they drive. **Grep not yet clean — 44 `font:` rules and 4 colour literals remain, all in screens item 4 restyles; closed there.** Walk ✓ at 390 and 1440. |
+| 3 | walk passes; photo ≥60% of 1440; untouched pass still 3 decisions with machine styling at 390 | Walk ✓ at 390×844 and 1440×900; photo **61%** at 1440; 3 decisions and machine styling ✓ at both. Phone stage at zoom 1: strip fills **37%** of the stage height (179 of 478px) — was 34% (179 of 523) before Field Manual. A fixed band would have given 52%; Gabriel chose to collapse it at zoom 1. Tap-to-remove verified on a real mark at 390 (tally 1, undo → 0). Coverage counts 2 of 8 after two rail zooms. |
 
 Decisions made along the way, flagged for review:
 
@@ -29,6 +30,19 @@ Decisions made along the way, flagged for review:
   favicon and install icon. Say if it should come back.
 - **Refine's photo toggle is 44px**, up from the hi-fi's 34 — it was below the
   tap-target minimum.
+- **Coverage is measured along the strip's length only.** "Fully inside the
+  viewport" is read as the part's whole width on screen at zoom ≥ 2. Requiring
+  its full height too would make no part countable on the laptop, where at
+  zoom 2 the strip is already taller than the stage.
+- **The phone's overview band collapses at zoom 1** (Gabriel's call, over a
+  fixed band). As it arrives, `ZoomPanStage` keeps the photograph still on
+  screen and restarts any pinch in flight from where the fingers are, so the
+  strip does not jump under a two-finger zoom.
+- **The laptop shows no Overview thumbnail**, as in the mockup; where you are is
+  the yellow outline on the 8-segment coverage bar under the photo.
+- **Open question 2 — yellow on the Overview box: kept** (Gabriel, Sep 30).
+- **Open question 1 — untouched marks: stay blue until looked at** (Gabriel,
+  Sep 30). Built as its own commit after item 3.
 - `--desk` keeps its old value until item 5 retires it for `--panel`.
 
 Reference images are in `docs/field-manual-refs/`. They are mockups, not

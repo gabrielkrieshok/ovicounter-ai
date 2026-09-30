@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import { markRadius, ringWidth } from '@/lib/marks'
+import { MARK_COLOUR as COLOUR, markRadius, ringWidth } from '@/lib/marks'
 
 /* The mark language, drawn once for every screen that shows marks.
  *
@@ -45,13 +45,6 @@ const canvas = ref(null)
    keeps it from swallowing the paper on one whose eggs are thirty. Zooming in
    walks a mark up to the ceiling, which is the point of zooming. The ring
    thins as the mark shrinks so the egg stays visible inside it at zoom 1. */
-
-const COLOUR = {
-  proposed: '#1250c8',
-  kept: '#0a8f4d',
-  removed: '#c02d12',
-  added: '#e0158f',
-}
 
 function drawRing(ctx, x, y, r, colour, dashed) {
   const width = ringWidth(r)

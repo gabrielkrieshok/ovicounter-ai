@@ -1,14 +1,18 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
+import CoverageBar from '@/components/CoverageBar.vue'
+import JudgmentTally from '@/components/JudgmentTally.vue'
 import MagnifierLoupe from '@/components/MagnifierLoupe.vue'
 import MarkKey from '@/components/MarkKey.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
+import Overview from '@/components/Overview.vue'
 import StripHeader from '@/components/StripHeader.vue'
 import ZoomPanStage from '@/components/ZoomPanStage.vue'
-import { t } from '@/i18n'
+import ZoomRail from '@/components/ZoomRail.vue'
+import { t, weekday } from '@/i18n'
 import { markAt } from '@/lib/marks'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -31,6 +35,31 @@ const router = useRouter()
 const session = useSessionStore()
 const strip = useStripStore()
 const stage = ref(null)
+const wide = inject('wideLayout', ref(false))
+
+/* What the stage shows, read back from it — the Overview's box, the coverage
+   bar's outline, and what coverage is measured against. */
+const zoom = computed(() => stage.value?.zoom ?? 1)
+const viewport = computed(() => stage.value?.viewport ?? { x0: 0, y0: 0, x1: 1, y1: 1 })
+watch([viewport, zoom], () => strip.noteLooked(viewport.value, zoom.value))
+
+/* "Strip 2 · Wednesday" above the title on the laptop; nothing on a quick
+   count, which is not strip anything of anything. */
+const eyebrow = computed(() => {
+  if (!session.isActive || session.isQuick) return ''
+  return [t('capture.strip', { n: session.stripNumber }), weekday(session.startedAt)].join(' · ')
+})
+
+/* Human judgments only (non-negotiable 1). The phone has room for two and
+   Undo; the laptop column has room for splits too. */
+const tally = computed(() => {
+  const cells = [
+    { kind: 'removed', n: strip.removedCount },
+    { kind: 'added', n: strip.addedCount },
+  ]
+  if (wide.value) cells.push({ kind: 'split', n: strip.splitCount })
+  return cells
+})
 
 onMounted(() => {
   if (!strip.working) {
@@ -75,10 +104,35 @@ function done() {
 </script>
 
 <template>
-  <div class="fixes">
-    <StripHeader class="head" :title="t('fixes.title')">
-      <p class="sub t-body">{{ t('fixes.sub') }}</p>
+  <div class="fixes" :class="{ zoomed: zoom > 1.001 }">
+    <StripHeader class="head" :title="t('fixes.title')" :eyebrow="wide ? eyebrow : ''">
+      <ol v-if="wide" class="steps">
+        <li><span class="num t-title">1</span><span class="t-body">{{ t('fixes.step1') }}</span></li>
+        <li><span class="num t-title">2</span><span class="t-body">{{ t('fixes.step2') }}</span></li>
+        <li><span class="num t-title">3</span><span class="t-body">{{ t('fixes.step3') }}</span></li>
+      </ol>
+      <div v-else class="cells">
+        <span class="cell t-label">{{ t('fixes.cellTap') }}</span>
+        <span class="cell t-label">{{ t('fixes.cellHold') }}</span>
+        <span class="cell t-label">{{ t('fixes.cellLine') }}</span>
+      </div>
     </StripHeader>
+
+    <!-- Phone: zoomed past 1, a band above the stage shows the whole strip with
+         a box for where you are and the parts already looked at. At zoom 1 it
+         collapses (Gabriel, Sep 30): the stage already shows the whole strip,
+         and showing it twice costs the stage 132px. The stage keeps the photo
+         still on screen as the band arrives (ZoomPanStage `measure`). -->
+    <div v-if="!wide && zoom > 1.001" class="band">
+      <Overview
+        class="overview"
+        :source="strip.working?.canvas ?? null"
+        :marks="strip.marks"
+        :viewport="viewport"
+        :looked="strip.looked"
+      />
+      <CoverageBar tone="dark" :looked="strip.looked" />
+    </div>
 
     <div class="stage-wrap">
       <ZoomPanStage
@@ -109,17 +163,28 @@ function done() {
           :anchor="hold.stage"
           :stage="size"
         />
-
-        <span v-if="!hold && stroke.length < 2" class="hint">{{ t('fixes.splitHint') }}</span>
       </ZoomPanStage>
+      <ZoomRail
+        v-if="!wide"
+        class="stage-rail"
+        :zoom="zoom"
+        :show-level="false"
+        @zoom="(f) => stage?.zoomBy(f)"
+      />
     </div>
 
-    <div class="footer">
-      <AppButton v-if="session.isQuick" variant="quiet" @click="adjust">
-        {{ t('fixes.adjust') }}
-      </AppButton>
-      <div class="legend">
-        <MarkKey layout="row" :show="['kept', 'removed', 'added']" />
+    <!-- Laptop: under the photograph, how to move it, how much has been looked
+         at and where the stage is, and what the marks mean. -->
+    <div v-if="wide" class="under">
+      <ZoomRail :zoom="zoom" @zoom="(f) => stage?.zoomBy(f)" />
+      <CoverageBar class="coverage" :looked="strip.looked" :viewport="viewport" />
+      <MarkKey layout="row" :show="['kept', 'removed', 'added']" />
+    </div>
+
+    <JudgmentTally class="tally" :cells="tally">
+      <!-- Only on the phone. A slot passed but left empty would still draw a
+           fourth, blank cell. -->
+      <template v-if="!wide" #default>
         <AppButton
           class="undo"
           variant="secondary"
@@ -128,9 +193,25 @@ function done() {
         >
           {{ t('fixes.undo') }}
         </AppButton>
-      </div>
+      </template>
+    </JudgmentTally>
 
-      <AppButton variant="primary" @click="done">
+    <div v-if="session.isQuick" class="adjust">
+      <AppButton variant="quiet" @click="adjust">{{ t('fixes.adjust') }}</AppButton>
+    </div>
+
+    <div class="done-row">
+      <AppButton
+        v-if="wide"
+        class="undo"
+        variant="secondary"
+        bar
+        :disabled="!strip.history.length"
+        @click="strip.undo()"
+      >
+        {{ t('fixes.undo') }}
+      </AppButton>
+      <AppButton class="done" variant="primary" bar @click="done">
         {{ t('fixes.done') }}
       </AppButton>
     </div>
@@ -145,14 +226,72 @@ function done() {
   flex-direction: column;
 }
 
-.sub {
-  margin: 0;
+.cells {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: var(--bd) solid var(--ink);
+}
+.cell {
+  padding: var(--sp-8) var(--sp-8);
+  display: flex;
+  align-items: center;
+}
+.cell + .cell {
+  border-left: var(--bd) solid var(--ink);
+}
+
+.steps {
+  list-style: none;
+  margin: var(--sp-8) calc(-1 * var(--sp-16)) calc(-1 * var(--sp-14));
+  padding: 0;
+  border-top: var(--bd) solid var(--ink);
+}
+.steps li {
+  display: flex;
+  align-items: stretch;
+  min-height: 60px;
+}
+.steps li + li {
+  border-top: var(--bd) solid var(--ink);
+}
+.num {
+  flex: none;
+  width: 56px;
+  display: grid;
+  place-items: center;
+  border-right: var(--bd) solid var(--ink);
+}
+.steps .t-body {
+  display: flex;
+  align-items: center;
+  padding: var(--sp-8) var(--sp-16);
+}
+
+.band {
+  flex: none;
+  height: 156px;
+  padding: var(--sp-10) var(--sp-16);
+  background: var(--stage-bg);
+  border-bottom: var(--bd) solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+.band .overview {
+  flex: 1;
 }
 
 .stage-wrap {
   flex: 1;
   position: relative;
   min-height: 0;
+}
+/* Not `.rail` — that is ZoomRail's own root class, and a rule here by that
+   name also pinned the laptop's rail over the mark key. */
+.stage-rail {
+  position: absolute;
+  right: 0;
+  bottom: 0;
 }
 
 .stroke {
@@ -169,55 +308,65 @@ function done() {
   stroke-linejoin: round;
 }
 
-.hint {
-  position: absolute;
-  left: var(--sp-14);
-  bottom: var(--sp-14);
-  background: var(--paper);
-  border: var(--bd-fine) solid var(--ink);
-  border-radius: var(--r-badge);
-  padding: 6px var(--sp-10);
-  font: 500 12px var(--font-sans);
-  color: var(--ink);
-  pointer-events: none;
+.tally {
+  flex: none;
+  border-bottom: 0;
 }
 
-.footer {
-  border-top: var(--bd) solid var(--ink);
-  padding: var(--sp-12) var(--sp-16) var(--sp-16);
+.adjust {
+  padding: 0 var(--sp-16);
 }
 
-.legend {
+.done-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-8) var(--sp-12);
-  margin-bottom: var(--sp-12);
+  flex: none;
 }
-.undo {
+.done-row .undo {
+  flex: 0 0 auto;
   width: auto;
-  margin-left: auto;
+  min-height: var(--hit-primary);
+  padding: 0 var(--sp-22);
+  border-top-width: var(--bd);
+  border-right-width: var(--bd);
 }
 
-/* Laptop: stage left at full height, header top-right, legend and Done
-   bottom-right. */
+/* Laptop (Field Manual brief §3, §5): the controls column on the left — the
+   header with its numbered steps, the tally, the way to the sliders, and Undo
+   and Done as one bar at the foot; the photograph on the right at contain, with
+   the zoom rail, coverage and the mark key in a strip beneath it. */
 .wide .fixes {
   display: grid;
-  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
+  grid-template-rows: auto auto 1fr auto auto;
 }
-.wide .fixes > .head {
-  grid-column: 2;
-  grid-row: 1;
-}
+.wide .fixes > .head { grid-column: 1; grid-row: 1; border-bottom: 0; }
+.wide .fixes > .tally { grid-column: 1; grid-row: 2; border-bottom: var(--bd) solid var(--ink); }
+.wide .fixes > .adjust { grid-column: 1; grid-row: 4; padding-bottom: var(--sp-8); }
+.wide .fixes > .done-row { grid-column: 1; grid-row: 5; }
 .wide .fixes > .stage-wrap {
-  grid-column: 1;
-  grid-row: 1 / -1;
-  border-right: var(--bd) solid var(--ink);
-}
-.wide .fixes > .footer {
   grid-column: 2;
-  grid-row: 3;
-  border-top: 0;
+  grid-row: 1 / 5;
+  border-left: var(--bd) solid var(--ink);
+}
+.wide .fixes > .under {
+  grid-column: 2;
+  grid-row: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-22);
+  padding: var(--sp-12) var(--sp-16);
+  border-left: var(--bd) solid var(--ink);
+  border-top: var(--bd) solid var(--ink);
+  background: var(--paper);
+}
+.wide .fixes .coverage {
+  flex: 1 1 0;
+  min-width: 160px;
+}
+.wide .fixes .under > :not(.coverage) {
+  flex: none;
+}
+.wide .fixes .done-row .done {
+  flex: 1;
 }
 </style>

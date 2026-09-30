@@ -55,7 +55,9 @@ defineProps({
   background: var(--paper);
 }
 
-.v-primary.bar {
+/* A bar keeps only its rule on top; a secondary beside a primary bar in one
+   row (Undo | Done on the laptop) draws its own divider. */
+.bar {
   border-width: var(--bd) 0 0;
 }
 

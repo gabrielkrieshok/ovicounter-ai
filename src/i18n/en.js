@@ -181,13 +181,27 @@ export default {
   fixes: {
     // RATIFIED
     title: 'Check the marks',
-    sub: 'Tap a mark to remove it · press and hold empty paper to add an egg',
-    splitHint: 'draw a line across a clump to split it',
     undo: '↩ undo',
     done: 'Done — count them',
     /* DRAFT — a quick count arrives here without passing Refine; this is the
        way to the sliders for anyone who wants them. */
     adjust: 'Marks look wrong? Adjust them',
+    /* DRAFT (Field Manual brief §3) — the instruction row on the phone and the
+       numbered steps on the laptop. They replace the RATIFIED "Tap a mark to
+       remove it · press and hold empty paper to add an egg" and "draw a line
+       across a clump to split it". Uppercase is CSS only. */
+    cellTap: 'Tap = remove',
+    cellHold: 'Hold = add',
+    cellLine: 'Line = split',
+    step1: 'Tap a mark to remove it',
+    step2: 'Hold empty paper to add an egg',
+    step3: 'Draw across a clump to split it',
+    /* DRAFT — coverage: parts of the strip wholly on screen at zoom ≥ 2. The
+       person's effort, never the machine's count. */
+    lookedAt: 'Looked at close up · {n} of {total} parts',
+    // DRAFT — accessible names for the zoom buttons.
+    zoomOut: 'Zoom out',
+    zoomIn: 'Zoom in',
   },
 
   result: {

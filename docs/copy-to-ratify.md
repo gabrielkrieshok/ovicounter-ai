@@ -29,6 +29,10 @@ attention. All of it must survive translation to Spanish.
 | Everywhere (MarkKey) | "found by the app" / "you kept it" / "you removed it" / "you added one" | Field Manual brief §2: one wording for the mark language on every screen. "found by the app" is new; the other three were Welcome's. Replaces Welcome's "the app found something" and Your fixes' "machine, kept" / "✕ removed" / "+ added" (the last two were RATIFIED and are retired by the brief). |
 | Your fixes, Strip result (JudgmentTally) | "kept" / "removed" / "added" / "split" | Labels under the tally numerals. Replace Strip result's RATIFIED "{n} machine" / "✕ {n} removed" / "+ {n} added", retired by the brief. |
 | Welcome, Strip result (StatusBadge) | "Not checked" | Dashed badge for a strip whose marks nobody checked (`checked: false`). |
+| Your fixes (phone) | "Tap = remove" · "Hold = add" · "Line = split" | Field Manual brief §3: the boxed instruction row under the title. Replaces the RATIFIED "Tap a mark to remove it · press and hold empty paper to add an egg" and the "draw a line across a clump to split it" hint. |
+| Your fixes (laptop) | "1 Tap a mark to remove it" · "2 Hold empty paper to add an egg" · "3 Draw across a clump to split it" | The numbered steps in the laptop's controls column. |
+| Your fixes | "Looked at close up · {n} of {total} parts" | Coverage: parts of the strip wholly on screen at zoom ≥ 2. The person's effort, never the machine's count. |
+| Your fixes | "Zoom out" / "Zoom in" | Accessible names for the ZoomRail buttons; not visible. |
 
 ## Also unresolved
 

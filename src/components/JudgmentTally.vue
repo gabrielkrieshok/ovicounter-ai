@@ -55,6 +55,13 @@ defineProps({
   padding: 0;
   align-items: stretch;
 }
+/* A button in the extra cell (Undo) fills it; the tally's rules are its
+   border. */
+.cell.extra > :deep(button) {
+  flex: 1;
+  border: 0;
+  min-height: 0;
+}
 
 /* The `title` role a step down, so three labels share a 390px row. Long
    languages wrap to a second line rather than being cut: "+ acrescentadas". */

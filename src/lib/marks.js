@@ -7,6 +7,16 @@
    the mark shrinks (Sep 2026). At the 7px floor a 2.5px stroke leaves a 2px
    hole, and the egg under it — three or four pixels across at zoom 1 on a
    phone — was invisible. A mark has to show what it marks. */
+/* The mark hues, for canvases that cannot read a CSS custom property. Must
+   match --blue, --green, --red and --pink in tokens.css; these four mean a mark
+   and nothing else. */
+export const MARK_COLOUR = {
+  proposed: '#1250c8',
+  kept: '#0a8f4d',
+  removed: '#c02d12',
+  added: '#e0158f',
+}
+
 export const RING_WIDTH = 2.5
 export const MIN_RING_WIDTH = 1.25
 export const MIN_DIAMETER = 7

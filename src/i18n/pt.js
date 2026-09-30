@@ -153,11 +153,18 @@ export default {
 
   fixes: {
     title: 'Verifique as marcas',
-    sub: 'Toque numa marca para a retirar · mantenha premido o papel vazio para acrescentar um ovo',
-    splitHint: 'trace uma linha sobre um aglomerado para o separar',
     undo: '↩ anular',
     done: 'Concluído — contá-las',
     adjust: 'As marcas parecem erradas? Ajuste-as',
+    cellTap: 'Tocar = retirar',
+    cellHold: 'Premir = acrescentar',
+    cellLine: 'Linha = separar',
+    step1: 'Toque numa marca para a retirar',
+    step2: 'Mantenha premido o papel vazio para acrescentar um ovo',
+    step3: 'Trace uma linha sobre um aglomerado para o separar',
+    lookedAt: 'Vista de perto · {n} de {total} partes',
+    zoomOut: 'Afastar',
+    zoomIn: 'Aproximar',
   },
 
   result: {

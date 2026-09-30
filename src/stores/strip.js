@@ -20,6 +20,11 @@ import { useSessionStore } from './session'
 
 let nextMarkId = 1
 
+/* Coverage on Your fixes: how many parts the strip is divided into along its
+   length, and how far in the stage must be for a part to count as looked at. */
+export const COVERAGE_PARTS = 8
+export const COVERAGE_ZOOM = 2
+
 export const useStripStore = defineStore('strip', {
   state: () => ({
     /* The photograph as taken: a bundled sample path, or an object URL for a
@@ -78,6 +83,12 @@ export const useStripStore = defineStore('strip', {
        the product. Each entry carries what is needed to put the marks back
        exactly as they were, not a description of what changed. */
     history: [],
+
+    /* Coverage (Field Manual brief §3): the strip in COVERAGE_PARTS equal parts
+       along its length, and whether each has been fully on screen at zoom ≥
+       COVERAGE_ZOOM. It measures the person's effort — where they looked close
+       up — and never the machine's count. Nothing is blocked on it. */
+    looked: Array(COVERAGE_PARTS).fill(false),
   }),
 
   getters: {
@@ -273,6 +284,19 @@ export const useStripStore = defineStore('strip', {
     /** Any act of review — including just zooming in to look. */
     noteReview() {
       this.reviewed = true
+    },
+
+    /** Mark the parts wholly inside `viewport` (normalised, along x) as looked
+     *  at, if the stage is zoomed in far enough to see eggs rather than rings. */
+    noteLooked(viewport, zoom) {
+      if (zoom < COVERAGE_ZOOM) return
+      for (let i = 0; i < COVERAGE_PARTS; i++) {
+        if (this.looked[i]) continue
+        const from = i / COVERAGE_PARTS
+        const to = (i + 1) / COVERAGE_PARTS
+        const eps = 1e-6
+        if (viewport.x0 <= from + eps && viewport.x1 >= to - eps) this.looked[i] = true
+      }
     },
 
     /**
