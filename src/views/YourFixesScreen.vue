@@ -84,7 +84,6 @@ function done() {
         ref="stage"
         :src="strip.working?.canvas ?? null"
         background="var(--stage-bg)"
-        initial-fit="cover"
         @tap="onTap"
         @add="onAdd"
         @stroke="onStroke"

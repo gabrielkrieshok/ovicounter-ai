@@ -194,7 +194,7 @@ async function main() {
 
   /* How much of the viewport the photograph takes. On Refine the ImageStage
      canvas IS the photograph's box; on Your fixes the ZoomPanStage canvas is
-     the stage, and at cover fit the photograph is at least that wide. */
+     the stage, and a wide strip at contain fit spans its full width. */
   const photoShare = async (selector) => {
     const m = await evaluate(`(() => {
       const el = document.querySelector(${JSON.stringify(selector)});

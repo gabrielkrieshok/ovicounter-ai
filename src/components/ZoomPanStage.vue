@@ -37,9 +37,10 @@ const props = defineProps({
   maxZoom: { type: Number, default: 8 },
   /* How the strip opens. 'contain' shows all of it at zoom 1. 'cover' opens
      fitted to the stage's larger dimension — zoomed in until the strip fills
-     the pane — which is what the hi-fi draws and what a 2.18:1 strip needs in
-     a portrait pane, where contain is a band one third of the height. Zoom 1
-     is still contain either way: the whole strip is one pinch out. */
+     the pane. Your fixes opened at cover from Sep 19 to Sep 30, 2026, and was
+     put back to contain: on a wide strip cover hid two thirds of it, and the
+     operator could not tell what had been left unseen. Zoom 1 is contain
+     either way. */
   initialFit: { type: String, default: 'contain' },
 })
 

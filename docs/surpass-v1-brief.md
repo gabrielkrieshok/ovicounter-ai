@@ -22,10 +22,10 @@ Decisions made along the way that the brief did not settle, flagged for review:
   walk came back at 562: the sweep takes the first cutoff above the grain step
   (50), the probe's own contrast lands on the plateau (97 → 364). The sweep
   still applies after a tap, where it was compensating for a sample of one.
-- **Your fixes opens at cover on the phone too**, not only on the laptop. The
-  reason given ("a band one third of the height") applies to both. Zoom 1 is
-  still the whole strip.
-- **Refine is contain on the laptop**, cover in the frame (the hi-fi).
+- ~~**Your fixes opens at cover on the phone too**~~ and ~~**Refine is contain
+  on the laptop, cover in the frame**~~. Reversed Sep 30, 2026: every screen
+  that shows the marks opens on the whole strip, at every width; zoom in from
+  there. Cover hid two thirds of a wide strip.
 - **The demo's result offers "Back to home", not "Start a session with these
   settings"**: the demo's calibration belongs to a bundled photograph and would
   be carried onto real paper.

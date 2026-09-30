@@ -200,7 +200,7 @@ function backHome() {
     <div class="thumb">
       <ImageStage
         :src="strip.working?.canvas ?? null"
-        fit="cover"
+        fit="contain"
         background="var(--stage-bg)"
         v-slot="{ rect, stage }"
       >

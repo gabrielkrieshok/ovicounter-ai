@@ -1,5 +1,5 @@
 <script setup>
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
@@ -33,12 +33,6 @@ import { useStripStore } from '@/stores/strip'
 const router = useRouter()
 const session = useSessionStore()
 const strip = useStripStore()
-
-/* On a laptop the stage is most of the screen, so the whole strip fits at a
-   size where every egg is visible — and "have I seen all of it?" is answered
-   at a glance. In the phone frame the hi-fi's cover fit stands. */
-const wide = inject('wideLayout', ref(false))
-const stageFit = computed(() => (wide.value ? 'contain' : 'cover'))
 
 const showOriginal = ref(false)
 const ghosts = ref([])
@@ -165,10 +159,14 @@ onMounted(() => {
       </button>
     </header>
 
+    <!-- The whole strip, at every width (Sep 30, 2026). The hi-fi draws cover in
+         the phone frame, but a strip is far wider than it is tall and cover
+         showed about a third of it — the operator tuned against marks on part
+         of the strip without seeing the rest. -->
     <div class="stage-wrap">
       <ImageStage
         :src="strip.working?.canvas ?? null"
-        :fit="stageFit"
+        fit="contain"
         background="var(--stage-bg)"
         v-slot="{ rect, stage }"
       >

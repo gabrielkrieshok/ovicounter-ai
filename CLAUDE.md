@@ -104,14 +104,14 @@ drawing and hit-testing have to agree about how big a mark is.
 `MarkLayer` sizes its canvas to the STAGE and draws through the transform. Sizing
 it to the image would mean a 9600px-wide backing store at 4× zoom.
 
-**Zoom 1 is the whole strip** (contain), and **Your fixes opens at cover**
-(`initial-fit="cover"`, Sep 2026 brief §3): fitted to the stage's larger
-dimension so a wide strip fills the pane instead of a band one third of the
-height, with the whole strip one pinch out. On a 2.18:1 strip in a 0.8:1 stage,
-cover shows about a third of its width — so "have I checked all of it?" is
-answered by zooming out, not by the opening view. Refine uses cover in the
-phone frame (hi-fi) and contain on the laptop, where the whole strip fits at a
-size every egg is visible.
+**Zoom 1 is the whole strip** (contain), and **every screen that shows the
+marks opens on all of it** — Processing, Refine, Your fixes, Strip result, at
+every width (Gabriel, Sep 30, 2026). Your fixes opened at cover for eleven days
+(brief §3) and Refine did in the phone frame (the hi-fi): on a 2.18:1 strip in a
+0.8:1 stage cover shows about a third of the width, and the operator could not
+tell what was left unseen. On a phone the whole strip is a band and the eggs are
+small; that is what zoom is for. Mark one egg keeps cover — it is a single tap
+on a single egg, with no zoom.
 
 **Rings thin as marks shrink** (`lib/marks.js` `ringWidth`): 2.5px from an
 18px diameter down to 1.25px at the 7px floor, with 2px clearance each side of

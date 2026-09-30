@@ -102,7 +102,7 @@ onMounted(async () => {
     </header>
 
     <div class="stage-wrap">
-      <ImageStage :src="shown" fit="cover" background="var(--ink)" v-slot="{ rect, stage }">
+      <ImageStage :src="shown" fit="contain" background="var(--ink)" v-slot="{ rect, stage }">
         <MarkLayer :marks="marks" :boxes="boxes" :rect="rect" :stage="stage" />
       </ImageStage>
       <span class="buffer-badge mono">{{ currentBadge }}</span>
