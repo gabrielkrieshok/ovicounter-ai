@@ -4,6 +4,25 @@ Written Sep 30, 2026 from a design review of `v2` at 390×844 and 1440×900
 (`tools/walk-flow.mjs`, all checks passing). Decisions are Gabriel's, made the
 same day. Work the items in order, one or two commits each, each one working.
 
+## Status
+
+| Item | Done-when | Measured |
+| --- | --- | --- |
+| 1 | no Archivo/Plex in `src` `public`; fonts precached and render offline; contrast passes; walk passes at 390 and 1440 | grep empty; all 8 faces in `sw.js` PRECACHE and `document.fonts.load` ok for each with the network off (production build, SW-controlled); `check-contrast` passes; walk ✓ at 390×844 and 1440×900 (photo 61%) |
+
+Decisions made along the way, flagged for review:
+
+- **Mark hues as text only at tally size.** Pink (4.49:1) and green (4.16:1)
+  miss 4.5:1 on white and cannot change. `check-contrast` holds them to the
+  large-text 3:1, and every small label next to a coloured glyph is ink.
+- **MarkLayer's + / ✕ are Barlow 600, not 700** — no Barlow 700 file is
+  shipped, and a canvas would fake one. Ink centre is within 0.8px of the mark
+  centre at every size (13–31px). ✕ is outside the Latin subset and comes from
+  the system font, as it did with Archivo.
+- **`font-synthesis: none`**: until items 2–4 move every screen onto the roles,
+  old 700/800 sans rules render at Barlow 600 rather than a fake bold.
+- `--desk` keeps its old value until item 5 retires it for `--panel`.
+
 Reference images are in `docs/field-manual-refs/`. They are mockups, not
 pixel specs: where a screenshot and this brief disagree, this brief wins; where
 either disagrees with a non-negotiable in `CLAUDE.md`, `CLAUDE.md` wins. Say so

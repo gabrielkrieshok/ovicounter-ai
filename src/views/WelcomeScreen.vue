@@ -209,7 +209,7 @@ async function startDemo() {
 .intro {
   margin: var(--sp-14) 0 0;
   font: 400 15px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
   line-height: 1.45;
 }
 .burger {
@@ -288,7 +288,7 @@ async function startDemo() {
   align-items: center;
   gap: var(--sp-12);
   font: 400 14px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 /* The same shapes and colours the marks themselves use — shape carrying the
    meaning redundantly with colour, exactly as on the strip. */
@@ -334,7 +334,7 @@ async function startDemo() {
   align-items: baseline;
 }
 .day { font: 600 15px var(--font-sans); }
-.older .day { color: var(--ink-soft); }
+.older .day { color: var(--ink); }
 .strips {
   font: 500 13px var(--font-mono);
   color: var(--muted);

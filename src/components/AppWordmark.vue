@@ -3,9 +3,9 @@
  * AI in the lightest.
  *
  * The lockup is carried over from the v1 app, which set `Ovicounter` at black
- * and `AI` at thin. Archivo here spans 400–800, so 800 against 400 reproduces
- * that contrast within the self-hosted range — no ninth weight to fetch, and
- * nothing fetched at runtime.
+ * and `AI` at thin. In the Field Manual face that is Barlow Condensed 800
+ * against 600, the lightest condensed weight shipped — nothing fetched at
+ * runtime.
  *
  * Not translated, and deliberately not in the i18n bundles. A product name is
  * not copy; it reads the same in every locale, and putting it in `en.js` would
@@ -51,8 +51,7 @@ defineProps({
 }
 
 .name {
-  font-family: var(--font-sans);
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
   white-space: nowrap;
 }
 .name b {
@@ -61,7 +60,7 @@ defineProps({
 /* Light rather than italic — `i` is only the shortest tag for the second half
    of a lockup that has no semantic emphasis in it. */
 .name i {
-  font-weight: 400;
+  font-weight: 600;
   font-style: normal;
   /* The two halves are one word in v1's lockup; a hair of space keeps the
      weight change readable without breaking it into two. */

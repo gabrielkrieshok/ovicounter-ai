@@ -116,7 +116,7 @@ function takeAgain() {
 .body {
   margin: 0 0 var(--sp-16);
   font: 400 15px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
   line-height: 1.45;
 }
 

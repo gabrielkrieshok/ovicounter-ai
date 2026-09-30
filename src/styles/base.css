@@ -1,17 +1,20 @@
 /* Self-hosted fonts. Nothing is fetched from Google at runtime — the app must
-   work with no network at all. Archivo 400–800 and IBM Plex Mono 400–700 are
-   the full range the design uses; every weight below has a file. */
+   work with no network at all, and every file here is precached with the
+   shell (vite.config.js reads this directory). Latin subset, which covers
+   Spanish and Portuguese. Only the weights the type roles use are shipped,
+   and `font-synthesis: none` below means a weight that is not here renders
+   at the nearest real one instead of a smeared fake bold. */
 
-@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 400; font-display: block; src: url('/fonts/archivo-400.woff2') format('woff2'); }
-@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 500; font-display: block; src: url('/fonts/archivo-500.woff2') format('woff2'); }
-@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 600; font-display: block; src: url('/fonts/archivo-600.woff2') format('woff2'); }
-@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 700; font-display: block; src: url('/fonts/archivo-700.woff2') format('woff2'); }
-@font-face { font-family: 'Archivo'; font-style: normal; font-weight: 800; font-display: block; src: url('/fonts/archivo-800.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 600; font-display: block; src: url('/fonts/barlowcond-600.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 700; font-display: block; src: url('/fonts/barlowcond-700.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow Condensed'; font-style: normal; font-weight: 800; font-display: block; src: url('/fonts/barlowcond-800.woff2') format('woff2'); }
 
-@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: block; src: url('/fonts/plexmono-400.woff2') format('woff2'); }
-@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500; font-display: block; src: url('/fonts/plexmono-500.woff2') format('woff2'); }
-@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600; font-display: block; src: url('/fonts/plexmono-600.woff2') format('woff2'); }
-@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 700; font-display: block; src: url('/fonts/plexmono-700.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow'; font-style: normal; font-weight: 400; font-display: block; src: url('/fonts/barlow-400.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow'; font-style: normal; font-weight: 500; font-display: block; src: url('/fonts/barlow-500.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow'; font-style: normal; font-weight: 600; font-display: block; src: url('/fonts/barlow-600.woff2') format('woff2'); }
+
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 500; font-display: block; src: url('/fonts/jbmono-500.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; font-display: block; src: url('/fonts/jbmono-700.woff2') format('woff2'); }
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -25,6 +28,7 @@ body {
   font-family: var(--font-sans);
   color: var(--ink);
   background: var(--desk);
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
   /* Field tool: no accidental page zoom or rubber-band while dragging crop
@@ -50,3 +54,45 @@ button {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---- Type roles (Field Manual brief §1) -------------------------------
+   Seven roles, and nothing else sets type. Uppercase is CSS only: the strings
+   in en.js, es.js and pt.js stay sentence case, so screen readers, translators
+   and ratified copy never see capitals that are only a look. Laptop sizes
+   apply inside the wide layout App.vue marks with `.wide`. */
+
+.t-display {
+  font: 800 40px/38px var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+.t-title {
+  font: 700 22px/24px var(--font-display);
+  text-transform: uppercase;
+}
+.t-body {
+  font: 500 17px/24px var(--font-sans);
+}
+.t-label {
+  font: 700 12px/16px var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.t-count-human {
+  font: 700 88px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.t-count-machine {
+  font: 500 20px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.t-tally {
+  font: 700 28px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.wide .t-display { font-size: 60px; line-height: 54px; }
+.wide .t-count-human { font-size: 96px; }
+.wide .t-tally { font-size: 44px; }

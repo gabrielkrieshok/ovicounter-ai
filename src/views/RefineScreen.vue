@@ -278,7 +278,7 @@ onMounted(() => {
   border-radius: var(--r-badge);
   padding: 6px var(--sp-10);
   font: 500 12px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 
 .controls {
@@ -372,8 +372,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   font: 600 14px var(--font-sans);
-  color: var(--blue);
+  color: var(--ink);
   text-decoration: underline;
+  text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 

@@ -339,7 +339,7 @@ async function pickFile(event) {
 /* A check that has actually passed reads as ink; one that has not stays muted,
    so the row is a live report rather than a row of decorative ticks. */
 .chip.ok {
-  color: var(--ink-soft);
+  color: var(--ink);
   border-color: var(--ink);
 }
 

@@ -158,7 +158,7 @@ function done() {
 .sub {
   margin: 2px 0 0;
   font: 400 13px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 
 .stage-wrap {
@@ -190,7 +190,7 @@ function done() {
   border-radius: var(--r-badge);
   padding: 6px var(--sp-10);
   font: 500 12px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
   pointer-events: none;
 }
 
@@ -215,7 +215,7 @@ function done() {
   gap: 5px;
   white-space: nowrap;
   font: 500 13px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 .item.removed {
   font-weight: 600;
@@ -254,8 +254,9 @@ function done() {
   display: flex;
   align-items: center;
   font: 600 14px var(--font-sans);
-  color: var(--blue);
+  color: var(--ink);
   text-decoration: underline;
+  text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 

@@ -211,7 +211,7 @@ function go() {
 .sub {
   margin: 6px 0 0;
   font: 400 15px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
   line-height: 1.45;
 }
 

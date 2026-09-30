@@ -1,39 +1,48 @@
 /* Design tokens. These names are the contract — do not introduce colours,
-   radii or sizes that are not in this file. See docs/design-brief.md §5 for
-   the type scale, per-component geometry and motion timings that sit on top
-   of these values. */
+   radii, rules or sizes that are not in this file.
+
+   Field Manual (Sep 30, 2026, docs/field-manual-brief.md): sunlight first.
+   Pure black and white, square corners, heavy rules, a safety-yellow primary
+   action. The type roles that sit on top of these values are in base.css;
+   screens use the roles and the shared parts in src/components/, not their own
+   sizes. The mark hues below are unchanged from the handoff and mean a mark
+   and nothing else. */
 
 :root {
   /* ---- Colour ---------------------------------------------------------- */
-  --ink: #14100c;          /* text, borders, filled/primary */
-  --paper: #fffdf9;        /* app surface, inverse text */
-  --panel: #f3efe6;        /* app bar, inset panels */
-  --desk: #ded8cd;         /* harness background only */
-  --muted: #6b6155;        /* secondary text, offline chip */
-  --ink-soft: #3d362d;     /* body copy */
-  --disabled: #a49a8c;     /* upcoming step labels */
-  --rule-idle: #cfc6b6;    /* stepper connectors, idle borders */
-  --track-toggle: #d8d0c2;
-  --track-progress: #e6dfd2;
+  --ink: #000000;          /* text, rules, the app bar */
+  --paper: #ffffff;        /* work surface, inverse text */
+  --panel: #f1f1ee;        /* sunken panels, idle band zones */
+  --desk: #ded8cd;         /* harness background only (→ --panel in brief §5) */
+  --muted: #4a4a4a;        /* secondary text — 4.5:1 on paper and on panel */
+  --disabled: #9a9a9a;     /* disabled and upcoming; never text you must read */
+  --rule-idle: #9a9a9a;    /* idle outlines: band zones not active */
+  --track-progress: var(--panel);
 
-  --blue: #1250c8;         /* provisional markers, links */
-  --green: #0a8f4d;        /* kept detections */
-  --red: #c02d12;          /* dropped detections */
-  --pink: #e0158f;         /* hand-added eggs */
-  --cyan: #19d5ff;         /* bounding boxes */
-  --amber: #ffd23f;        /* in-progress step */
+  /* Yellow means "you / here / go": the primary action's fill (black text),
+     the overview's viewport box, the strip counter on the app bar, and
+     Processing's current step. It replaces --amber. */
+  --action: #ffd23f;
+
+  /* The mark language — a mark and nothing else. Links are ink, underlined. */
+  --blue: #1250c8;         /* found by the app: dashed */
+  --green: #0a8f4d;        /* kept: solid */
+  --red: #c02d12;          /* removed: ✕ */
+  --pink: #e0158f;         /* added: + */
+  --cyan: #19d5ff;         /* crop box only */
   --single: #3fa9ff;       /* lone egg */
 
-  --scrim: rgba(20, 16, 12, 0.62);
-  --stage-bg: #2a241d;     /* image stage backing, Crop screen */
+  --scrim: rgba(0, 0, 0, 0.62);
+  --stage-bg: #111111;     /* behind photographs only */
 
   /* Marker legibility over photography — never for depth */
   --halo-light: 0 0 0 1px rgba(255, 255, 255, 0.55);
   --halo-dark: 0 0 0 1px rgba(0, 0, 0, 0.45);
 
   /* ---- Type ------------------------------------------------------------ */
-  --font-sans: 'Archivo', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+  --font-display: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --font-sans: 'Barlow', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
   /* ---- Spacing --------------------------------------------------------- */
   --sp-5: 5px;
@@ -46,21 +55,23 @@
   --sp-22: 22px;
 
   /* ---- Radius ---------------------------------------------------------- */
-  --r-badge: 6px;
-  --r-small: 8px;          /* small buttons, back button */
-  --r-panel: 9px;          /* inset panels, paired buttons */
-  --r-primary: 10px;       /* primary buttons, image stages */
-  --r-toggle: 14px;
+  /* Square, everywhere. The names stay so a component says which role its
+     corner plays; --r-device is the ?frame=1 phone frame and nothing else. */
+  --r-badge: 0;
+  --r-small: 0;
+  --r-panel: 0;
+  --r-primary: 0;
   --r-device: 22px;
 
-  /* ---- Borders --------------------------------------------------------- */
-  --bd: 2px;               /* almost everywhere */
+  /* ---- Rules ----------------------------------------------------------- */
+  --bd: 3px;               /* structural: bars, cards, button outlines, stage edges */
+  --bd-inner: 2px;         /* dividers inside a group */
   --bd-fine: 1.5px;        /* badges, fine overlays */
   --bd-crop: 3px;          /* crop box */
 
-  /* ---- Hit sizes ------------------------------------------------------- */
-  --hit-primary: 62px;
-  --hit-secondary: 52px;
+  /* ---- Hit sizes (may only go up) -------------------------------------- */
+  --hit-primary: 76px;     /* the full-width action bar, phone and laptop */
+  --hit-secondary: 52px;   /* secondary buttons, zoom buttons */
   --hit-min: 44px;
   --hit-small: 34px;       /* back button, crop handles */
 

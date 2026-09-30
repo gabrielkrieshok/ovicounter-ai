@@ -159,7 +159,7 @@ function leave() {
 .body {
   margin: 0 0 4px;
   font: 400 15px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
   line-height: 1.45;
 }
 </style>

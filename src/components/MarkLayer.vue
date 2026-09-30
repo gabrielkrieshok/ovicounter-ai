@@ -75,7 +75,10 @@ function drawRing(ctx, x, y, r, colour, dashed) {
 
 function drawGlyph(ctx, x, y, r, colour, glyph) {
   const size = Math.max(13, r * 2.4)
-  ctx.font = `700 ${size}px Archivo, system-ui, sans-serif`
+  /* Barlow 600 — the heaviest Barlow shipped (the brief asks for 700; there
+     is no 700 file, and a canvas would fake one). ✕ is outside the Latin
+     subset and comes from the system font either way. */
+  ctx.font = `600 ${size}px Barlow, system-ui, sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.lineWidth = 3

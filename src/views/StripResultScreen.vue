@@ -289,7 +289,7 @@ function backHome() {
   margin: var(--sp-10) 0 0;
   text-align: center;
   font: 400 15px var(--font-sans);
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 .sentence.unchecked {
   color: var(--muted);

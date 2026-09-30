@@ -149,7 +149,7 @@ onMounted(async () => {
 .track {
   margin-top: var(--sp-10);
   height: 6px;
-  background: var(--ink-soft);
+  background: var(--ink);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -189,7 +189,7 @@ onMounted(async () => {
 }
 .thumb {
   height: 52px;
-  border: var(--bd-fine) solid var(--ink-soft);
+  border: var(--bd-fine) solid var(--ink);
   border-radius: var(--r-small);
   background: var(--stage-bg);
   display: flex;
@@ -197,7 +197,7 @@ onMounted(async () => {
   justify-content: center;
 }
 .current .thumb {
-  border-color: var(--amber);
+  border-color: var(--action);
 }
 .rail-label {
   margin-top: 5px;
@@ -206,7 +206,7 @@ onMounted(async () => {
 }
 .current .rail-label {
   font-weight: 600;
-  color: var(--amber);
+  color: var(--action);
 }
 
 .histogram {
