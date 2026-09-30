@@ -42,7 +42,14 @@ Decisions made along the way, flagged for review:
   the yellow outline on the 8-segment coverage bar under the photo.
 - **Open question 2 — yellow on the Overview box: kept** (Gabriel, Sep 30).
 - **Open question 1 — untouched marks: stay blue until looked at** (Gabriel,
-  Sep 30). Built as its own commit after item 3.
+  Sep 30). A machine mark turns green when its part has been looked at close
+  up; tapping a blue mark removes it and tapping again restores it as kept.
+  Done counts every mark not removed — the same number as before — but marks
+  in parts never looked at stay `proposed` in the record, which now carries
+  `looked`, and Strip result adds "Not looked at close up: {n} of {total}
+  parts" (DRAFT). An untouched strip still falls back to the machine count. On
+  the laptop, where eggs are visible at zoom 1, a person who reviews without
+  zooming leaves every mark blue — coverage asks for zoom ≥ 2 everywhere.
 - `--desk` keeps its old value until item 5 retires it for `--panel`.
 
 Reference images are in `docs/field-manual-refs/`. They are mockups, not

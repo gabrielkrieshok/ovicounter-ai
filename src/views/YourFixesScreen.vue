@@ -66,11 +66,10 @@ onMounted(() => {
     router.replace({ name: 'welcome' })
     return
   }
-  /* Arriving here, the proposals become kept — green — because that is what
-     they will be if the operator does nothing, and the screen should show the
-     count they would sign off on rather than a promise about one. Blue is for
-     marks nobody has looked at yet, and someone is looking now. */
-  strip.acceptRemainingMarks()
+  /* Marks stay dashed blue — found by the app — until the part they sit in
+     has been looked at close up; then they turn green. Parts looked at before
+     a trip to Refine still count. See stores/strip.js `applyLooked`. */
+  strip.applyLooked()
 })
 
 function onTap(point) {

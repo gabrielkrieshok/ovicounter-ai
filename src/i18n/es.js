@@ -165,6 +165,7 @@ export default {
     title: 'Tira {n} — lista',
     sentence: '{n} huevos, revisados por usted — esta tira es {band}',
     unchecked: '~{n} encontrados por la aplicación. Usted no hizo cambios.',
+    partsNotLooked: 'Sin revisar de cerca: {n} de {total} partes',
     saved: 'GUARDADO EN ESTE TELÉFONO ✓',
     notSavedDemo: 'EJEMPLO — NO SE GUARDÓ',
     notSavedYet: 'AÚN NO SE GUARDA',

@@ -88,7 +88,13 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
    strip nobody touched on Your fixes has no human count**: `strip.reviewed`
    (any remove, add, split, zoom or pan) decides, `finishReview` puts untouched
    proposals back to `proposed`, Strip result shows the machine total in
-   machine styling, and the record carries `checked: false`.
+   machine styling, and the record carries `checked: false`. **And a mark is
+   not "kept" until someone looked at it** (Sep 30, 2026): machine marks stay
+   dashed blue on Your fixes until the part of the strip they sit in (one of 8)
+   has been wholly on screen at zoom ≥ 2 (`strip.looked`, `applyLooked`). Done
+   counts every mark not removed; marks in parts never looked at stay
+   `proposed` in the record, which carries `looked`, and Strip result says how
+   many parts that was.
 4. **Nothing learns at runtime**, and no copy implies learning, teaching or
    recounting.
 5. **Nothing implies upload.** "Measuring on this phone", never "loading".

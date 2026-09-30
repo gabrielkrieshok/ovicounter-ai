@@ -25,6 +25,9 @@ let nextMarkId = 1
 export const COVERAGE_PARTS = 8
 export const COVERAGE_ZOOM = 2
 
+/** Which of the COVERAGE_PARTS a mark sits in, along the strip's length. */
+const partOf = (mark) => Math.min(COVERAGE_PARTS - 1, Math.floor(mark.x * COVERAGE_PARTS))
+
 export const useStripStore = defineStore('strip', {
   state: () => ({
     /* The photograph as taken: a bundled sample path, or an object URL for a
@@ -97,9 +100,14 @@ export const useStripStore = defineStore('strip', {
        adjustable. */
     machineTotal: (s) => (s.stats ? s.stats.total : 0),
 
-    /* The human's count: what is on the paper according to the person. */
-    humanCount: (s) =>
-      s.marks.filter((m) => m.status === 'kept' || m.status === 'added').length,
+    /* The count the person signs off on Done: every mark they did not remove.
+       Machine marks in parts they never looked at close up are in it — Done
+       accepts them — but they stay `proposed` in the record, and Strip result
+       says how many parts that was (`partsNotLooked`). */
+    humanCount: (s) => s.marks.filter((m) => m.status !== 'removed').length,
+
+    /* Parts of the strip never wholly on screen at zoom ≥ 2. */
+    partsNotLooked: (s) => s.looked.filter((done) => !done).length,
 
     removedCount: (s) => s.marks.filter((m) => m.status === 'removed').length,
     addedCount: (s) => s.marks.filter((m) => m.status === 'added').length,
@@ -275,9 +283,17 @@ export const useStripStore = defineStore('strip', {
      * that is what they will be if the operator does nothing but look. Whether
      * they actually looked is tracked separately in `reviewed`.
      */
-    acceptRemainingMarks() {
+    /* A machine mark turns from dashed blue ("found by the app") to solid green
+       ("you kept it") only when the part of the strip it sits in has been
+       looked at close up (Gabriel, Sep 30, 2026 — Field Manual brief, open
+       question 1). Before this, every mark turned green the moment Your fixes
+       opened: a claim of "kept" about marks nobody had looked at, the same
+       false claim the Sep 19 brief removed from Strip result. Called on arrival,
+       because Refine regenerates the marks and the parts already looked at
+       still count. */
+    applyLooked() {
       for (const mark of this.marks) {
-        if (mark.status === 'proposed') mark.status = 'kept'
+        if (mark.status === 'proposed' && this.looked[partOf(mark)]) mark.status = 'kept'
       }
     },
 
@@ -297,6 +313,7 @@ export const useStripStore = defineStore('strip', {
         const eps = 1e-6
         if (viewport.x0 <= from + eps && viewport.x1 >= to - eps) this.looked[i] = true
       }
+      this.applyLooked()
     },
 
     /**
@@ -313,7 +330,8 @@ export const useStripStore = defineStore('strip', {
       return false
     },
 
-    /** Tap a mark: kept becomes removed, and tapping again puts it back. */
+    /** Tap a mark: found or kept becomes removed, and tapping again puts it
+     *  back as kept — the person has looked at it now. */
     toggleMark(id) {
       const mark = this.marks.find((m) => m.id === id)
       if (!mark) return

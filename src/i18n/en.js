@@ -211,6 +211,9 @@ export default {
     /* DRAFT — the operator went through Your fixes without touching anything.
        No band, no "checked by you": a machine count is shown as one. */
     unchecked: '~{n} found by the app. You made no changes.',
+    /* DRAFT — open question 1 (Sep 30): the count includes machine marks in
+       parts never looked at close up; they stay blue, and this says so. */
+    partsNotLooked: 'Not looked at close up: {n} of {total} parts',
     saved: 'SAVED ON THIS PHONE ✓',
     /* DRAFT — the handoff draws only the saved state, because it assumes a
        record was written. These cover the two cases where none was. */

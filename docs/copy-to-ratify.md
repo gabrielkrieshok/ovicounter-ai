@@ -33,6 +33,7 @@ attention. All of it must survive translation to Spanish.
 | Your fixes (laptop) | "1 Tap a mark to remove it" · "2 Hold empty paper to add an egg" · "3 Draw across a clump to split it" | The numbered steps in the laptop's controls column. |
 | Your fixes | "Looked at close up · {n} of {total} parts" | Coverage: parts of the strip wholly on screen at zoom ≥ 2. The person's effort, never the machine's count. |
 | Your fixes | "Zoom out" / "Zoom in" | Accessible names for the ZoomRail buttons; not visible. |
+| Strip result | "Not looked at close up: {n} of {total} parts" | Open question 1 (Sep 30): Done counts every mark not removed, including machine marks in parts nobody looked at close up. They stay blue on the thumbnail and `proposed` in the record, and this line says how many parts that was. |
 
 ## Also unresolved
 

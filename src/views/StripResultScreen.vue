@@ -102,6 +102,9 @@ onMounted(() => {
            machine's total and the marks are still `proposed` — the record
            carries no human judgment it did not get. */
         checked: checked.value,
+        /* Which of the parts were looked at close up. Machine marks in the
+           others are still `proposed` — accepted by Done, never judged. */
+        looked: [...strip.looked],
         count: shownCount.value,
         band: band.value.key,
       },
@@ -188,6 +191,11 @@ function backHome() {
           {{ sentence.before }}<b>{{ t(`bands.${band.key}`).toUpperCase() }}</b>{{ sentence.after }}
         </template>
         <template v-else>{{ sentence.before }}</template>
+      </p>
+      <!-- Said, not hidden: the count includes marks in parts nobody looked at
+           close up. They are still blue on the thumbnail below. -->
+      <p v-if="checked && strip.partsNotLooked" class="unlooked t-label">
+        {{ t('result.partsNotLooked', { n: strip.partsNotLooked, total: strip.looked.length }) }}
       </p>
     </div>
 
@@ -276,6 +284,11 @@ function backHome() {
   text-align: center;
   font: 400 15px var(--font-sans);
   color: var(--ink);
+}
+.unlooked {
+  margin: var(--sp-8) 0 0;
+  text-align: center;
+  color: var(--muted);
 }
 .sentence.unchecked {
   color: var(--muted);

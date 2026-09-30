@@ -171,6 +171,7 @@ export default {
     title: 'Tira {n} — concluída',
     sentence: '{n} ovos, verificados por si — nível desta tira: {band}',
     unchecked: '~{n} encontrados pela aplicação. Não fez alterações.',
+    partsNotLooked: 'Não vistas de perto: {n} de {total} partes',
     saved: 'GUARDADO NESTE TELEMÓVEL ✓',
     notSavedDemo: 'EXEMPLO — NÃO GUARDADO',
     notSavedYet: 'AINDA NÃO GUARDADO',
