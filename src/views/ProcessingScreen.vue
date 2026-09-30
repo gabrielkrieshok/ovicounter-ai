@@ -95,7 +95,7 @@ onMounted(async () => {
 <template>
   <div class="processing">
     <header class="head">
-      <h1 class="title">{{ t('processing.title') }}</h1>
+      <h1 class="title t-display">{{ t('processing.title') }}</h1>
       <div class="track">
         <span class="fill" :style="{ width: `${progress}%` }" />
       </div>
@@ -105,7 +105,7 @@ onMounted(async () => {
       <ImageStage :src="shown" fit="contain" background="var(--ink)" v-slot="{ rect, stage }">
         <MarkLayer :marks="marks" :boxes="boxes" :rect="rect" :stage="stage" />
       </ImageStage>
-      <span class="buffer-badge mono">{{ currentBadge }}</span>
+      <span class="buffer-badge t-label">{{ currentBadge }}</span>
     </div>
 
     <div class="rail">
@@ -122,7 +122,7 @@ onMounted(async () => {
           <span v-else-if="step.key === 'boxes'" class="mini-box" />
           <span v-else-if="step.key === 'marks'" class="mini-ring" />
         </div>
-        <div class="rail-label mono">
+        <div class="rail-label t-label">
           {{ t(step.label) }}<template v-if="i === stepIndex"> ◀</template>
         </div>
       </div>
@@ -139,25 +139,22 @@ onMounted(async () => {
 }
 
 .head {
-  padding: 18px 20px var(--sp-12);
+  flex: none;
+  padding: var(--sp-16);
 }
 .title {
   margin: 0;
-  font: 700 17px var(--font-sans);
   color: var(--paper);
 }
 .track {
-  margin-top: var(--sp-10);
-  height: 6px;
-  background: var(--ink);
-  border-radius: 3px;
-  overflow: hidden;
+  margin-top: var(--sp-12);
+  height: 10px;
+  border: var(--bd-inner) solid var(--paper);
 }
 .fill {
   display: block;
   height: 100%;
   background: var(--paper);
-  border-radius: 3px;
   /* 0.12s, driven by real step completion — never a timer pretending to be one. */
   transition: width 0.12s linear;
 }
@@ -171,41 +168,44 @@ onMounted(async () => {
   position: absolute;
   right: var(--sp-12);
   top: var(--sp-12);
-  font: 600 11px var(--font-mono);
-  background: var(--scrim);
-  color: var(--cyan);
-  border-radius: var(--r-badge);
+  background: var(--ink);
+  color: var(--paper);
+  border: var(--bd-fine) solid var(--paper);
   padding: 4px 8px;
 }
 
 .rail {
+  flex: none;
   display: flex;
   gap: var(--sp-8);
   padding: var(--sp-14) var(--sp-16) 18px;
 }
 .rail-step {
   flex: 1;
+  min-width: 0;
   text-align: center;
 }
 .thumb {
   height: 52px;
-  border: var(--bd-fine) solid var(--ink);
+  border: var(--bd-inner) solid var(--rule-idle);
   border-radius: var(--r-small);
   background: var(--stage-bg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+/* The step running now is marked in --action — "you / here / go" — which is
+   the one thing yellow means besides the primary bar. */
 .current .thumb {
-  border-color: var(--action);
+  border: var(--bd) solid var(--action);
 }
 .rail-label {
-  margin-top: 5px;
-  font: 500 10px var(--font-mono);
+  margin-top: var(--sp-5);
+  font-size: 11px;
   color: var(--disabled);
+  overflow-wrap: anywhere;
 }
 .current .rail-label {
-  font-weight: 600;
   color: var(--action);
 }
 
@@ -216,9 +216,7 @@ onMounted(async () => {
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  box-sizing: border-box;
   background: var(--panel);
-  border-radius: var(--r-small);
 }
 .histogram i {
   flex: 1;
@@ -236,23 +234,18 @@ onMounted(async () => {
   border-radius: 50%;
 }
 
-/* Laptop: the buffer left at full height, title and progress top-right, the
-   step rail bottom-right. */
+/* Laptop (brief §5): title, progress and the step rail on the left; the
+   buffer on the right at full height. */
 .wide .processing {
   display: grid;
-  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
   grid-template-rows: auto 1fr auto;
 }
-.wide .processing > .head {
-  grid-column: 2;
-  grid-row: 1;
-}
+.wide .processing > .head { grid-column: 1; grid-row: 1; }
+.wide .processing > .rail { grid-column: 1; grid-row: 3; }
 .wide .processing > .stage-wrap {
-  grid-column: 1;
-  grid-row: 1 / -1;
-}
-.wide .processing > .rail {
   grid-column: 2;
-  grid-row: 3;
+  grid-row: 1 / -1;
+  border-left: var(--bd) solid var(--paper);
 }
 </style>

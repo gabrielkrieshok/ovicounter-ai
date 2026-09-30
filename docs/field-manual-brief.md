@@ -40,7 +40,9 @@ Decisions made along the way, flagged for review:
   strip does not jump under a two-finger zoom.
 - **The laptop shows no Overview thumbnail**, as in the mockup; where you are is
   the yellow outline on the 8-segment coverage bar under the photo.
-- **Open question 2 — yellow on the Overview box: kept** (Gabriel, Sep 30).
+- **Open question 2 — yellow: kept on both the Overview box and Processing's
+  current step** (Gabriel, Sep 30). Processing's step is an outline and a
+  label on ink, on a screen with nothing to press.
 - **Open question 1 — untouched marks: stay blue until looked at** (Gabriel,
   Sep 30). A machine mark turns green when its part has been looked at close
   up; tapping a blue mark removes it and tapping again restores it as kept.
