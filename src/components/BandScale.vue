@@ -28,6 +28,10 @@ const props = defineProps({
      is drawn the way every machine number in this app is drawn — grey,
      smaller, with a leading `~` — and nothing on the scale goes black. */
   machine: { type: Boolean, default: false },
+  /* Strip result shows a checked count as its hero, above the scale (Field
+     Manual brief §4), so the scale drops its own copy and keeps only the stem.
+     An unchecked count stays standing on the scale in machine styling. */
+  showCount: { type: Boolean, default: true },
 })
 
 const active = computed(() => bandFor(props.count, props.bands))
@@ -64,7 +68,7 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
 </script>
 
 <template>
-  <div class="scale" :class="{ machine }" ref="root">
+  <div class="scale" :class="{ machine, bare: !showCount }" ref="root">
     <div class="zones">
       <span
         v-for="band in bands"
@@ -87,7 +91,7 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
       </span>
     </div>
 
-    <div ref="countEl" class="count mono" :style="{ left: countLeft ?? `${pointer}%` }">
+    <div v-if="showCount" ref="countEl" class="count mono" :style="{ left: countLeft ?? `${pointer}%` }">
       <template v-if="machine">~</template>{{ count }}
     </div>
     <div class="stem" :style="{ left: `${pointer}%` }" />
@@ -98,6 +102,9 @@ watch(() => [props.count, props.bands], placeCount, { flush: 'post' })
 .scale {
   position: relative;
   height: 118px;
+}
+.scale.bare {
+  height: 76px;
 }
 
 .zones {

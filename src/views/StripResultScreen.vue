@@ -8,7 +8,6 @@ import ImageStage from '@/components/ImageStage.vue'
 import JudgmentTally from '@/components/JudgmentTally.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
-import StripHeader from '@/components/StripHeader.vue'
 import { bandFor } from '@/lib/bands'
 import { DEMO_PHOTO } from '@/lib/samples'
 import { t, tParts } from '@/i18n'
@@ -176,22 +175,31 @@ function backHome() {
 
 <template>
   <div class="result">
-    <StripHeader class="head" :title="t('result.title', { n: session.strips.length })">
+    <header class="head">
+      <span class="title t-label">{{ t('result.title', { n: session.strips.length }) }}</span>
       <!-- Struck through, grey, mono, with a leading `~`. Everything about it
            says "superseded" — so it only appears when something superseded it. -->
-      <template v-if="checked" #aside>
-        <span class="machine t-count-machine">~{{ strip.machineTotal }}</span>
-      </template>
-    </StripHeader>
+      <span v-if="checked" class="machine t-count-machine">~{{ strip.machineTotal }}</span>
+    </header>
 
     <div class="count-block">
-      <BandScale :count="shownCount" :bands="session.bands" :machine="!checked" />
-      <p class="sentence" :class="{ unchecked: !checked }">
+      <!-- The person's count is the hero: black, unqualified, the largest thing
+           on the screen. An untouched strip has no person's count, and keeps
+           exactly the machine styling it had before — grey, `~`, on the scale. -->
+      <div v-if="checked" class="count hero t-count-human">{{ humanCount }}</div>
+      <p class="sentence t-body" :class="{ unchecked: !checked }">
         <template v-if="checked">
           {{ sentence.before }}<b>{{ t(`bands.${band.key}`).toUpperCase() }}</b>{{ sentence.after }}
         </template>
         <template v-else>{{ sentence.before }}</template>
       </p>
+      <BandScale
+        class="scale-block"
+        :count="shownCount"
+        :bands="session.bands"
+        :machine="!checked"
+        :show-count="!checked"
+      />
       <!-- Said, not hidden: the count includes marks in parts nobody looked at
            close up. They are still blue on the thumbnail below. -->
       <p v-if="checked && strip.partsNotLooked" class="unlooked t-label">
@@ -199,7 +207,7 @@ function backHome() {
       </p>
     </div>
 
-    <!-- The legend is a breakdown of the person's judgments. With none made
+    <!-- The tally is a breakdown of the person's judgments. With none made
          there is nothing to break down. -->
     <JudgmentTally
       v-if="checked"
@@ -221,43 +229,31 @@ function backHome() {
         <MarkLayer :marks="strip.marks" :rect="rect" :stage="stage" />
       </ImageStage>
       <!-- Only claims a record was saved when one actually was. -->
-      <StatusBadge class="saved" :tone="session.recordsPersist ? 'ink' : 'muted'">
-        {{ savedBadge }}
-      </StatusBadge>
+      <div class="badges">
+        <StatusBadge v-if="!checked" tone="dashed">{{ t('badge.notChecked') }}</StatusBadge>
+        <StatusBadge class="saved" :tone="session.recordsPersist ? 'ink' : 'muted'">
+          {{ savedBadge }}
+        </StatusBadge>
+      </div>
     </div>
 
     <div v-if="quick" class="footer stack" :class="{ ready }">
-      <AppButton variant="primary" :disabled="!ready" @click="countAnother">
-        {{ t('result.countAnother') }}
-      </AppButton>
-      <AppButton
-        v-if="!session.isDemo"
-        variant="secondary"
-        :disabled="!ready"
-        @click="startSessionFromHere"
-      >
+      <AppButton v-if="!session.isDemo" variant="secondary" :disabled="!ready" @click="startSessionFromHere">
         {{ t('result.startSession') }}
       </AppButton>
       <AppButton v-else variant="secondary" :disabled="!ready" @click="backHome">
         {{ t('summary.backHome') }}
       </AppButton>
+      <AppButton variant="primary" bar :disabled="!ready" @click="countAnother">
+        {{ t('result.countAnother') }}
+      </AppButton>
     </div>
 
-    <div v-else class="footer" :class="{ ready }">
-      <AppButton
-        variant="secondary"
-        class="grow-1"
-        :disabled="!ready"
-        @click="endSession"
-      >
+    <div v-else class="footer pair" :class="{ ready }">
+      <AppButton variant="secondary" bar class="end" :disabled="!ready" @click="endSession">
         {{ t('result.endSession') }}
       </AppButton>
-      <AppButton
-        variant="primary"
-        class="grow-14"
-        :disabled="!ready"
-        @click="nextStrip"
-      >
+      <AppButton variant="primary" bar class="next" :disabled="!ready" @click="nextStrip">
         {{ t('result.nextStrip') }}
       </AppButton>
     </div>
@@ -272,35 +268,42 @@ function backHome() {
   flex-direction: column;
 }
 
+.head {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--sp-16) var(--sp-16) 0;
+}
 .machine {
   text-decoration: line-through;
 }
 
 .count-block {
-  padding: 34px 20px var(--sp-10);
+  flex: none;
+  padding: var(--sp-8) var(--sp-16) var(--sp-14);
+}
+.hero {
+  line-height: 0.9;
 }
 .sentence {
-  margin: var(--sp-10) 0 0;
-  text-align: center;
-  font: 400 15px var(--font-sans);
-  color: var(--ink);
-}
-.unlooked {
-  margin: var(--sp-8) 0 0;
-  text-align: center;
-  color: var(--muted);
+  margin: var(--sp-8) 0 var(--sp-14);
 }
 .sentence.unchecked {
   color: var(--muted);
-  padding-bottom: var(--sp-14);
+  margin-bottom: 0;
+}
+.unlooked {
+  margin: var(--sp-10) 0 0;
+  color: var(--muted);
 }
 
 .legend {
-  margin: var(--sp-10) 0;
+  flex: none;
 }
 
 .thumb {
-  margin: 6px var(--sp-16);
+  margin: var(--sp-14) var(--sp-16);
   flex: 1;
   min-height: 120px;
   position: relative;
@@ -308,53 +311,51 @@ function backHome() {
   border-radius: var(--r-primary);
   overflow: hidden;
 }
-.saved {
+.badges {
   position: absolute;
   right: var(--sp-10);
   bottom: var(--sp-8);
+  display: flex;
+  gap: var(--sp-8);
 }
 
 .footer {
+  flex: none;
   display: flex;
-  gap: var(--sp-10);
-  padding: var(--sp-16);
   opacity: 0;
   transition: opacity 0.12s linear;
 }
 .footer.ready { opacity: 1; }
 .footer.stack {
   flex-direction: column;
-  padding-top: var(--sp-10);
 }
-.grow-1 { flex: 1; }
-.grow-14 { flex: 1.4; }
+.footer.stack > :first-child {
+  width: auto;
+  margin: 0 var(--sp-16) var(--sp-14);
+}
+.pair .end {
+  flex: 1;
+  border-right-width: var(--bd);
+}
+.pair .next {
+  flex: 1.4;
+}
 
-/* Laptop: the checked strip left at full height; title, scale, legend and the
-   next action in the right pane. */
+/* Laptop (brief §5): the count and its breakdown in the left column, the
+   checked strip on the right at full height. */
 .wide .result {
   display: grid;
-  grid-template-columns: 1fr minmax(var(--device-w), var(--pane-share));
+  grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
   grid-template-rows: auto auto auto 1fr auto;
 }
-.wide .result > .head {
-  grid-column: 2;
-  grid-row: 1;
-}
-.wide .result > .count-block {
-  grid-column: 2;
-  grid-row: 2;
-}
-.wide .result > .legend {
-  grid-column: 2;
-  grid-row: 3;
-}
+.wide .result > .head { grid-column: 1; grid-row: 1; }
+.wide .result > .count-block { grid-column: 1; grid-row: 2; }
+.wide .result > .legend { grid-column: 1; grid-row: 3; }
+.wide .result > .footer { grid-column: 1; grid-row: 5; }
 .wide .result > .thumb {
-  grid-column: 1;
-  grid-row: 1 / -1;
-  margin: var(--sp-16);
-}
-.wide .result > .footer {
   grid-column: 2;
-  grid-row: 5;
+  grid-row: 1 / -1;
+  margin: 0;
+  border-width: 0 0 0 var(--bd);
 }
 </style>
