@@ -60,7 +60,7 @@ provide('wideLayout', wide)
 <style scoped>
 .harness {
   min-height: 100dvh;
-  background: var(--desk);
+  background: var(--panel);
   display: grid;
   place-items: center;
 }
@@ -87,12 +87,15 @@ provide('wideLayout', wide)
 }
 
 /* Laptop: not the phone frame, but not edge to edge either — a panel on the
-   same desk, with the frame's border and corners, filling the window less a
-   gutter. Screens still just fill `.device`; none of them knows about this. */
+   desk (--panel), edged with the 3px ink rule and square like everything else
+   (Field Manual brief §5), filling the window less a gutter. The rounded
+   corner is the ?frame=1 phone frame's alone. Screens still just fill
+   `.device`; none of them knows about this. */
 .harness.wide {
   padding: var(--laptop-gutter);
 }
 .device.wide {
+  border-radius: 0;
   width: 100%;
   max-width: var(--laptop-max-w);
   height: calc(100dvh - 2 * var(--laptop-gutter));

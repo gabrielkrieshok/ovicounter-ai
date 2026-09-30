@@ -13,7 +13,6 @@
   --ink: #000000;          /* text, rules, the app bar */
   --paper: #ffffff;        /* work surface, inverse text */
   --panel: #f1f1ee;        /* sunken panels, idle band zones */
-  --desk: #ded8cd;         /* harness background only (→ --panel in brief §5) */
   --muted: #4a4a4a;        /* secondary text — 4.5:1 on paper and on panel */
   --disabled: #9a9a9a;     /* disabled and upcoming; never text you must read */
   --rule-idle: #9a9a9a;    /* idle outlines: band zones not active */
