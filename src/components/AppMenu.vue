@@ -22,7 +22,7 @@ const emit = defineEmits(['close'])
 const router = useRouter()
 const session = useSessionStore()
 
-const localeNames = { en: 'English', es: 'Español' }
+const localeNames = { en: 'English', es: 'Español', pt: 'Português' }
 
 function endSession() {
   emit('close')
@@ -75,10 +75,15 @@ function endSession() {
   background: var(--scrim);
   display: flex;
   align-items: flex-start;
+  justify-content: flex-end;
   padding: var(--sp-16);
 }
+/* Never wider than the phone it was designed on. On a laptop the scrim is the
+   whole viewport, and a sheet at 100% of it put two language buttons 900px
+   apart; capped, it hangs under the burger that opened it. */
 .sheet {
   width: 100%;
+  max-width: var(--device-w);
   background: var(--paper);
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-primary);

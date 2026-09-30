@@ -68,8 +68,8 @@ function leave() {
 
   <AppMenu :open="menuOpen" @close="menuOpen = false" />
 
-  <div v-if="confirming" class="scrim" @click="confirming = false">
-    <div class="sheet" @click.stop>
+  <div v-if="confirming" class="confirm" @click="confirming = false">
+    <div class="confirm-sheet" @click.stop>
       <h2 class="title">{{ t('menu.leaveTitle') }}</h2>
       <p class="body">{{ t('menu.leaveBody') }}</p>
       <!-- Staying is the filled, larger, first button. The destructive path is
@@ -122,18 +122,26 @@ function leave() {
   border-radius: 1px;
 }
 
-.scrim {
+/* Not `.scrim`: AppMenu's root element carries this component's scope
+   attribute too, as every child root does, so a `.scrim` rule here also styled
+   the menu's backdrop — and centred the menu sheet on a laptop. */
+.confirm {
   position: absolute;
   inset: 0;
   z-index: 11;
   background: var(--scrim);
   display: flex;
   align-items: flex-start;
+  justify-content: center;
   padding: var(--sp-16);
 }
-.sheet {
+/* Capped at the phone's width, for the same reason as the menu sheet. A
+   percentage margin is a share of the WIDTH, so 22% — about 76px in the frame —
+   became 300px on a laptop; the cap keeps the phone's drop at any width. */
+.confirm-sheet {
   width: 100%;
-  margin-top: 22%;
+  max-width: var(--device-w);
+  margin-top: min(22%, 84px);
   background: var(--paper);
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-primary);
