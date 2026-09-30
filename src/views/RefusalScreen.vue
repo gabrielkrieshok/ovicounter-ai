@@ -83,6 +83,7 @@ function takeAgain() {
 
 <style scoped>
 .refusal {
+  container-type: inline-size;
   height: 100%;
   background-size: cover;
   background-position: center;
@@ -93,7 +94,7 @@ function takeAgain() {
   background: var(--scrim);
   display: flex;
   align-items: center;
-  padding: var(--sp-16);
+  padding: var(--sp-16) 0;
 }
 
 /* Square, 3px, one instruction and one way forward (Field Manual brief §4). It
@@ -104,8 +105,22 @@ function takeAgain() {
   margin: 0 auto;
   background: var(--paper);
   border: var(--bd) solid var(--ink);
+  border-width: var(--bd) 0;
   border-radius: var(--r-primary);
-  padding: 20px 20px 0;
+  padding: var(--sp-16) var(--sp-16) 0;
+}
+/* On a phone the card runs the full width. Inset by 16px a side, Spanish and
+   Portuguese refusal titles ran to three lines ("Demasiado desfocada para
+   contar", "No se encontraron huevos en esta foto"); full width, all twelve
+   fit in two. A container query, because in the ?frame=1 phone frame the
+   viewport is wide and the screen is not. */
+@container (min-width: 600px) {
+  .scrim {
+    padding: var(--sp-16);
+  }
+  .card {
+    border-width: var(--bd);
+  }
 }
 
 .title {
@@ -144,7 +159,7 @@ function takeAgain() {
 
 /* Take it again runs the card's full width at its foot, as a bar. */
 .again {
-  margin: 0 -20px;
-  width: calc(100% + 40px);
+  margin: 0 calc(-1 * var(--sp-16));
+  width: calc(100% + 2 * var(--sp-16));
 }
 </style>
