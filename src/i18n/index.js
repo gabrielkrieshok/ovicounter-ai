@@ -1,8 +1,9 @@
-import { reactive } from 'vue'
+import { reactive, watchEffect } from 'vue'
 import en from './en.js'
 import es from './es.js'
+import pt from './pt.js'
 
-const bundles = { en, es }
+const bundles = { en, es, pt }
 
 /* Follows the device. There is no language switcher because there is no
    settings screen — §9 puts those out of scope — and a technician whose phone
@@ -20,6 +21,14 @@ function preferredLocale() {
 export const i18n = reactive({ locale: preferredLocale() })
 
 export const availableLocales = Object.keys(bundles)
+
+/* `lang` on the page follows the switch, so a screen reader pronounces the copy
+   in the language it is written in. */
+if (globalThis.document) {
+  watchEffect(() => {
+    document.documentElement.lang = i18n.locale
+  })
+}
 
 function lookup(bundle, key) {
   return key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), bundle)
@@ -58,6 +67,16 @@ const SLOT = '\u0000'
 export function tParts(key, slot, vars = {}) {
   const [before, after = ''] = t(key, { ...vars, [slot]: SLOT }).split(SLOT)
   return { before, after }
+}
+
+/**
+ * The weekday of an ISO date, in the app's language rather than the browser's.
+ * They differ whenever someone picks a language in the menu, and "martes" in an
+ * English sentence is the result. Reads `i18n.locale`, so a caller inside a
+ * computed re-renders when the language changes.
+ */
+export function weekday(iso) {
+  return new Date(iso).toLocaleDateString(i18n.locale, { weekday: 'long' })
 }
 
 export function setLocale(locale) {

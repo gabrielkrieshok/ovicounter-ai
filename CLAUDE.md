@@ -138,8 +138,10 @@ All copy lives in `src/i18n/en.js`, marked `RATIFIED` (verbatim from the
 handoff — do not reword) or `DRAFT` (written here, needs a decision). Draft
 strings are listed in `docs/copy-to-ratify.md`. Don't invent copy silently.
 
-Spanish (`src/i18n/es.js`) is translated but has not had field review; any
-missing key falls back to English. `node tools/check-i18n.mjs` lists gaps.
+Spanish (`src/i18n/es.js`) and European Portuguese (`src/i18n/pt.js`, Sep
+2026, for Portugal — a pt-BR phone gets it too) are translated but have not had
+field review; each file's header lists what needs it. Any missing key falls back
+to English. `node tools/check-i18n.mjs` lists gaps.
 
 ## The CV pipeline
 

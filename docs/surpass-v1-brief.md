@@ -138,7 +138,8 @@ Done when: from Welcome, the demo reaches a result in three decisions or fewer.
   claim accuracy anywhere.
 - Running tally and a stopping point on Your fixes (Design Brief v2 §3, §6.3).
 - Blur threshold calibration (needs a genuinely blurred field photo).
-- Portuguese.
+- ~~Portuguese.~~ Done Sep 30, 2026 — `src/i18n/pt.js`, European Portuguese,
+  awaiting field review (see its header).
 
 ## Leave alone
 

@@ -202,14 +202,19 @@ function done() {
 
 .legend {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--sp-12);
+  gap: 4px var(--sp-12);
   margin-bottom: var(--sp-12);
 }
+/* A label never breaks inside itself — in Spanish and Portuguese it did,
+   leaving "✕" on one line and "retirada" under it. A long language wraps whole
+   items onto a second row instead; English still fits on one. */
 .item {
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
   font: 500 13px var(--font-sans);
   color: var(--ink-soft);
 }

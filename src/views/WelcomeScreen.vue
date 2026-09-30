@@ -10,7 +10,7 @@ import BandBadge from '@/components/BandBadge.vue'
 import { bandFor } from '@/lib/bands'
 import { SESSION_HISTORY } from '@/lib/dev-fixtures'
 import { DEMO_PHOTO } from '@/lib/samples'
-import { t } from '@/i18n'
+import { t, weekday } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -59,10 +59,6 @@ onMounted(async () => {
 async function resume() {
   if (!(await session.resume(session.resumable.id))) return
   router.push({ name: 'capture' })
-}
-
-function weekday(iso) {
-  return new Date(iso).toLocaleDateString(undefined, { weekday: 'long' })
 }
 
 /* The most recent session shows its bands as badges; older ones collapse to a

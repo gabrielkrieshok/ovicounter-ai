@@ -12,8 +12,9 @@
 
 import en from '../src/i18n/en.js'
 import es from '../src/i18n/es.js'
+import pt from '../src/i18n/pt.js'
 
-const LOCALES = { es }
+const LOCALES = { es, pt }
 
 const flatten = (obj, prefix = '') =>
   Object.entries(obj).flatMap(([key, value]) =>

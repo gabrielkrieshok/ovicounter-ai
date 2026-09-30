@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import { bandHistogram } from '@/lib/bands'
-import { t } from '@/i18n'
+import { t, weekday } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -38,9 +38,7 @@ const histogram = computed(() =>
 )
 
 const day = computed(() =>
-  finished.value
-    ? new Date(finished.value.startedAt).toLocaleDateString(undefined, { weekday: 'long' })
-    : '',
+  finished.value ? weekday(finished.value.startedAt) : '',
 )
 
 function backHome() {
