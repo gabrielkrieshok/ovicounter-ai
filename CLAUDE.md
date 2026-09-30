@@ -11,12 +11,19 @@ proposes.**
 1. `design_handoff_session_flow/README.md` — the handoff. Screen-by-screen
    layouts, the mark language, and the ratified copy.
 2. `design_handoff_session_flow/Ovicounter Hi-Fi.dc.html` — the 8 screens at
-   380×788. **Recreate pixel-perfectly.** Open it in a browser.
-3. `src/styles/tokens.css` — the design contract. Every colour, radius, spacing
-   value and hit size. Do not introduce values that are not in it.
+   380×788. The reference for **structure, flow and ratified copy**. Open it in
+   a browser. Its colours and type are superseded (below); "recreate
+   pixel-perfectly" no longer applies to colour or type.
+3. `docs/field-manual-brief.md` and `src/styles/tokens.css` — the reference
+   for **colour, type, radius and rules** (Field Manual, Sep 30, 2026: pure
+   black and white, square corners, heavy rules, safety-yellow primary action,
+   condensed caps display face). `tokens.css` is the design contract — every
+   colour, radius, rule, spacing value and hit size. Do not introduce values
+   that are not in it. The type roles in `src/styles/base.css` sit on top; a
+   screen uses the roles and the shared parts, never its own font sizes.
 4. The Notion page "Ovicounter AI" → **V2** (project definition) and **Design
    Brief v2** (flow). V2 is the source of truth for *why*; the handoff is the
-   source of truth for *what the screen looks like*.
+   source of truth for *structure and flow*; the Field Manual brief for *look*.
 
 ## Nomenclature
 
@@ -41,10 +48,12 @@ link away on Your fixes.
   the build is a plain static site that also runs from a service-worker cache.
 - **No component library.** The design has a handful of primitives; they are
   SFCs styled with the custom properties in `tokens.css`. The look is the
-  handoff — do not "improve" it, do not add shadows for depth, do not round
-  corners past spec.
-- **Fonts** self-hosted in `public/fonts/` (Archivo 400–800, IBM Plex Mono
-  400–700). Never fetched from Google at runtime.
+  Field Manual brief — do not "improve" it, do not add shadows for depth, and
+  corners are square (`--r-*` are 0; `--r-device` is for the `?frame=1` phone
+  frame only).
+- **Fonts** self-hosted in `public/fonts/` (Barlow Condensed 600/700/800,
+  Barlow 400/500/600, JetBrains Mono 500/700) and precached with the shell.
+  Never fetched from Google at runtime. Archivo and IBM Plex Mono are gone.
 - **OpenCV.js 4.13** in `public/opencv.js`, 8.9MB, bundled not CDN.
 - **All CV runs in a Web Worker.** The main thread never sees `cv` and never
   holds a Mat. Live sliders and pinch-zoom cannot share a thread on a
@@ -53,9 +62,10 @@ link away on Your fixes.
   below 430px. **At 900px and up the frame is dropped and stage screens go
   two-pane** (decided Sep 2026, `docs/surpass-v1-brief.md` §3 — a deliberate
   deviation from "design at 380px inside the frame"; the audience for now is
-  partners and funders on laptops): photograph left at full height, title,
-  controls, legend and actions in a right column never narrower than 380px
-  (`1fr minmax(var(--device-w), var(--pane-share))`). Same components, tokens
+  partners and funders on laptops): title, controls, legend and actions in a
+  LEFT column never narrower than 380px, the photograph on the right at full
+  height (`minmax(var(--device-w), var(--pane-share)) 1fr` — flipped Sep 30,
+  2026, Field Manual brief §5). Same components, tokens
   and copy; each screen carries its own `.wide` rules and App.vue provides
   `wideLayout`. The app is a bordered panel on the desk with a gutter
   (`--laptop-gutter`, max `--laptop-max-w`), not edge to edge (Sep 30, 2026). `?frame=1` in the page URL keeps the frame at any width for
