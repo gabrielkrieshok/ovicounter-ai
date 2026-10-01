@@ -115,10 +115,12 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
 5. **Nothing implies upload.** "Measuring on this phone", never "loading".
    **Share** on Strip result (Oct 2026, `lib/share.js`) is the one way
    anything leaves the phone, and only to where the person picks in their own
-   share sheet: the marked-up image (marks drawn by `lib/marks.js` `drawMark`,
-   the same as on screen, with the count, sentence and date beneath), the
-   original, and the result's sentence as text. Where files cannot be shared
-   (most laptops) it saves both images and copies the text, and says so.
+   share sheet: ONE story-shaped card, 1080×1920 — the name and date, the
+   photograph as taken, the strip with its marks (drawn by `lib/marks.js`
+   `drawMark`, as on screen), and the count on yellow with the sentence, band
+   and judgments — previewed beside the Share button before anything is sent,
+   plus the sentence as text. Where files cannot be shared (most laptops) it
+   saves the card and copies the text, and says so.
 6. **Clump-inferred counts are visible as inferred.**
 7. **Every tap target ≥44px**; primary 62px, secondary 52px.
 8. **Band names and edges are configurable, never hard-coded** — `src/lib/bands.js`.

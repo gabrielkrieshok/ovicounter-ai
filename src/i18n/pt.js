@@ -207,7 +207,14 @@ export default {
 
   share: {
     button: 'Partilhar',
-    saved: 'As fotos marcada e original foram guardadas e o resumo copiado.',
+    saved: 'A imagem foi guardada e o resumo copiado.',
+    what: 'Uma imagem: a sua foto, as marcas e a contagem.',
+    previewAlt: 'A imagem que vai ser partilhada',
+    photoLabel: 'A sua foto',
+    marksChecked: 'As marcas, verificadas por si',
+    marksFound: 'As marcas que a aplicação encontrou',
+    countLabel: 'A contagem',
+    footer: 'Contado neste telemóvel com Ovicounter AI',
   },
 
   about: {

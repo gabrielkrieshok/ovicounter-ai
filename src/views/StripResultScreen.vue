@@ -13,7 +13,7 @@ import { demoPhoto } from '@/lib/samples'
 import StepList from '@/components/StepList.vue'
 import StepNumber from '@/components/StepNumber.vue'
 import { i18n, t, tParts } from '@/i18n'
-import { markedImage, originalPhoto, shareOrSave } from '@/lib/share'
+import { shareOrSave, storyImage } from '@/lib/share'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -124,6 +124,7 @@ onMounted(() => {
   setTimeout(() => {
     ready.value = true
   }, 420)
+  buildCard()
 })
 
 /* Calibration is carried forward, so the next strip skips Mark one egg. That
@@ -172,43 +173,69 @@ async function startSessionFromHere() {
   router.push({ name: 'capture' })
 }
 
-/* Share (Oct 2026): the marked-up photograph with its facts beneath it, the
-   original, and the same sentence this screen says, sent wherever the person
-   picks — nothing leaves the phone before that. Where files cannot be shared
-   (most laptops), both images are saved and the summary copied, and the
-   screen says so. */
+/* Share (Oct 2026): one story-shaped card — the photograph, the marks, the
+   count — previewed here before anything is sent, and sent only to where the
+   person picks in their own share sheet. Where files cannot be shared (most
+   laptops), the card is saved and the summary copied, and the screen says so. */
 const sharing = ref(false)
 const shareNote = ref('')
+const preview = ref('')
+let card = null
+
+function summaryLines() {
+  const bandName = t(`bands.${band.value.key}`).toUpperCase()
+  const said = checked.value
+    ? t('result.sentence', { n: humanCount.value, band: bandName })
+    : t('result.unchecked', { n: strip.machineTotal })
+  const date = new Date().toLocaleDateString(i18n.locale, { day: 'numeric', month: 'long', year: 'numeric' })
+  return { said, date }
+}
+
+async function buildCard() {
+  if (!strip.working || !strip.sourceUrl) return null
+  const { said, date } = summaryLines()
+  const judged = checked.value
+    ? [
+        { kind: 'removed', text: `✕ ${strip.removedCount} ${t('tally.removed')}` },
+        { kind: 'added', text: `+ ${strip.addedCount} ${t('tally.added')}` },
+      ]
+    : null
+  const blob = await storyImage({
+    photoUrl: strip.sourceUrl,
+    working: strip.working.canvas,
+    marks: strip.marks,
+    checked: checked.value,
+    count: checked.value ? String(humanCount.value) : `~${strip.machineTotal}`,
+    bandKey: band.value.key,
+    text: {
+      date,
+      photo: t('share.photoLabel'),
+      marks: t(checked.value ? 'share.marksChecked' : 'share.marksFound'),
+      countLabel: t('share.countLabel'),
+      sentence: strip.drawn !== null ? `${said} ${t('result.testDrawn', { n: strip.drawn })}.` : said,
+      judged,
+      footer: t('share.footer'),
+      bands: session.bands.map((b) => ({ key: b.key, weight: b.weight, label: t(`bands.${b.key}`) })),
+    },
+  })
+  card = blob
+  if (preview.value) URL.revokeObjectURL(preview.value)
+  preview.value = URL.createObjectURL(blob)
+  return blob
+}
+
 async function share() {
   if (sharing.value || !strip.working) return
   sharing.value = true
   shareNote.value = ''
   try {
-    const bandName = t(`bands.${band.value.key}`).toUpperCase()
-    const said = checked.value
-      ? t('result.sentence', { n: humanCount.value, band: bandName })
-      : t('result.unchecked', { n: strip.machineTotal })
-    const date = new Date().toLocaleDateString(i18n.locale, { day: 'numeric', month: 'long', year: 'numeric' })
-    const judged = checked.value
-      ? `✕ ${strip.removedCount} ${t('tally.removed')} · + ${strip.addedCount} ${t('tally.added')}`
-      : ''
-    const lines = [said, [date, judged].filter(Boolean).join(' · ')]
-    if (strip.drawn !== null) lines.push(t('result.testDrawn', { n: strip.drawn }))
-
+    const blob = card ?? (await buildCard())
+    const { said, date } = summaryLines()
     const stem = `ovicounter-${new Date().toISOString().slice(0, 10)}`
-    const marked = await markedImage({
-      canvas: strip.working.canvas,
-      marks: strip.marks,
-      count: checked.value ? String(humanCount.value) : `~${strip.machineTotal}`,
-      lines,
-    })
-    const original = await originalPhoto(strip.sourceUrl)
-    const ext = original.type === 'image/png' ? 'png' : 'jpg'
-    const files = [
-      new File([marked], `${stem}-marked.jpg`, { type: 'image/jpeg' }),
-      new File([original], `${stem}-original.${ext}`, { type: original.type || 'image/jpeg' }),
-    ]
-    const outcome = await shareOrSave({ files, text: ['Ovicounter AI', ...lines].join('\n'), title: 'Ovicounter AI' })
+    const files = [new File([blob], `${stem}.jpg`, { type: 'image/jpeg' })]
+    const lines = ['Ovicounter AI', said, date]
+    if (strip.drawn !== null) lines.push(t('result.testDrawn', { n: strip.drawn }))
+    const outcome = await shareOrSave({ files, text: lines.join('\n'), title: 'Ovicounter AI' })
     if (outcome === 'saved') shareNote.value = t('share.saved')
   } finally {
     sharing.value = false
@@ -295,11 +322,17 @@ function backHome() {
       </div>
     </div>
 
+    <!-- What will be sent, before it is: the card itself, small, beside the
+         button. -->
     <div class="share">
-      <AppButton variant="secondary" class="share-button" :disabled="sharing" @click="share">
-        {{ t('share.button') }}
-      </AppButton>
-      <p v-if="shareNote" class="share-note t-body" role="status">{{ shareNote }}</p>
+      <img v-if="preview" class="share-preview" :src="preview" :alt="t('share.previewAlt')" />
+      <div class="share-side">
+        <p class="share-what t-body">{{ t('share.what') }}</p>
+        <AppButton variant="secondary" class="share-button" :disabled="sharing || !preview" @click="share">
+          {{ t('share.button') }}
+        </AppButton>
+        <p v-if="shareNote" class="share-note t-body" role="status">{{ shareNote }}</p>
+      </div>
     </div>
 
     <div v-if="quick" class="footer stack" :class="{ ready }">
@@ -328,6 +361,7 @@ function backHome() {
 <style scoped>
 .result {
   height: 100%;
+  overflow-y: auto;
   background: var(--paper);
   display: flex;
   flex-direction: column;
@@ -375,7 +409,9 @@ function backHome() {
 .thumb {
   margin: var(--sp-14) var(--sp-16);
   flex: 1;
-  min-height: 120px;
+  /* Gives way first: the share card beside the button shows the marks too, and
+     the actions must stay on a phone's screen. */
+  min-height: 72px;
   position: relative;
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-primary);
@@ -391,7 +427,28 @@ function backHome() {
 
 .share {
   flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-14);
   padding: 0 var(--sp-16) var(--sp-14);
+}
+.share-preview {
+  flex: none;
+  width: 72px;
+  height: 128px;
+  object-fit: cover;
+  border: var(--bd) solid var(--ink);
+}
+.share-side {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+.share-what {
+  margin: 0;
+  color: var(--muted);
 }
 .share-note {
   margin: var(--sp-8) 0 0;

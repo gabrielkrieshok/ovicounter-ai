@@ -261,7 +261,14 @@ export default {
      phone; on a laptop, the images are saved and the summary copied. */
   share: {
     button: 'Share',
-    saved: 'Saved the marked and original photos, and copied the summary.',
+    saved: 'Saved the picture and copied the summary.',
+    what: 'One picture: your photo, the marks and the count.',
+    previewAlt: 'The picture that will be shared',
+    photoLabel: 'Your photo',
+    marksChecked: 'The marks, checked by you',
+    marksFound: 'The marks the app found',
+    countLabel: 'The count',
+    footer: 'Counted on this phone with Ovicounter AI',
   },
 
   /* DRAFT (Oct 2026) — the About page (views/AboutScreen.vue), from the menu.

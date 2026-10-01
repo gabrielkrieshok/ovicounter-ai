@@ -201,7 +201,14 @@ export default {
 
   share: {
     button: 'Compartir',
-    saved: 'Se guardaron las fotos marcada y original, y se copió el resumen.',
+    saved: 'Se guardó la imagen y se copió el resumen.',
+    what: 'Una imagen: su foto, las marcas y el conteo.',
+    previewAlt: 'La imagen que se compartirá',
+    photoLabel: 'Su foto',
+    marksChecked: 'Las marcas, revisadas por usted',
+    marksFound: 'Las marcas que encontró la aplicación',
+    countLabel: 'El conteo',
+    footer: 'Contado en este teléfono con Ovicounter AI',
   },
 
   about: {
