@@ -250,6 +250,15 @@ plain line beside it: the badge on the stage, the note under the slider. The
 names are what the operations are, so they say nothing untrue; the plain
 words stay for the person in the field.
 
+**About is the other exception** (Gabriel, Oct 2026). It explains the
+project to partners: a proof of concept, where AI sits today (classical
+OpenCV, no neural network, on purpose) and where it fits next (a detector
+trained beforehand on checked records, behind the same review, fixed and
+versioned, never changing on the phone). So it says "neural network",
+"trained", "detector" — and it still never says the app learns, and states
+that nothing learns on the phone. It names no partner or funder; `origin`
+is Gabriel's history.
+
 **"AI" is not banned** (decided Aug 2026). Both source documents list it — the
 handoff's copy rules and Design Brief v2 §8 — and that is why the hi-fi wordmark
 reads only "Ovicounter". It was a mistake in those documents: every other word
