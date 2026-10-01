@@ -368,7 +368,7 @@ export default {
      the app" is new, the other three were Welcome's. */
   markKey: {
     /* DRAFT (Oct 2026) — the clump in Welcome's picture. */
-    clump: 'you confirm clumps',
+    clump: 'you confirm them',
     found: 'found by the app',
     kept: 'you kept it',
     removed: 'you removed it',

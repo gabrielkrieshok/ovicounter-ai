@@ -285,7 +285,7 @@ export default {
   },
 
   markKey: {
-    clump: 'usted confirma los grupos',
+    clump: 'usted los confirma',
     found: 'encontrada por la aplicación',
     kept: 'usted la conservó',
     removed: 'usted la quitó',

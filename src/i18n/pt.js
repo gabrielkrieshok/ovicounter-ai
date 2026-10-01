@@ -291,7 +291,7 @@ export default {
   },
 
   markKey: {
-    clump: 'confirma os aglomerados',
+    clump: 'confirma-os',
     found: 'encontrada pela aplicação',
     kept: 'mantida por si',
     removed: 'retirada por si',
