@@ -50,16 +50,13 @@ const eyebrow = computed(() => {
   return [t('capture.strip', { n: session.stripNumber }), weekday(session.startedAt)].join(' · ')
 })
 
-/* Human judgments only (non-negotiable 1). The phone has room for two and
-   Undo; the laptop column has room for splits too. */
-const tally = computed(() => {
-  const cells = [
-    { kind: 'removed', n: strip.removedCount },
-    { kind: 'added', n: strip.addedCount },
-  ]
-  if (wide.value) cells.push({ kind: 'split', n: strip.splitCount })
-  return cells
-})
+/* Human judgments only (non-negotiable 1). Undo moved up beside the tools
+   (Oct 2026), so the tally has room for splits on the phone too. */
+const tally = computed(() => [
+  { kind: 'removed', n: strip.removedCount },
+  { kind: 'added', n: strip.addedCount },
+  { kind: 'split', n: strip.splitCount },
+])
 
 onMounted(() => {
   if (!strip.working) {
@@ -163,7 +160,7 @@ function done() {
     <StripHeader class="head" :title="t('fixes.title')" :eyebrow="wide ? eyebrow : ''">
       <!-- Pick what one finger does; the line under says how, and that two
            fingers move the strip. -->
-      <ToolPicker v-model="tool" />
+      <ToolPicker v-model="tool" :can-undo="!!strip.history.length" @undo="strip.undo()" />
       <p class="tool-hint t-body">
         {{ t(`fixes.hint${tool.charAt(0).toUpperCase()}${tool.slice(1)}`) }}
         <span class="two-fingers">{{ t('fixes.twoFingers') }}</span>
@@ -251,20 +248,7 @@ function done() {
       <CoverageBar class="coverage" :looked="strip.looked" :viewport="viewport" />
     </div>
 
-    <JudgmentTally class="tally" :cells="tally">
-      <!-- Only on the phone. A slot passed but left empty would still draw a
-           fourth, blank cell. -->
-      <template v-if="!wide" #default>
-        <AppButton
-          class="undo"
-          variant="secondary"
-          :disabled="!strip.history.length"
-          @click="strip.undo()"
-        >
-          {{ t('fixes.undo') }}
-        </AppButton>
-      </template>
-    </JudgmentTally>
+    <JudgmentTally class="tally" :cells="tally" />
 
     <div class="adjust">
       <!-- After a run of fixes, the way to Measure says why it might help. -->
@@ -279,16 +263,6 @@ function done() {
     </div>
 
     <div class="done-row">
-      <AppButton
-        v-if="wide"
-        class="undo"
-        variant="secondary"
-        bar
-        :disabled="!strip.history.length"
-        @click="strip.undo()"
-      >
-        {{ t('fixes.undo') }}
-      </AppButton>
       <AppButton class="done" variant="primary" bar @click="done">
         {{ t('fixes.done') }}
       </AppButton>
@@ -406,14 +380,6 @@ function done() {
 .done-row {
   display: flex;
   flex: none;
-}
-.done-row .undo {
-  flex: 0 0 auto;
-  width: auto;
-  min-height: var(--hit-primary);
-  padding: 0 var(--sp-22);
-  border-top-width: var(--bd);
-  border-right-width: var(--bd);
 }
 
 /* Laptop (Field Manual brief §3, §5): the controls column on the left — the
