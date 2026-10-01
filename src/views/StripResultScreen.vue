@@ -20,7 +20,7 @@ import { useStripStore } from '@/stores/strip'
 /* The count.
  *
  * The grey-to-black arc lands here. The machine's provisional total appears in
- * the header struck through — the only place on any screen it survives after
+ * the header as "app found ~n" — the only place on any screen it survives after
  * the operator has touched the marks — and the human's count stands black and
  * unqualified on the band scale below it. The two are never allowed to look
  * like the same kind of thing.
@@ -262,9 +262,10 @@ function backHome() {
     <header class="head" data-step="count">
       <StepNumber />
       <span class="title t-label">{{ t('result.title', { n: session.strips.length }) }}</span>
-      <!-- Struck through, grey, mono, with a leading `~`. Everything about it
-           says "superseded" — so it only appears when something superseded it. -->
-      <span v-if="checked" class="machine t-count-machine">~{{ strip.machineTotal }}</span>
+      <!-- Grey, mono, with a leading `~`, and named as the app's: the person's
+           count below is the answer. Only shown when the person changed
+           something. Struck through until Oct 2026, which read as an error. -->
+      <span v-if="checked" class="machine t-label">{{ t('result.appFound', { n: strip.machineTotal }) }}</span>
     </header>
 
     <div class="count-block">
@@ -385,7 +386,7 @@ function backHome() {
 }
 .machine {
   margin-left: auto;
-  text-decoration: line-through;
+  color: var(--muted);
 }
 
 .count-block {

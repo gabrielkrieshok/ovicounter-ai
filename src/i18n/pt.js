@@ -198,6 +198,7 @@ export default {
     title: 'Tira {n} — concluída',
     sentence: '{n} ovos, verificados por si — nível desta tira: {band}',
     unchecked: '~{n} encontrados pela aplicação. Não fez alterações.',
+    appFound: 'a app encontrou ~{n}',
     partsNotLooked: 'Não vistas de perto: {n} de {total} partes',
     testDrawn: 'Padrão de teste: {n} desenhados',
     saved: 'GUARDADO NESTE TELEMÓVEL ✓',
