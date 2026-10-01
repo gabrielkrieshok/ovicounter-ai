@@ -78,6 +78,11 @@ export default {
     /* DRAFT (Oct 2026) — one way in, then where the photograph comes from.
        "Choose a photo", never "upload": nothing leaves the phone. */
     countSingle: 'Count a single paper strip',
+    /* DRAFT (Oct 2026) — the line under each of Welcome's two buttons, and the
+       footer's heading. */
+    countSingleNote: 'With the camera, a photo already on this phone, or one of three demo photos. Nothing is saved unless you ask.',
+    guideNote: 'The five steps from photograph to count, and what each mark means.',
+    footerLinks: 'More',
     useCamera: 'Use the camera',
     useCameraNote: 'Photograph the strip now. The app will ask to use the camera.',
     choosePhoto: 'Choose a photo',
@@ -317,7 +322,7 @@ export default {
     photo: 'Lay the strip flat in good light and fill the box with it. If the eggs are too small or the photo is soft, the app says so and asks for another.',
     crop: 'The app proposes a box around the strip. Drag the corners if it missed, and straighten the strip if it is tilted.',
     measure: 'The app finds a typical egg on this strip and marks every speck of that size and darkness, showing each picture it makes on the way. Then two sliders set how dark a speck must be and how big; move them until the rings sit on eggs and not on dirt. If the marks still look wrong, mark one egg yourself and it measures again from that.',
-    check: 'Now the marks are yours to judge, one by one. Tap a mark to remove it. Hold empty paper to add an egg. Draw a line across a clump to split it. Pinch, or use + and −, to look closer. A mark stays blue until you have looked at its part of the strip up close.',
+    check: 'Now the marks are yours to judge. Pick a tool — Remove, Keep, Add or Split — and use it with one finger: paint over marks to remove or keep them, touch an egg nobody marked to add it, paint across a clump to split it. Two fingers, or + and −, move the strip and look closer. A mark stays blue until you have looked at its part of the strip up close.',
     count: 'The count is every mark you did not remove. It places the strip in a band. A grey number with ~ in front is the app’s alone: nobody checked those marks.',
     done: 'Got it',
   },

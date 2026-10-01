@@ -126,12 +126,19 @@ async function startDemo(kind) {
           </span>
         </button>
       </div>
+      <p class="note t-body">{{ t('welcome.countSingleNote') }}</p>
+    </div>
+
+    <!-- How it works is a door of its own (Oct 2026), not a link: for anyone
+         new, it is the other place to start. -->
+    <div class="count">
+      <AppButton variant="secondary" @click="router.push({ name: 'guide' })">
+        {{ t('guide.open') }}
+      </AppButton>
+      <p class="note t-body">{{ t('welcome.guideNote') }}</p>
     </div>
 
     <AppButton variant="quiet" class="link" @click="startSession">{{ t('welcome.sessionLink') }}</AppButton>
-    <AppButton variant="quiet" class="link" @click="router.push({ name: 'guide' })">
-      {{ t('guide.open') }}
-    </AppButton>
   </div>
 </template>
 
@@ -199,6 +206,10 @@ async function startDemo(kind) {
   background: var(--panel);
 }
 
+.note {
+  margin: var(--sp-8) 0 0;
+  color: var(--muted);
+}
 .note-line {
   margin: 0;
   color: var(--muted);

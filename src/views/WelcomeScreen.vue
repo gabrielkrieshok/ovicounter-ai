@@ -1,8 +1,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { preloadCv } from '@/cv/use-cv'
+import AppWordmark from '@/components/AppWordmark.vue'
 import MarkIntro from '@/components/MarkIntro.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import WelcomeDoors from '@/components/WelcomeDoors.vue'
@@ -20,6 +21,7 @@ import { useSessionStore } from '@/stores/session'
    behind their own button. */
 
 const route = useRoute()
+const router = useRouter()
 
 /* Previous sessions open behind their own button: not common yet, and the
    list would cost the doors their place. */
@@ -136,6 +138,21 @@ function overflow(counts) {
         </ul>
       </template>
     </section>
+
+    <!-- The foot of the page (Oct 2026): what this is and where it runs, as a
+         site says it, with the ways to read more. -->
+    <footer class="site-foot">
+      <div class="foot-inner">
+        <AppWordmark :size="26" />
+        <p class="t-body">{{ t('about.what') }}</p>
+        <p class="t-body">{{ t('menu.about') }}</p>
+        <nav class="foot-links" :aria-label="t('welcome.footerLinks')">
+          <button class="foot-link t-label" type="button" @click="router.push({ name: 'guide' })">{{ t('guide.open') }}</button>
+          <button class="foot-link t-label" type="button" @click="router.push({ name: 'about' })">{{ t('about.link') }}</button>
+        </nav>
+        <p class="licence t-label">{{ t('about.openSource') }}</p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -247,5 +264,42 @@ function overflow(counts) {
 }
 .wide .history {
   padding-bottom: 48px;
+}
+
+/* The foot sits at the bottom of the page however short the page is. */
+.site-foot {
+  margin-top: auto;
+  width: 100%;
+  background: var(--ink);
+  color: var(--paper);
+  border-top: var(--bd) solid var(--ink);
+}
+.foot-inner {
+  padding: var(--sp-22) var(--sp-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+.foot-inner p {
+  margin: 0;
+}
+.foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-22);
+}
+.foot-link {
+  min-height: var(--hit-min);
+  color: var(--action);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.licence {
+  color: var(--rule-idle);
+}
+.wide .foot-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px var(--sp-16);
 }
 </style>
