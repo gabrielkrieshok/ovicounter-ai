@@ -215,10 +215,6 @@ export function createPipeline(cv) {
   let gray = null // 8UC1, contrast-stretched
   let darkness = null // 8UC1, how much darker than its own paper each pixel is
   let darknessKernel = 0 // the kernel `darkness` was built with
-  /* The last binary mask, kept so a hand-drawn split can cut the actual pixels
-     rather than guess at where two eggs part. One working-resolution 8-bit
-     plane, and the clone that keeps it costs well under a millisecond. */
-  let mask = null
   let width = 0
   let height = 0
 
@@ -233,10 +229,9 @@ export function createPipeline(cv) {
   }
 
   function dispose() {
-    release(gray, darkness, mask)
+    release(gray, darkness)
     gray = null
     darkness = null
-    mask = null
     darknessKernel = 0
   }
 
@@ -335,9 +330,6 @@ export function createPipeline(cv) {
       cv.morphologyEx(bin, opened, cv.MORPH_OPEN, kernel)
 
       if (onStage) onStage('darkSpecks', opened)
-
-      release(mask)
-      mask = opened.clone()
 
       // 3. Connected components — every dark island, with its area and box.
       const labels = scope.mat()
@@ -480,111 +472,9 @@ export function createPipeline(cv) {
     }
   }
 
-  /**
-   * Split a clump along a stroke the operator drew across it.
-   *
-   * Dense mats of overlapping eggs are the pipeline's known structural
-   * weakness: no watershed variant separates them, which is why the manual
-   * split exists at all. So this does not estimate — it cuts the real binary
-   * mask along the stroke and re-runs connected components on the piece of the
-   * strip that changed. What comes back is measured from pixels, exactly like
-   * every other detection, and carries no special status beyond the operator
-   * having asked for it.
-   *
-   * Only the stroke's neighbourhood is recomputed. Re-running the whole strip
-   * would also undo every judgment the operator has already made on it.
-   */
-  function splitAlong(points, params = {}) {
-    if (!mask) throw new Error('splitAlong() before run()')
-    if (!points || points.length < 2) return { detections: [], region: null }
-
-    const p = { ...DEFAULT_PARAMS, ...params }
-    const scope = new Scope(cv)
-    try {
-      const pixels = points.map((pt) => ({
-        x: Math.round(pt.x * width),
-        y: Math.round(pt.y * height),
-      }))
-
-      const eggRadius = Math.sqrt(p.medianEggArea / Math.PI)
-      const pad = Math.max(10, Math.round(eggRadius * 4))
-
-      let minX = Infinity
-      let minY = Infinity
-      let maxX = -Infinity
-      let maxY = -Infinity
-      for (const q of pixels) {
-        if (q.x < minX) minX = q.x
-        if (q.x > maxX) maxX = q.x
-        if (q.y < minY) minY = q.y
-        if (q.y > maxY) maxY = q.y
-      }
-
-      const x0 = Math.max(0, minX - pad)
-      const y0 = Math.max(0, minY - pad)
-      const x1 = Math.min(width, maxX + pad)
-      const y1 = Math.min(height, maxY + pad)
-      const w = x1 - x0
-      const h = y1 - y0
-      if (w < 3 || h < 3) return { detections: [], region: null }
-
-      // `roi` is a view onto the retained mask, so clone before cutting it.
-      const view = scope.keep(mask.roi(new cv.Rect(x0, y0, w, h)))
-      const cut = scope.keep(view.clone())
-
-      /* Draw the stroke as background. Thin on purpose: it has to part two
-         touching eggs without eating either of them. */
-      const thickness = Math.max(2, Math.round(eggRadius * 0.5))
-      const black = new cv.Scalar(0)
-      for (let i = 1; i < pixels.length; i++) {
-        const a = new cv.Point(pixels[i - 1].x - x0, pixels[i - 1].y - y0)
-        const b = new cv.Point(pixels[i].x - x0, pixels[i].y - y0)
-        cv.line(cut, a, b, black, thickness)
-      }
-
-      const labels = scope.mat()
-      const stats = scope.mat()
-      const centroids = scope.mat()
-      const n = cv.connectedComponentsWithStats(cut, labels, stats, centroids, 8, cv.CV_32S)
-
-      const S = 5
-      const detections = []
-      for (let i = 1; i < n; i++) {
-        const bx = stats.data32S[i * S + cv.CC_STAT_LEFT]
-        const by = stats.data32S[i * S + cv.CC_STAT_TOP]
-        const bw = stats.data32S[i * S + cv.CC_STAT_WIDTH]
-        const bh = stats.data32S[i * S + cv.CC_STAT_HEIGHT]
-        const area = stats.data32S[i * S + cv.CC_STAT_AREA]
-
-        if (area < p.minArea) continue
-        /* Looser than a lone egg, for the same reason a watershed piece is: a
-           freshly cut egg is flat on the side the stroke went through. */
-        const aspect = Math.max(bw, bh) / Math.max(1, Math.min(bw, bh))
-        if (aspect > p.maxAspect * 1.6) continue
-
-        detections.push({
-          x: (x0 + bx + bw / 2) / width,
-          y: (y0 + by + bh / 2) / height,
-          w: bw / width,
-          h: bh / height,
-          area,
-          fromClump: true,
-        })
-      }
-
-      return {
-        detections,
-        region: { l: x0 / width, t: y0 / height, r: x1 / width, b: y1 / height },
-      }
-    } finally {
-      scope.dispose()
-    }
-  }
-
   return {
     setImage,
     run,
-    splitAlong,
     dispose,
     get size() {
       return { width, height }

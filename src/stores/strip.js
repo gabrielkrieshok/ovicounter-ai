@@ -82,7 +82,7 @@ export const useStripStore = defineStore('strip', {
     recordedIndex: null,
 
     /* Whether the operator did anything at all on Your fixes — removed, added,
-       split, or so much as zoomed or panned to look. Tapping straight through
+       changed a clump, or so much as zoomed or panned to look. Tapping straight through
        used to produce "1,193 eggs, checked by you" with nothing removed and
        nothing added, which is a machine count wearing a human's clothes. This
        is what lets the result say which it was, and it goes into the record. */
@@ -145,9 +145,10 @@ export const useStripStore = defineStore('strip', {
 
     removedCount: (s) => s.marks.filter((m) => m.status === 'removed').length,
     addedCount: (s) => s.marks.filter((m) => m.status === 'added').length,
-    /* Splits still standing — each is one entry in the undo history, and undoing
-       a split pops it, so this never counts a split the person took back. */
-    splitCount: (s) => s.history.filter((h) => h.type === 'split').length,
+    /* Clumps the person answered: a number set, accepted, or made by +1. */
+    clumpsChecked: (s) => s.clumps.filter((c) => c.checked).length,
+    /* Clump changes the person made, each one a step of undo. */
+    clumpEdits: (s) => s.history.filter((h) => h.type === 'clump' || h.type === 'makeClump').length,
   },
 
   actions: {
@@ -505,53 +506,6 @@ export const useStripStore = defineStore('strip', {
     },
 
     /**
-     * Split a clump along a drawn stroke.
-     *
-     * The cut happens in the pixels (see cv/pipeline.js `splitAlong`), and the
-     * marks in the affected neighbourhood are replaced by what the recount
-     * found. Marks outside it are untouched, so this never quietly discards
-     * judgments made elsewhere on the strip.
-     */
-    async splitAlong(points) {
-      const { cv, ready } = useCv()
-      await ready
-
-      const { detections, region } = await cv.split(points, this.params)
-      /* Drawing the stroke was an act of review even when it cut nothing. */
-      this.reviewed = true
-      if (!region || !detections.length) return 0
-
-      const inside = (m) =>
-        m.x >= region.l && m.x <= region.r && m.y >= region.t && m.y <= region.b
-
-      const replaced = this.marks.filter(inside)
-      const kept = this.marks.filter((m) => !inside(m))
-
-      const fresh = detections.map((d) => ({
-        id: nextMarkId++,
-        x: d.x,
-        y: d.y,
-        w: d.w,
-        h: d.h,
-        area: d.area,
-        fromClump: d.fromClump,
-        source: 'machine',
-        /* The operator asked for this cut, so what it produced is already
-           answered — it arrives kept rather than waiting to be confirmed. */
-        status: 'kept',
-        fromSplit: true,
-      }))
-
-      this.marks = [...kept, ...fresh]
-      this.history.push({
-        type: 'split',
-        removed: replaced.map((m) => ({ ...m })),
-        addedIds: fresh.map((m) => m.id),
-      })
-      return fresh.length
-    },
-
-    /**
      * The person's number for a clump (Oct 2026): its marks are replaced by
      * that many, placed over the clump's pixels (cv/place.js), kept — the
      * person has answered for them. Everything else on the strip stays as it
@@ -583,6 +537,73 @@ export const useStripStore = defineStore('strip', {
       clump.checked = true
       clump.count = count
       this.clumps = [...this.clumps]
+      this.reviewed = true
+    },
+
+    /**
+     * "+1" on a single egg's mark (Oct 2026): it was two touching eggs, so it
+     * becomes a clump of two — a clump record round the mark, its two eggs
+     * placed in it, answered. Replaces drawing a split across the pixels.
+     */
+    makeClump(markId) {
+      const mark = this.marks.find((m) => m.id === markId)
+      if (!mark || mark.clump !== undefined || !this.working) return
+      const W = this.working.width
+      const H = this.working.height
+      const wPx = Math.max(3, mark.w * W)
+      const hPx = Math.max(3, mark.h * H)
+      const long = Math.max(wPx, hPx)
+      const short = Math.min(wPx, hPx)
+      const angle = wPx >= hPx ? 0 : Math.PI / 2
+      // Pixels to place the two eggs over: a grid inside the mark's oval.
+      const points = []
+      for (let i = -4; i <= 4; i++) {
+        for (let j = -2; j <= 2; j++) {
+          const u = (i / 4) * (long / 2)
+          const v = (j / 2) * (short / 2)
+          const px = angle ? v : u
+          const py = angle ? u : v
+          points.push(mark.x + px / W, mark.y + py / H)
+        }
+      }
+      const id = this.clumps.reduce((max, c) => Math.max(max, c.id), -1) + 1
+      const clump = {
+        id,
+        x: mark.x - mark.w / 2,
+        y: mark.y - mark.h / 2,
+        w: mark.w,
+        h: mark.h,
+        area: mark.area,
+        byArea: 2,
+        watershed: 1,
+        found: 1,
+        cx: mark.x,
+        cy: mark.y,
+        rx: (long / 2 + 4) / W,
+        ry: (short / 2 + 4) / W,
+        angle,
+        points,
+        checked: true,
+        count: 2,
+        madeByHand: true,
+      }
+      const aspect = W / H
+      const fresh = placeInClump(points, 2, aspect).map((at) => ({
+        id: nextMarkId++,
+        x: at.x,
+        y: at.y,
+        w: mark.w,
+        h: mark.h,
+        area: mark.area,
+        fromClump: true,
+        clump: id,
+        placed: true,
+        source: 'machine',
+        status: 'kept',
+      }))
+      this.marks = [...this.marks.filter((m) => m.id !== markId), ...fresh]
+      this.clumps = [...this.clumps, clump]
+      this.history.push({ type: 'makeClump', id, mark: { ...mark } })
       this.reviewed = true
     },
 
@@ -625,6 +646,10 @@ export const useStripStore = defineStore('strip', {
           this.marks.push(...last.unadded)
           break
         }
+        case 'makeClump':
+          this.marks = [...this.marks.filter((m) => m.clump !== last.id), last.mark]
+          this.clumps = this.clumps.filter((c) => c.id !== last.id)
+          break
         case 'clump': {
           this.marks = [...this.marks.filter((m) => m.clump !== last.id), ...last.before]
           const clump = this.clumps.find((c) => c.id === last.id)
@@ -633,14 +658,6 @@ export const useStripStore = defineStore('strip', {
             clump.count = last.wasCount
           }
           this.clumps = [...this.clumps]
-          break
-        }
-        case 'split': {
-          const addedIds = new Set(last.addedIds)
-          this.marks = [
-            ...this.marks.filter((m) => !addedIds.has(m.id)),
-            ...last.removed,
-          ]
           break
         }
       }

@@ -1,9 +1,10 @@
 <script setup>
 import { t } from '@/i18n'
 
-/* What one finger does on Manually refine (Oct 2026): Remove · Keep · Add ·
- * Split. Each carries the glyph of the mark it makes — ✕ red, ○ green, + pink,
- * ╱ ink — so the tools double as the key to the marks. The chosen tool is
+/* What one finger does on Manually refine (Oct 2026): Remove · Keep · Add.
+ * Each carries the glyph of the mark it makes — ✕ red, ○ green, + pink — so
+ * the tools double as the key to the marks. Split was a fourth until Oct 2026;
+ * Add now does its job — "+1" on an egg or a clump. The chosen tool is
  * filled ink, its glyph still in its hue, so the choice never rests on colour
  * alone. Remove is the default: culling is the job.
  *
@@ -23,7 +24,6 @@ const TOOLS = [
   { key: 'remove', glyph: '✕' },
   { key: 'keep', glyph: '' },
   { key: 'add', glyph: '+' },
-  { key: 'split', glyph: '╱' },
 ]
 </script>
 
@@ -63,7 +63,7 @@ const TOOLS = [
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   border: var(--bd) solid var(--ink);
 }
 .tool {

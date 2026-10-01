@@ -14,7 +14,7 @@ import ZoomPanStage from '@/components/ZoomPanStage.vue'
 import ZoomRail from '@/components/ZoomRail.vue'
 import StepList from '@/components/StepList.vue'
 import { t, weekday } from '@/i18n'
-import { clumpCounts } from '@/lib/marks'
+import { clumpCounts, markAt } from '@/lib/marks'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -56,7 +56,7 @@ const eyebrow = computed(() => {
 const tally = computed(() => [
   { kind: 'removed', n: strip.removedCount },
   { kind: 'added', n: strip.addedCount },
-  { kind: 'split', n: strip.splitCount },
+  { kind: 'clumps', n: strip.clumpsChecked },
 ])
 
 onMounted(() => {
@@ -133,7 +133,6 @@ const queue = computed(() =>
 const current = computed(() => (clumpMode.value ? queue.value[clumpIndex.value] : null))
 const counts = computed(() => clumpCounts(strip.marks))
 const currentCount = computed(() => (current.value ? counts.value.get(current.value.id) ?? 0 : 0))
-const clumpsChecked = computed(() => strip.clumps.filter((c) => c.checked).length)
 
 /* After the layout settles: on a phone, opening the pass hides the band and
    the tally, and the stage grows to take their place. */
@@ -178,19 +177,49 @@ function moveTo(point) {
    of fixes the page says that Measure might fit the strip better — the
    person's call, made on Measure's own sliders. */
 const NUDGE_AT = 5
-const fixes = computed(() => strip.removedCount + strip.addedCount + strip.splitCount)
+const fixes = computed(() => strip.removedCount + strip.addedCount + strip.clumpEdits)
 const nudgeDismissed = ref(false)
 const nudge = computed(() => !nudgeDismissed.value && fixes.value >= NUDGE_AT)
+
+/* Add is "one more egg here" (Oct 2026; it replaced Split). On a clump, the
+   clump's number goes up by one; on a mark the app found, that mark becomes a
+   clump of two; on empty paper, an egg is placed. */
+function clumpAt(point) {
+  const W = strip.working?.width
+  const H = strip.working?.height
+  if (!W || !H) return null
+  for (const c of strip.clumps) {
+    const dx = (point.x - c.cx) * W
+    const dy = (point.y - c.cy) * H
+    const cos = Math.cos(c.angle)
+    const sin = Math.sin(c.angle)
+    const u = (dx * cos + dy * sin) / Math.max(1, c.rx * W)
+    const v = (-dx * sin + dy * cos) / Math.max(1, c.ry * W)
+    if (u * u + v * v <= 1) return c
+  }
+  return null
+}
 
 function onAdd(point) {
   if (!point) return
   const inside = point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1
-  if (inside) strip.addMark(point)
-}
-
-async function onStroke(points) {
-  const usable = points.filter(Boolean)
-  if (usable.length > 1) await strip.splitAlong(usable)
+  if (!inside) return
+  const clump = clumpAt(point)
+  if (clump) {
+    strip.setClumpCount(clump.id, (counts.value.get(clump.id) ?? 0) + 1)
+    return
+  }
+  const rect = stage.value?.rect
+  const found = rect
+    ? markAt(
+        strip.marks.filter((m) => m.clump === undefined && m.source === 'machine' && m.status !== 'removed'),
+        point,
+        rect,
+        0,
+      )
+    : null
+  if (found) strip.makeClump(found.id)
+  else strip.addMark(point)
 }
 
 /* Back to Measure's pictures and sliders, to change how the marks are found. */
@@ -249,7 +278,7 @@ function done() {
           <span class="two-fingers">{{ t('fixes.twoFingers') }}</span>
         </p>
         <AppButton v-if="strip.clumps.length" variant="secondary" class="clumps-open" @click="openClumps">
-          {{ t('fixes.clumpsOpen', { done: clumpsChecked, total: strip.clumps.length }) }}
+          {{ t('fixes.clumpsOpen', { done: strip.clumpsChecked, total: strip.clumps.length }) }}
         </AppButton>
       </template>
     </StripHeader>
@@ -281,20 +310,10 @@ function done() {
         @paint="onPaint"
         @paintend="onPaintEnd"
         @add="onAdd"
-        @stroke="onStroke"
         @navigate="strip.noteReview()"
-        v-slot="{ rect, stage: size, hold, stroke, brush }"
+        v-slot="{ rect, stage: size, hold, brush }"
       >
         <MarkLayer :marks="strip.marks" :clumps="strip.clumps" :focus-clump="current?.id ?? null" :rect="rect" :stage="size" />
-
-        <!-- The stroke, while it is being drawn. It is not a mark and never
-             becomes one, so it is drawn as plain ink rather than in any of the
-             mark-language colours. -->
-        <svg v-if="stroke.length > 1" class="stroke" :width="size.width" :height="size.height">
-          <polyline
-            :points="stroke.map((p) => `${rect.left + p.x * rect.width},${rect.top + p.y * rect.height}`).join(' ')"
-          />
-        </svg>
 
         <!-- The brush, in the colour of what it does: a fingertip, whatever the
              zoom. -->
@@ -447,6 +466,8 @@ function done() {
 }
 .tool-hint {
   margin: var(--sp-8) 0 0;
+  /* Two lines whatever the tool, so choosing one never moves the strip. */
+  min-height: 2lh;
 }
 .two-fingers {
   color: var(--muted);
@@ -496,20 +517,6 @@ function done() {
   position: absolute;
   right: 0;
   bottom: 0;
-}
-
-.stroke {
-  position: absolute;
-  left: 0;
-  top: 0;
-  pointer-events: none;
-}
-.stroke polyline {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .tally {

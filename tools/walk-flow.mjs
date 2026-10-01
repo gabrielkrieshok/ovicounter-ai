@@ -434,34 +434,80 @@ async function main() {
     for (const line of gestures) console.log(`  ${line}`)
     await shot('flow-8-fixes-zoomed')
 
-    /* The split needs a stroke across a clump, so it runs after the zoom. */
-    const split = await evaluate(`(async () => {
+    /* +1 on a clump with Add (Oct 2026; it replaced Split): bring a clump on
+       screen through the clump pass, leave the pass, choose Add — which can
+       move the stage, its hint being longer — and only then find where the
+       clump is and touch it. A clump at the strip's edge cannot be centred,
+       so its position is read, not assumed. */
+    const more = await evaluate(`(async () => {
       const stage = document.querySelector('.stage-wrap .stage');
-      const r = stage.getBoundingClientRect();
       const frame = () => new Promise(res =>
         requestAnimationFrame(() => requestAnimationFrame(res)));
+      const settle = async (n = 8) => { for (let i = 0; i < n; i++) await frame(); };
       const send = (type, x, y) =>
         stage.dispatchEvent(new PointerEvent(type, {
           clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true,
         }));
-      document.querySelector('.tool.split').click();
-      await frame();
+      const strip = document.querySelector('#app').__vue_app__.config.globalProperties.$pinia._s.get('strip');
       const undo = document.querySelector('.undo');
       let guard = 0;
       while (!undo.disabled && guard++ < 50) { undo.click(); await frame(); }
-      if (!undo.disabled) return 'could not clear history';
-      const y = r.top + r.height * 0.5;
-      const x0 = r.left + r.width * 0.4;
-      send('pointerdown', x0, y);
-      for (let i = 1; i <= 8; i++) { send('pointermove', x0 + i * 8, y); await frame(); }
-      send('pointerup', x0 + 64, y);
-      for (let i = 0; i < 60; i++) await frame();
+      const tallyClumps = () => {
+        const cell = [...document.querySelectorAll('.tally .cell')].find(c => /clumps/i.test(c.textContent));
+        return cell ? Number(cell.querySelector('.n').textContent) : NaN;
+      };
+      const before = tallyClumps();
+      document.querySelector('.clumps-open').click(); await settle(12);
+      const target = document.querySelector('.clump-head .t-label') && strip.clumps.find(c => !c.checked && Math.abs(c.byArea - (c.found ?? c.watershed)) === Math.max(...strip.clumps.map(k => Math.abs(k.byArea - (k.found ?? k.watershed)))));
+      document.querySelector('.clump-exit').click(); await settle();
+      document.querySelector('.tool.add').click(); await settle(4);
+      const rr = stage.__vueParentComponent.exposed.rect.value;
+      const b = stage.getBoundingClientRect();
+      const x = b.left + rr.left + target.cx * rr.width, y = b.top + rr.top + target.cy * rr.height;
+      send('pointerdown', x, y); await settle(2); send('pointerup', x, y); await settle();
+      const after = tallyClumps();
+      document.querySelector('.undo').click(); await settle();
+      const undone = tallyClumps();
       document.querySelector('.tool.remove').click();
-      return 'split stroke from empty history → undo ' +
-        (undo.disabled ? 'STILL DISABLED (split did nothing)' : 'enabled (split recorded)');
+      return { before, after, undone, tools: document.querySelectorAll('.tool').length };
     })()`)
-    console.log(`  ${split}`)
-    await shot('flow-9-fixes-split')
+    console.log(`  +1 on a clump: clumps checked ${more.before} → ${more.after}, undo → ${more.undone}`)
+    check('Add on a clump counts as checking it (+1)', more.after === more.before + 1 && more.undone === more.before)
+    check(`no Split tool (${more.tools - 1} tools and Undo)`, more.tools === 4)
+    await shot('flow-9-fixes-more')
+
+    /* +1 on a single egg's mark: it becomes a clump of two. The mark is found
+       through the dev build's store and the stage's exposed rect, and then
+       touched like any other. */
+    const single = await evaluate(`(async () => {
+      const frame = () => new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
+      const settle = async (n = 8) => { for (let i = 0; i < n; i++) await frame(); };
+      const pinia = document.querySelector('#app').__vue_app__.config.globalProperties.$pinia;
+      const strip = pinia._s.get('strip');
+      const el = document.querySelector('.stage-wrap .stage');
+      const onScreen = (m) => {
+        const rect = el.__vueParentComponent.exposed.rect.value;
+        const box = el.getBoundingClientRect();
+        const x = rect.left + m.x * rect.width, y = rect.top + m.y * rect.height;
+        return x > 30 && x < box.width - 30 && y > 30 && y < box.height - 30 ? { x: box.left + x, y: box.top + y } : null;
+      };
+      document.querySelector('.tool.add').click(); await settle(4);
+      const mark = strip.marks.find(m => m.clump === undefined && m.source === 'machine' && m.status !== 'removed' && onScreen(m));
+      if (!mark) return { error: 'no single mark on screen' };
+      const at = onScreen(mark);
+      const clumps = strip.clumps.length, marks = strip.marks.length;
+      const send = (type) => el.dispatchEvent(new PointerEvent(type, { clientX: at.x, clientY: at.y, bubbles: true, pointerId: 1, isPrimary: true }));
+      send('pointerdown'); await settle(2); send('pointerup'); await settle();
+      const made = strip.clumps[strip.clumps.length - 1];
+      const inIt = strip.marks.filter(m => m.clump === made?.id).length;
+      const result = { clumps: strip.clumps.length - clumps, marks: strip.marks.length - marks, inIt, checked: made?.checked };
+      document.querySelector('.undo').click(); await settle();
+      result.undone = strip.clumps.length === clumps && strip.marks.length === marks && strip.marks.some(m => m.id === mark.id);
+      document.querySelector('.tool.remove').click();
+      return result;
+    })()`)
+    console.log(`  +1 on a single mark: ${single.error ?? `clumps +${single.clumps}, marks +${single.marks}, ${single.inIt} in it, checked ${single.checked}; undo restores ${single.undone}`}`)
+    check('Add on a single mark makes a clump of two, and undo restores it', !single.error && single.clumps === 1 && single.marks === 1 && single.inIt === 2 && single.undone)
 
     /* The clump pass: open it, give one clump a number, accept the next. */
     const clumps = await evaluate(`(async () => {

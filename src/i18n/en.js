@@ -239,11 +239,9 @@ export default {
     toolRemove: 'Remove',
     toolKeep: 'Keep',
     toolAdd: 'Add',
-    toolSplit: 'Split',
     hintRemove: 'Paint over marks to remove them.',
     hintKeep: 'Paint over marks to keep them — a removed mark comes back.',
-    hintAdd: 'Touch an egg nobody marked; a close-up shows where it lands.',
-    hintSplit: 'Paint across a clump to split it.',
+    hintAdd: 'Touch empty paper to add an egg, or a mark or a clump to add one more to it.',
     twoFingers: 'Two fingers move the strip.',
     /* DRAFT (Oct 2026) — after five fixes, the way to Measure says why. */
     /* DRAFT (Oct 2026) — the clump pass on Manually refine. */
@@ -349,7 +347,7 @@ export default {
     photo: 'Lay the strip flat in good light and fill the box with it. If the eggs are too small or the photo is soft, the app says so and asks for another.',
     crop: 'The app proposes a box around the strip. Drag the corners if it missed, and straighten the strip if it is tilted.',
     measure: 'The app finds a typical egg on this strip and marks every speck of that size and darkness, showing each picture it makes on the way. Then two sliders set how dark a speck must be and how big; move them until the rings sit on eggs and not on dirt. If the marks still look wrong, mark one egg yourself and it measures again from that.',
-    check: 'Now the marks are yours to judge. Pick a tool — Remove, Keep, Add or Split — and use it with one finger: paint over marks to remove or keep them, touch an egg nobody marked to add it, paint across a clump to split it. Two fingers, or + and −, move the strip and look closer. A mark stays blue until you have looked at its part of the strip up close.',
+    check: 'Now the marks are yours to judge. Pick a tool — Remove, Keep or Add — and use it with one finger: paint over marks to remove or keep them; touch empty paper to add an egg, or a mark or a clump to add one more egg to it. Touching eggs are drawn as one outline with a number; check the clumps one by one and set each number. Two fingers, or + and −, move the strip and look closer. A mark stays blue until you have looked at its part of the strip up close.',
     count: 'The count is every mark you did not remove. It places the strip in a band. A grey number with ~ in front is the app’s alone: nobody checked those marks.',
     done: 'Got it',
   },
@@ -397,7 +395,7 @@ export default {
     kept: 'kept',
     removed: 'removed',
     added: 'added',
-    split: 'split',
+    clumps: 'clumps checked',
   },
 
   /* DRAFT — the dashed badge for a strip whose marks nobody checked. */

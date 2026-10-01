@@ -80,17 +80,6 @@ export function createCvClient({ onTrace } = {}) {
     /** Choose a cutoff by sweeping for the grain/egg step. See cv/autotune.js. */
     autoTune: (options) => send({ type: 'autoTune', options: { ...options } }),
 
-    /**
-     * Cut the binary mask along a stroke and recount that neighbourhood.
-     * Points are plain `{x, y}` copies for the same reason params are — a
-     * reactive Proxy cannot be structured-cloned to a worker.
-     */
-    split: (points, params) =>
-      send({
-        type: 'split',
-        points: points.map((p) => ({ x: p.x, y: p.y })),
-        params: { ...params },
-      }),
 
 
     dispose: () => send({ type: 'dispose' }),

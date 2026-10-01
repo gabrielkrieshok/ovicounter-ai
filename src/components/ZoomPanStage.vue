@@ -10,7 +10,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
  *
  * THE GESTURE SPLIT
  *
- *   one finger   uses the chosen tool    remove · keep (paint) · add · split
+ *   one finger   uses the chosen tool    remove · keep (paint) · add
  *   two fingers  moves the strip         pinch to zoom, drag to pan
  *
  * One finger used to mean three things told apart by timing — tap removed,
@@ -45,7 +45,6 @@ const props = defineProps({
      from how long or how far they pressed:
        remove, keep  paint — `paintstart`, `paint` (stage point), `paintend`
        add           place one egg — the magnifier follows, `add` on lift
-       split         draw across a clump — `stroke` on lift
        pan           move the picture — for Measure, where nothing is judged
      Two fingers, the wheel, Shift-drag and a middle-click drag move the strip
      whatever the tool. */
@@ -54,7 +53,7 @@ const props = defineProps({
 
 /* `navigate` fires on any zoom or pan the operator makes. Your fixes counts
    it as review: someone who zoomed in to look at the marks has looked. */
-const emit = defineEmits(['stroke', 'add', 'navigate', 'paintstart', 'paint', 'paintend'])
+const emit = defineEmits(['add', 'navigate', 'paintstart', 'paint', 'paintend'])
 
 const root = ref(null)
 const canvas = ref(null)
@@ -69,7 +68,6 @@ const pan = ref({ x: 0, y: 0 })
 
 /* The finger that is adding an egg, while it is down. */
 const hold = ref(null)
-const stroke = ref([])
 /* Where the brush is — under the finger while painting, under the mouse while
    it hovers — for drawing the brush ring. */
 const brushAt = ref(null)
@@ -147,7 +145,7 @@ function zoomAbout(stagePoint, nextZoom) {
 
 function capture(pointerId, take) {
   /* Capture keeps a gesture alive when the finger leaves the element, which
-     matters for panning and for a stroke that runs off the edge of the strip.
+     matters for panning and for a stroke of paint that runs off the edge of the strip.
      It throws for a pointer the browser does not consider active — a pointer
      already released, or a synthetic one from a test — and that is never worth
      failing a gesture over. */
@@ -167,7 +165,6 @@ function onPointerDown(event) {
     // A second finger means navigation; abandon whatever the first was doing.
     if (gesture?.kind === 'paint') emit('paintend')
     hold.value = null
-    stroke.value = []
     brushAt.value = null
     const [a, b] = [...pointers.values()]
     gesture = {
@@ -194,9 +191,6 @@ function onPointerDown(event) {
   if (props.tool === 'add') {
     gesture = { kind: 'hold', start: point }
     hold.value = { image: toImage(point), stage: point }
-  } else if (props.tool === 'split') {
-    gesture = { kind: 'stroke', start: point }
-    stroke.value = [toImage(point)]
   } else {
     gesture = { kind: 'paint', start: point }
     brushAt.value = point
@@ -243,8 +237,6 @@ function onPointerMove(event) {
     // The target follows the finger 1:1, and the magnifier shows where the egg
     // will land.
     hold.value = { image: toImage(point), stage: point }
-  } else if (gesture.kind === 'stroke') {
-    stroke.value = [...stroke.value, toImage(point)]
   } else if (gesture.kind === 'paint') {
     brushAt.value = point
     emit('paint', point)
@@ -258,15 +250,12 @@ function onPointerUp(event) {
 
   if (gesture.kind === 'hold' && hold.value) {
     emit('add', hold.value.image)
-  } else if (gesture.kind === 'stroke' && stroke.value.length > 1) {
-    emit('stroke', stroke.value)
   } else if (gesture.kind === 'paint') {
     emit('paintend')
     if (event.pointerType !== 'mouse') brushAt.value = null
   }
 
   hold.value = null
-  stroke.value = []
   if (pointers.size === 0) gesture = null
 }
 
@@ -487,7 +476,6 @@ defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, centerOn, focusO
       :rect="rect"
       :stage="stageSize"
       :hold="hold"
-      :stroke="stroke"
       :zoom="zoom"
       :viewport="viewport"
       :brush="brushAt"

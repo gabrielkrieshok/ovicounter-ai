@@ -107,7 +107,7 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
    no `~`. Marks: dashed blue = proposed, solid green = kept, red ✕ = removed,
    pink + = added. Shape carries the meaning redundantly with colour. **A
    strip nobody touched on Your fixes has no human count**: `strip.reviewed`
-   (any remove, add, split, zoom or pan) decides, `finishReview` puts untouched
+   (any remove, add, clump change, zoom or pan) decides, `finishReview` puts untouched
    proposals back to `proposed`, Strip result shows the machine total in
    machine styling, and the record carries `checked: false`. **And a mark is
    not "kept" until someone looked at it** (Sep 30, 2026): machine marks stay
@@ -117,8 +117,6 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
    `proposed` in the record, which carries `looked`. (Strip result said how
    many parts that was until Oct 2026; Gabriel took the line out — the record
    still carries it.)
-4. **Nothing learns at runtime**, and no copy implies learning, teaching or
-   recounting.
 5. **Nothing implies upload.** "Measuring on this phone", never "loading".
    **Share** on Strip result (Oct 2026, `lib/share.js`) is the one way
    anything leaves the phone, and only to where the person picks in their own
@@ -185,11 +183,16 @@ vocabulary that does not collide with culling.
 2026, Gabriel — replaced tap-removes / hold-adds / drag-splits, which people
 could not keep apart). `ToolPicker` above the strip: **Remove** (default —
 culling is the job, so it stays the cheapest thing on the screen), **Keep**,
-**Add**, **Split**. Remove and Keep *paint*: a brush of fixed on-screen size
+**Add** (Split was a fourth until Oct 2026). Remove and Keep *paint*: a brush of fixed on-screen size
 (`BRUSH_R` 22px, a fingertip), so it covers less of the strip the further you
 zoom in; one stroke is one undo step (`strip.beginStroke` / `paint` /
-`endStroke`, a `batch` in the history). Add places one egg per touch, with the
-close-up shown from the first touch. Split paints a line across a clump. Pinch
+`endStroke`, a `batch` in the history). Add is "one more egg here", with the
+close-up shown from the first touch: on empty paper it places an egg; on a
+mark the app found, that mark becomes a clump of two (`strip.makeClump`); on a
+clump, the clump's number goes up by one (`setClumpCount`). It replaced Split
+(Gabriel, Oct 2026: drawing across pixels was the complicated way to say
+"there is one more egg here"), and the pixel-cutting `splitAlong` is gone from
+the pipeline, worker and store. Remove on a clump's dot takes one egg off. Pinch
 zooms, two-finger drag pans; on a desktop the wheel zooms and Shift-drag or a
 middle-click drag pans (Measure too).
 The minimap (`Overview`, `@move`) is touchable — touch or drag it to move the
@@ -208,7 +211,7 @@ differ by 2 or more is tagged with the range, "~3–5", not one number. The reco
 **A fix changes the marks it touches and nothing else** (Gabriel, Oct 2026).
 Nothing on Your fixes finds the marks again or adjusts how they are found — an
 earlier "Find the marks again from my eggs" did, and it was taken out because
-the screen then behaved unpredictably. After 5 fixes (removed + added + split,
+the screen then behaved unpredictably. After 5 fixes (removed + added + clump changes,
 `NUDGE_AT`) a yellow panel in the body suggests adjusting Measure instead of
 fixing one by one; it links to Measure's look mode, where a slider asks before
 throwing fixes away, and "Keep fixing" dismisses it.

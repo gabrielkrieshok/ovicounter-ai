@@ -153,11 +153,6 @@ self.onmessage = async (event) => {
         break
       }
 
-      case 'split': {
-        const result = pipeline.splitAlong(event.data.points, event.data.params)
-        self.postMessage({ id, type: 'split', ...result })
-        break
-      }
 
       case 'dispose': {
         pipeline?.dispose()
