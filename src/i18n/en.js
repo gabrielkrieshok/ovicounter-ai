@@ -211,16 +211,22 @@ export default {
     /* DRAFT — a quick count arrives here without passing Refine; this is the
        way to the sliders for anyone who wants them. */
     adjust: 'Marks look wrong? Adjust them',
-    /* DRAFT (Field Manual brief §3) — the instruction row on the phone and the
-       numbered steps on the laptop. They replace the RATIFIED "Tap a mark to
-       remove it · press and hold empty paper to add an egg" and "draw a line
-       across a clump to split it". Uppercase is CSS only. */
-    cellTap: 'Tap = remove',
-    cellHold: 'Hold = add',
-    cellLine: 'Line = split',
-    step1: 'Tap a mark to remove it',
-    step2: 'Hold empty paper to add an egg',
-    step3: 'Draw across a clump to split it',
+    /* DRAFT (Oct 2026) — the tools on Manually refine: one finger paints with
+       the chosen tool, two fingers move the strip. They replace the instruction
+       row "Tap = remove · Hold = add · Line = split". Uppercase is CSS only.
+       `remeasure` finds the marks again across the strip, measured from the eggs
+       the person added — a calibration from their examples, like Mark one egg. */
+    toolsLabel: 'What one finger does',
+    toolRemove: 'Remove',
+    toolKeep: 'Keep',
+    toolAdd: 'Add',
+    toolSplit: 'Split',
+    hintRemove: 'Paint over marks to remove them.',
+    hintKeep: 'Paint over marks to keep them — a removed mark comes back.',
+    hintAdd: 'Touch an egg nobody marked; a close-up shows where it lands.',
+    hintSplit: 'Paint across a clump to split it.',
+    twoFingers: 'Two fingers move the strip.',
+    remeasure: 'Find the marks again from my eggs',
     /* DRAFT — coverage: parts of the strip wholly on screen at zoom ≥ 2. The
        person's effort, never the machine's count. */
     lookedAt: 'Looked at close up · {n} of {total} parts',

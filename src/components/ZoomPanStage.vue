@@ -10,18 +10,14 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
  *
  * THE GESTURE SPLIT
  *
- *   one finger   acts on the strip   tap removes · drag draws a split · hold adds
- *   two fingers  moves the strip     pinch to zoom, drag to pan
+ *   one finger   uses the chosen tool    remove · keep (paint) · add · split
+ *   two fingers  moves the strip         pinch to zoom, drag to pan
  *
- * This is the drawing-app convention rather than the map convention, and it is
- * the right way round here: the operator's job is culling, so the cheap,
- * unmodified, one-finger gesture belongs to culling. Navigation is the thing
- * you do occasionally, between bouts of work.
- *
- * It also resolves the collision that has no other answer. "Tap a mark to
- * remove it" and "draw a stroke across a clump to split it" and "drag to pan"
- * are all one finger on glass; something has to give, and panning is the one
- * with a spare hand available.
+ * One finger used to mean three things told apart by timing — tap removed,
+ * drag split, hold added — and people found that confusing (Oct 2026). Now the
+ * person picks the tool and one finger simply uses it; Remove is chosen by
+ * default, so culling stays the cheapest thing on the screen. Navigation keeps
+ * the second finger, as in a drawing app.
  *
  * On a desktop there is no second finger, so the wheel zooms about the cursor
  * and Shift-drag pans. That is for checking work on a laptop, not a field
@@ -42,11 +38,18 @@ const props = defineProps({
      operator could not tell what had been left unseen. Zoom 1 is contain
      either way. */
   initialFit: { type: String, default: 'contain' },
+  /* What one finger does (Oct 2026), chosen by the person rather than guessed
+     from how long or how far they pressed:
+       remove, keep  paint — `paintstart`, `paint` (stage point), `paintend`
+       add           place one egg — the magnifier follows, `add` on lift
+       split         draw across a clump — `stroke` on lift
+     Two fingers, the wheel and Shift-drag move the strip whatever the tool. */
+  tool: { type: String, default: 'remove' },
 })
 
 /* `navigate` fires on any zoom or pan the operator makes. Your fixes counts
    it as review: someone who zoomed in to look at the marks has looked. */
-const emit = defineEmits(['tap', 'stroke', 'add', 'navigate'])
+const emit = defineEmits(['stroke', 'add', 'navigate', 'paintstart', 'paint', 'paintend'])
 
 const root = ref(null)
 const canvas = ref(null)
@@ -62,13 +65,12 @@ const pan = ref({ x: 0, y: 0 })
 /* The finger that is adding an egg, while it is down. */
 const hold = ref(null)
 const stroke = ref([])
+/* Where the brush is — under the finger while painting, under the mouse while
+   it hovers — for drawing the brush ring. */
+const brushAt = ref(null)
 
-const HOLD_MS = 420
-const MOVE_SLOP = 10
-const TAP_MS = 320
 
 let observer = null
-let holdTimer = null
 const pointers = new Map()
 let gesture = null
 
@@ -138,11 +140,6 @@ function zoomAbout(stagePoint, nextZoom) {
   })
 }
 
-function cancelHold() {
-  clearTimeout(holdTimer)
-  holdTimer = null
-}
-
 function capture(pointerId, take) {
   /* Capture keeps a gesture alive when the finger leaves the element, which
      matters for panning and for a stroke that runs off the edge of the strip.
@@ -163,9 +160,10 @@ function onPointerDown(event) {
 
   if (pointers.size === 2) {
     // A second finger means navigation; abandon whatever the first was doing.
-    cancelHold()
+    if (gesture?.kind === 'paint') emit('paintend')
     hold.value = null
     stroke.value = []
+    brushAt.value = null
     const [a, b] = [...pointers.values()]
     gesture = {
       kind: 'pinch',
@@ -180,25 +178,32 @@ function onPointerDown(event) {
   if (pointers.size > 2) return
 
   const point = localPoint(event)
-  gesture = {
-    kind: event.shiftKey ? 'pan' : 'pending',
-    start: point,
-    startedAt: performance.now(),
-    pan: { ...pan.value },
+  if (event.shiftKey) {
+    gesture = { kind: 'pan', start: point, pan: { ...pan.value } }
+    return
   }
 
-  if (gesture.kind === 'pending') {
-    holdTimer = setTimeout(() => {
-      // Held still long enough: this is an add, not a tap or a stroke.
-      gesture.kind = 'hold'
-      hold.value = { image: toImage(point), stage: point }
-    }, HOLD_MS)
+  if (props.tool === 'add') {
+    gesture = { kind: 'hold', start: point }
+    hold.value = { image: toImage(point), stage: point }
+  } else if (props.tool === 'split') {
+    gesture = { kind: 'stroke', start: point }
+    stroke.value = [toImage(point)]
+  } else {
+    gesture = { kind: 'paint', start: point }
+    brushAt.value = point
+    emit('paintstart')
+    emit('paint', point)
   }
 }
 
 function onPointerMove(event) {
-  if (!pointers.has(event.pointerId)) return
   const point = localPoint(event)
+  // A mouse hovering shows where the brush would land.
+  if (!pointers.has(event.pointerId)) {
+    if (event.pointerType === 'mouse' && (props.tool === 'remove' || props.tool === 'keep')) brushAt.value = point
+    return
+  }
   pointers.set(event.pointerId, point)
 
   if (gesture?.kind === 'pinch' && pointers.size >= 2) {
@@ -220,56 +225,45 @@ function onPointerMove(event) {
 
   if (!gesture || pointers.size !== 1) return
 
-  const dx = point.x - gesture.start.x
-  const dy = point.y - gesture.start.y
-  const moved = Math.hypot(dx, dy)
-
   if (gesture.kind === 'pan') {
-    pan.value = clampPan({ x: gesture.pan.x + dx, y: gesture.pan.y + dy })
+    pan.value = clampPan({
+      x: gesture.pan.x + (point.x - gesture.start.x),
+      y: gesture.pan.y + (point.y - gesture.start.y),
+    })
     emit('navigate')
-    return
-  }
-
-  if (gesture.kind === 'hold') {
-    // Fine adjustment: the target follows the finger 1:1, and the magnifier
-    // above it shows exactly where the egg will land.
+  } else if (gesture.kind === 'hold') {
+    // The target follows the finger 1:1, and the magnifier shows where the egg
+    // will land.
     hold.value = { image: toImage(point), stage: point }
-    return
-  }
-
-  if (gesture.kind === 'pending' && moved > MOVE_SLOP) {
-    cancelHold()
-    gesture.kind = 'stroke'
-    stroke.value = [toImage(gesture.start), toImage(point)]
-    return
-  }
-
-  if (gesture.kind === 'stroke') {
+  } else if (gesture.kind === 'stroke') {
     stroke.value = [...stroke.value, toImage(point)]
+  } else if (gesture.kind === 'paint') {
+    brushAt.value = point
+    emit('paint', point)
   }
 }
 
 function onPointerUp(event) {
-  const point = pointers.get(event.pointerId) ?? localPoint(event)
   pointers.delete(event.pointerId)
   capture(event.pointerId, false)
-  cancelHold()
-
   if (!gesture) return
 
   if (gesture.kind === 'hold' && hold.value) {
     emit('add', hold.value.image)
   } else if (gesture.kind === 'stroke' && stroke.value.length > 1) {
     emit('stroke', stroke.value)
-  } else if (gesture.kind === 'pending') {
-    const moved = Math.hypot(point.x - gesture.start.x, point.y - gesture.start.y)
-    const elapsed = performance.now() - gesture.startedAt
-    if (moved <= MOVE_SLOP && elapsed <= TAP_MS) emit('tap', toImage(point))
+  } else if (gesture.kind === 'paint') {
+    emit('paintend')
+    if (event.pointerType !== 'mouse') brushAt.value = null
   }
 
   hold.value = null
   stroke.value = []
   if (pointers.size === 0) gesture = null
+}
+
+function onPointerLeave(event) {
+  if (event.pointerType === 'mouse' && !pointers.size) brushAt.value = null
 }
 
 function onWheel(event) {
@@ -281,6 +275,15 @@ function onWheel(event) {
 function resetView() {
   zoom.value = 1
   pan.value = { x: 0, y: 0 }
+}
+
+/* For the minimap (Overview): put this point of the strip, normalised, in
+   the middle of the stage, as far as the strip's edges allow. */
+function centerOn(nx, ny) {
+  const r = rect.value
+  if (!r.width) return
+  pan.value = clampPan({ x: r.width * (0.5 - nx), y: r.height * (0.5 - ny) })
+  emit('navigate')
 }
 
 /* For the zoom buttons (ZoomRail): the same zoom the wheel does, about the
@@ -438,13 +441,12 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   observer?.disconnect()
-  cancelHold()
 })
 
 watch(() => props.src, load)
 watch(rect, paint)
 
-defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, viewport, natural })
+defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, centerOn, viewport, natural })
 </script>
 
 <template>
@@ -456,6 +458,7 @@ defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, viewport, natura
     @pointermove="onPointerMove"
     @pointerup="onPointerUp"
     @pointercancel="onPointerUp"
+    @pointerleave="onPointerLeave"
     @wheel="onWheel"
   >
     <canvas ref="canvas" class="photo" />
@@ -466,6 +469,7 @@ defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, viewport, natura
       :stroke="stroke"
       :zoom="zoom"
       :viewport="viewport"
+      :brush="brushAt"
     />
   </div>
 </template>

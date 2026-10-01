@@ -96,6 +96,9 @@ export const useStripStore = defineStore('strip', {
        up — and never the machine's count. Nothing is blocked on it. */
     looked: Array(COVERAGE_PARTS).fill(false),
 
+    /* A brush stroke in progress (paint between beginStroke and endStroke). */
+    stroking: false,
+
     /* The crop the marks were found on — set when the crop is applied — so a
        return to Crop can tell "looked again" from "changed it". */
     applied: null,
@@ -430,6 +433,77 @@ export const useStripStore = defineStore('strip', {
       this.history.push({ type: 'status', id, was })
     },
 
+    /**
+     * The brush (Oct 2026). A stroke is opened, marks are painted as the finger
+     * passes, and the stroke is closed; however many marks it changed, it is
+     * one step to undo. `remove` turns found and kept marks into removed ones
+     * and takes hand-added eggs away outright (no machine mark lies under
+     * them); `keep` turns found and removed marks into kept ones.
+     */
+    beginStroke() {
+      this.history.push({ type: 'batch', changes: [], unadded: [] })
+      this.stroking = true
+    },
+
+    paint(ids, mode) {
+      if (!this.stroking || !ids.length) return
+      const batch = this.history[this.history.length - 1]
+      const gone = new Set()
+      for (const id of ids) {
+        const mark = this.marks.find((m) => m.id === id)
+        if (!mark) continue
+        if (mode === 'remove') {
+          if (mark.status === 'added') {
+            batch.unadded.push({ ...mark })
+            gone.add(id)
+          } else if (mark.status !== 'removed') {
+            batch.changes.push({ id, was: mark.status })
+            mark.status = 'removed'
+          }
+        } else if (mode === 'keep' && (mark.status === 'removed' || mark.status === 'proposed')) {
+          batch.changes.push({ id, was: mark.status })
+          mark.status = 'kept'
+        }
+      }
+      if (gone.size) this.marks = this.marks.filter((m) => !gone.has(m.id))
+      if (batch.changes.length || batch.unadded.length) this.reviewed = true
+    },
+
+    endStroke() {
+      this.stroking = false
+      const batch = this.history[this.history.length - 1]
+      if (batch?.type === 'batch' && !batch.changes.length && !batch.unadded.length) this.history.pop()
+    },
+
+    /**
+     * A measurement taken from the eggs the person added — each measured the
+     * way a tapped egg is (measureBlobAt), and the medians taken, as the probe
+     * does across a strip. Null when none of them measures as an egg. Used to
+     * find the marks again from the person's own eggs: a calibration, as Mark
+     * one egg is, not something learned.
+     */
+    measureFromAdded() {
+      const found = this.marks
+        .filter((m) => m.status === 'added')
+        .map((m) => this.measureEggAt(m.x, m.y))
+        .filter(Boolean)
+      if (!found.length) return null
+      const median = (pick) => {
+        const v = found.map(pick).sort((a, b) => a - b)
+        return v[Math.floor(v.length / 2)]
+      }
+      return {
+        ...found[0],
+        areaPx: median((m) => m.areaPx),
+        rPx: median((m) => m.rPx),
+        contrast: median((m) => m.contrast),
+        wPx: median((m) => m.wPx),
+        hPx: median((m) => m.hPx),
+        longEdgePx: median((m) => Math.max(m.wPx, m.hPx)),
+        samples: found.length,
+      }
+    },
+
     /** Place an egg the scan missed. */
     addMark(point) {
       this.reviewed = true
@@ -515,6 +589,14 @@ export const useStripStore = defineStore('strip', {
         case 'unadd':
           this.marks.push(last.mark)
           break
+        case 'batch': {
+          for (const change of last.changes) {
+            const mark = this.marks.find((m) => m.id === change.id)
+            if (mark) mark.status = change.was
+          }
+          this.marks.push(...last.unadded)
+          break
+        }
         case 'split': {
           const addedIds = new Set(last.addedIds)
           this.marks = [

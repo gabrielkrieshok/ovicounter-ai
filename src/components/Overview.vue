@@ -21,7 +21,30 @@ const props = defineProps({
   looked: { type: Array, default: () => [] },
 })
 
+/* Touch or drag anywhere on it to move the view there (Oct 2026): emits the
+   point of the strip, normalised, for the stage to centre on. */
+const emit = defineEmits(['move'])
 const root = ref(null)
+const frame = ref(null)
+let dragging = false
+function pointAt(event) {
+  const r = frame.value.getBoundingClientRect()
+  return {
+    x: Math.min(1, Math.max(0, (event.clientX - r.left) / r.width)),
+    y: Math.min(1, Math.max(0, (event.clientY - r.top) / r.height)),
+  }
+}
+function down(event) {
+  dragging = true
+  event.currentTarget.setPointerCapture?.(event.pointerId)
+  emit('move', pointAt(event))
+}
+function move(event) {
+  if (dragging) emit('move', pointAt(event))
+}
+function up() {
+  dragging = false
+}
 const canvas = ref(null)
 const size = ref({ width: 0, height: 0 })
 let observer = null
@@ -66,7 +89,15 @@ watch(() => [props.source, props.marks], paint, { deep: true })
 
 <template>
   <div ref="root" class="overview">
-    <div class="frame" :style="{ width: `${size.width}px`, height: `${size.height}px` }">
+    <div
+      ref="frame"
+      class="frame"
+      :style="{ width: `${size.width}px`, height: `${size.height}px` }"
+      @pointerdown="down"
+      @pointermove="move"
+      @pointerup="up"
+      @pointercancel="up"
+    >
       <canvas ref="canvas" class="thumb" />
       <!-- Looked-at parts are shaded, not tinted a mark colour: this is the
            person's own effort, not something about the eggs. -->
@@ -102,6 +133,8 @@ watch(() => [props.source, props.marks], paint, { deep: true })
   position: relative;
   flex: none;
   line-height: 0;
+  cursor: grab;
+  touch-action: none;
 }
 .thumb {
   display: block;

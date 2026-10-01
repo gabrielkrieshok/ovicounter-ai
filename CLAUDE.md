@@ -182,12 +182,25 @@ The yellow bar always says where it goes in the steps' own direction:
 pixels apart on a 380px phone, so review needs zoom, and zoom needs a gesture
 vocabulary that does not collide with culling.
 
-**One finger acts on the strip** — tap removes, drag draws a split, hold adds.
-**Two fingers move the strip** — pinch to zoom, drag to pan. This is the
-drawing-app convention rather than the map convention, and it is the right way
-round here: culling is the job, so the cheap unmodified gesture belongs to it.
-Rejecting a proposal must stay the cheapest thing on the screen. On a desktop
-there is no second finger, so the wheel zooms and Shift-drag pans.
+**One finger acts with the chosen tool; two fingers move the strip** (Oct
+2026, Gabriel — replaced tap-removes / hold-adds / drag-splits, which people
+could not keep apart). `ToolPicker` above the strip: **Remove** (default —
+culling is the job, so it stays the cheapest thing on the screen), **Keep**,
+**Add**, **Split**. Remove and Keep *paint*: a brush of fixed on-screen size
+(`BRUSH_R` 22px, a fingertip), so it covers less of the strip the further you
+zoom in; one stroke is one undo step (`strip.beginStroke` / `paint` /
+`endStroke`, a `batch` in the history). Add places one egg per touch, with the
+close-up shown from the first touch. Split paints a line across a clump. Pinch
+zooms, two-finger drag pans; on a desktop the wheel zooms and Shift-drag pans.
+The minimap (`Overview`, `@move`) is touchable — touch or drag it to move the
+view there.
+
+Once the person has added eggs, **"Find the marks again from my eggs"** measures
+the added eggs (`strip.measureFromAdded`, medians), adopts that as the
+calibration — 3+ eggs as a population like the probe, fewer as a tap — and runs
+Measure again, asking first (`confirmRedo`). It is a calibration from the
+person's examples, like Mark one egg, and happens only when pressed: thresholds
+are never adjusted from fixes behind the person's back (non-negotiable 4).
 
 `lib/marks.js` owns the 7–26px diameter clamp and hit-testing together, because
 drawing and hit-testing have to agree about how big a mark is.

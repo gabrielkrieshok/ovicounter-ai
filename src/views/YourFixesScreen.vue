@@ -6,15 +6,15 @@ import AppButton from '@/components/AppButton.vue'
 import CoverageBar from '@/components/CoverageBar.vue'
 import JudgmentTally from '@/components/JudgmentTally.vue'
 import MagnifierLoupe from '@/components/MagnifierLoupe.vue'
-import MarkKey from '@/components/MarkKey.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
 import Overview from '@/components/Overview.vue'
 import StripHeader from '@/components/StripHeader.vue'
+import ToolPicker from '@/components/ToolPicker.vue'
 import ZoomPanStage from '@/components/ZoomPanStage.vue'
 import ZoomRail from '@/components/ZoomRail.vue'
 import StepList from '@/components/StepList.vue'
 import { t, weekday } from '@/i18n'
-import { markAt } from '@/lib/marks'
+import { confirmRedo } from '@/lib/use-steps'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -73,10 +73,66 @@ onMounted(() => {
   strip.applyLooked()
 })
 
-function onTap(point) {
-  if (!point || !stage.value) return
-  const mark = markAt(strip.marks, point, stage.value.rect)
-  if (mark) strip.toggleMark(mark.id)
+/* The tool one finger uses (Oct 2026). Remove first: culling is the job. */
+const tool = ref('remove')
+
+/* The brush: a fingertip on screen, whatever the zoom — zoom in to be finer,
+   out to sweep wider. A mark is painted when its centre falls under it. */
+const BRUSH_R = 22
+let lastPaint = null
+
+function marksUnder(point) {
+  const r = stage.value?.rect
+  if (!r) return []
+  const hit = []
+  for (const m of strip.marks) {
+    const dx = r.left + m.x * r.width - point.x
+    const dy = r.top + m.y * r.height - point.y
+    if (dx * dx + dy * dy <= BRUSH_R * BRUSH_R) hit.push(m.id)
+  }
+  return hit
+}
+
+function onPaintStart() {
+  strip.beginStroke()
+  lastPaint = null
+}
+
+/* Sampled along the finger's path, not only where it was reported, so a fast
+   sweep does not skip the marks between two samples. */
+function onPaint(point) {
+  const from = lastPaint ?? point
+  const steps = Math.max(1, Math.ceil(Math.hypot(point.x - from.x, point.y - from.y) / (BRUSH_R / 2)))
+  const ids = new Set()
+  for (let i = 1; i <= steps; i++) {
+    const p = { x: from.x + ((point.x - from.x) * i) / steps, y: from.y + ((point.y - from.y) * i) / steps }
+    for (const id of marksUnder(p)) ids.add(id)
+  }
+  if (!lastPaint) for (const id of marksUnder(point)) ids.add(id)
+  lastPaint = point
+  strip.paint([...ids], tool.value)
+}
+
+function onPaintEnd() {
+  strip.endStroke()
+  lastPaint = null
+}
+
+/* The minimap: centre the view where it was touched. */
+function moveTo(point) {
+  stage.value?.centerOn(point.x, point.y)
+}
+
+/* Find the marks again across the whole strip, measured from the eggs the
+   person added — a calibration from their own examples, as Mark one egg is,
+   not something learned. It finds the marks again, so it asks first. */
+const remeasuring = ref(false)
+async function remeasure() {
+  const measurement = strip.measureFromAdded()
+  if (!measurement || !(await confirmRedo('redo'))) return
+  remeasuring.value = true
+  await strip.adoptCalibration(measurement, measurement.samples >= 3 ? 'probe' : 'tap')
+  router.push({ name: 'processing' })
 }
 
 function onAdd(point) {
@@ -109,18 +165,16 @@ function done() {
     <StepList v-if="wide" class="steps-before" part="before" />
 
     <StripHeader class="head" :title="t('fixes.title')" :eyebrow="wide ? eyebrow : ''">
-      <!-- Bulleted with the marks each gesture makes, not numbered: numbers
-           here read as more steps in the step list beside them. -->
-      <ul v-if="wide" class="howto">
-        <li><span class="glyph removed t-title" aria-hidden="true">✕</span><span class="t-body">{{ t('fixes.step1') }}</span></li>
-        <li><span class="glyph added t-title" aria-hidden="true">+</span><span class="t-body">{{ t('fixes.step2') }}</span></li>
-        <li><span class="glyph split t-title" aria-hidden="true">╱</span><span class="t-body">{{ t('fixes.step3') }}</span></li>
-      </ul>
-      <div v-else class="cells">
-        <span class="cell t-label">{{ t('fixes.cellTap') }}</span>
-        <span class="cell t-label">{{ t('fixes.cellHold') }}</span>
-        <span class="cell t-label">{{ t('fixes.cellLine') }}</span>
-      </div>
+      <!-- Pick what one finger does; the line under says how, and that two
+           fingers move the strip. -->
+      <ToolPicker v-model="tool" />
+      <p class="tool-hint t-body">
+        {{ t(`fixes.hint${tool.charAt(0).toUpperCase()}${tool.slice(1)}`) }}
+        <span class="two-fingers">{{ t('fixes.twoFingers') }}</span>
+      </p>
+      <AppButton v-if="strip.addedCount" variant="quiet" :disabled="remeasuring" @click="remeasure">
+        {{ t('fixes.remeasure') }}
+      </AppButton>
     </StripHeader>
 
     <!-- Phone: zoomed past 1, a band above the stage shows the whole strip with
@@ -135,6 +189,7 @@ function done() {
         :marks="strip.marks"
         :viewport="viewport"
         :looked="strip.looked"
+        @move="moveTo"
       />
       <CoverageBar tone="dark" :looked="strip.looked" />
     </div>
@@ -144,11 +199,14 @@ function done() {
         ref="stage"
         :src="strip.working?.canvas ?? null"
         background="var(--stage-bg)"
-        @tap="onTap"
+        :tool="tool"
+        @paintstart="onPaintStart"
+        @paint="onPaint"
+        @paintend="onPaintEnd"
         @add="onAdd"
         @stroke="onStroke"
         @navigate="strip.noteReview()"
-        v-slot="{ rect, stage: size, hold, stroke }"
+        v-slot="{ rect, stage: size, hold, stroke, brush }"
       >
         <MarkLayer :marks="strip.marks" :rect="rect" :stage="size" />
 
@@ -159,6 +217,13 @@ function done() {
           <polyline
             :points="stroke.map((p) => `${rect.left + p.x * rect.width},${rect.top + p.y * rect.height}`).join(' ')"
           />
+        </svg>
+
+        <!-- The brush, in the colour of what it does: a fingertip, whatever the
+             zoom. -->
+        <svg v-if="brush && (tool === 'remove' || tool === 'keep')" class="brush" :width="size.width" :height="size.height">
+          <circle :cx="brush.x" :cy="brush.y" :r="BRUSH_R" class="brush-halo" />
+          <circle :cx="brush.x" :cy="brush.y" :r="BRUSH_R" class="brush-ring" :class="tool" />
         </svg>
 
         <MagnifierLoupe
@@ -182,8 +247,15 @@ function done() {
          at and where the stage is, and what the marks mean. -->
     <div v-if="wide" class="under">
       <ZoomRail :zoom="zoom" @zoom="(f) => stage?.zoomBy(f)" />
+      <Overview
+        class="minimap"
+        :source="strip.working?.canvas ?? null"
+        :marks="strip.marks"
+        :viewport="viewport"
+        :looked="strip.looked"
+        @move="moveTo"
+      />
       <CoverageBar class="coverage" :looked="strip.looked" :viewport="viewport" />
-      <MarkKey layout="row" :show="['kept', 'removed', 'added']" />
     </div>
 
     <JudgmentTally class="tally" :cells="tally">
@@ -234,41 +306,31 @@ function done() {
   flex-direction: column;
 }
 
-.cells {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border: var(--bd) solid var(--ink);
+.tool-hint {
+  margin: var(--sp-8) 0 0;
 }
-.cell {
-  padding: var(--sp-8) var(--sp-8);
-  display: flex;
-  align-items: center;
-}
-.cell + .cell {
-  border-left: var(--bd) solid var(--ink);
+.two-fingers {
+  color: var(--muted);
 }
 
-.howto {
-  list-style: none;
-  margin: var(--sp-8) 0 0;
-  padding: 0 0 0 var(--sp-8);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-8);
+.brush {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
 }
-.howto li {
-  display: flex;
-  align-items: baseline;
-  gap: var(--sp-12);
+.brush-halo {
+  fill: none;
+  stroke: var(--paper);
+  stroke-opacity: 0.7;
+  stroke-width: 4;
 }
-.glyph {
-  flex: none;
-  width: 18px;
-  text-align: center;
+.brush-ring {
+  fill: none;
+  stroke-width: 2;
 }
-.glyph.removed { color: var(--red); }
-.glyph.added { color: var(--pink); }
-.glyph.split { color: var(--ink); }
+.brush-ring.remove { stroke: var(--red); }
+.brush-ring.keep { stroke: var(--green); }
 
 .band {
   flex: none;
@@ -367,6 +429,11 @@ function done() {
 .wide .fixes .coverage {
   flex: 1 1 0;
   min-width: 160px;
+}
+.wide .fixes .minimap {
+  flex: none;
+  width: 150px;
+  height: 64px;
 }
 .wide .fixes .under > :not(.coverage) {
   flex: none;

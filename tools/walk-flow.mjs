@@ -350,24 +350,43 @@ async function main() {
         }));
       const undoEnabled = () => !document.querySelector('.undo').disabled;
 
-      // 1. Tap the middle: removes a mark if one is there.
+      const pick = async (key) => { document.querySelector('.tool.' + key).click(); await settle(2); };
+      const clear = async () => { let g = 0; while (undoEnabled() && g++ < 50) { document.querySelector('.undo').click(); await settle(2); } };
       const cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.5;
-      send('pointerdown', cx, cy); await frame(); send('pointerup', cx, cy);
-      await settle();
-      log.push('tap → undo ' + (undoEnabled() ? 'enabled' : 'still disabled (no mark under it)'));
+      const sweep = async (x0, y, len) => {
+        send('pointerdown', x0, y);
+        for (let i = 1; i <= 10; i++) { send('pointermove', x0 + (i * len) / 10, y); await frame(); }
+        send('pointerup', x0 + len, y);
+        await settle();
+      };
 
-      // 2. Undo whatever that did.
-      while (undoEnabled()) { document.querySelector('.undo').click(); await settle(2); }
-      log.push('undo → history empty');
+      // 1. The tools: four, Remove chosen.
+      const tools = [...document.querySelectorAll('.tool')].map(b => b.getAttribute('aria-checked') === 'true' ? '[' + b.innerText.trim() + ']' : b.innerText.trim());
+      log.push('tools ' + tools.join(' · ').replace(/\\n/g, ' '));
 
-      // 3. Press and hold on the photograph: adds an egg.
+      // 2. Remove: paint across the middle — one stroke, one undo.
+      await sweep(r.left + r.width * 0.3, cy, r.width * 0.4);
+      log.push('remove sweep → undo ' + (undoEnabled() ? 'enabled' : 'still disabled (no mark under it)'));
+      document.querySelector('.undo').click(); await settle(2);
+      log.push('one undo → ' + (undoEnabled() ? 'STILL ENABLED (stroke was not one step)' : 'history empty'));
+
+      // 3. Keep: the same sweep marks them kept.
+      await pick('keep');
+      await sweep(r.left + r.width * 0.3, cy, r.width * 0.4);
+      log.push('keep sweep → undo ' + (undoEnabled() ? 'enabled' : 'disabled'));
+      await clear();
+
+      // 4. Add: the close-up shows on touch, the egg lands on release.
+      await pick('add');
       const hx = r.left + r.width * 0.3, hy = r.top + r.height * 0.5;
       send('pointerdown', hx, hy);
-      await new Promise(res => setTimeout(res, 600));
+      await settle(2);
       const loupe = !!document.querySelector('.loupe');
       send('pointerup', hx, hy);
       await settle();
-      log.push('hold → loupe ' + (loupe ? 'shown' : 'MISSING') + ', undo ' + (undoEnabled() ? 'enabled' : 'disabled'));
+      log.push('add → loupe ' + (loupe ? 'shown' : 'MISSING') + ', undo ' + (undoEnabled() ? 'enabled' : 'disabled') +
+        ', re-measure ' + ([...document.querySelectorAll('button')].some(b => /from my eggs/.test(b.innerText)) ? 'offered' : 'MISSING'));
+      await pick('remove');
 
       // 4. Pinch to zoom with two fingers.
       const m = { x: r.left + r.width * 0.5, y: r.top + r.height * 0.5 };
@@ -396,6 +415,8 @@ async function main() {
         stage.dispatchEvent(new PointerEvent(type, {
           clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true,
         }));
+      document.querySelector('.tool.split').click();
+      await frame();
       const undo = document.querySelector('.undo');
       let guard = 0;
       while (!undo.disabled && guard++ < 50) { undo.click(); await frame(); }
@@ -406,7 +427,8 @@ async function main() {
       for (let i = 1; i <= 8; i++) { send('pointermove', x0 + i * 8, y); await frame(); }
       send('pointerup', x0 + 64, y);
       for (let i = 0; i < 60; i++) await frame();
-      return 'stroke from empty history → undo ' +
+      document.querySelector('.tool.remove').click();
+      return 'split stroke from empty history → undo ' +
         (undo.disabled ? 'STILL DISABLED (split did nothing)' : 'enabled (split recorded)');
     })()`)
     console.log(`  ${split}`)
