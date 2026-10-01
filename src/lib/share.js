@@ -25,6 +25,10 @@ const C = {
   stage: '#111111',
   idle: '#9a9a9a',
 }
+/* The logo (components/AppLogo.vue): its ring path on a 100-unit box. */
+const LOGO_RING = new Path2D('M52.47 12.04A38.04 38.04 0 0 1 70.31 17.84L64.39 25.99A27.99 27.99 0 0 0 52.47 22.12ZM74.31 20.74A38.04 38.04 0 0 1 85.34 35.92L75.75 39.04A27.99 27.99 0 0 0 68.39 28.89ZM86.86 40.62A38.04 38.04 0 0 1 86.86 59.38L77.28 56.27A27.99 27.99 0 0 0 77.28 43.73ZM85.34 64.08A38.04 38.04 0 0 1 74.31 79.26L68.39 71.11A27.99 27.99 0 0 0 75.75 60.96ZM70.31 82.16A38.04 38.04 0 0 1 52.47 87.96L52.47 77.88A27.99 27.99 0 0 0 64.39 74.01ZM47.53 87.96A38.04 38.04 0 0 1 29.69 82.16L35.61 74.01A27.99 27.99 0 0 0 47.53 77.88ZM25.69 79.26A38.04 38.04 0 0 1 14.66 64.08L24.25 60.96A27.99 27.99 0 0 0 31.61 71.11ZM13.14 59.38A38.04 38.04 0 0 1 13.14 40.62L22.72 43.73A27.99 27.99 0 0 0 22.72 56.27ZM14.66 35.92A38.04 38.04 0 0 1 25.69 20.74L31.61 28.89A27.99 27.99 0 0 0 24.25 39.04ZM29.69 17.84A38.04 38.04 0 0 1 47.53 12.04L47.53 22.12A27.99 27.99 0 0 0 35.61 25.99Z')
+const BRAND = '#0064fc'
+
 const W = 1080
 const H = 1920
 const PAD = 64
@@ -102,12 +106,26 @@ export async function storyImage({ photoUrl, working, marks, checked, count, ban
   // The name, on black.
   ctx.fillStyle = C.ink
   ctx.fillRect(0, 0, W, 150)
+  // The mark: the brand ring, the egg in paper on the black band.
+  ctx.save()
+  ctx.translate(PAD, 27)
+  ctx.scale(0.96, 0.96)
+  ctx.fillStyle = BRAND
+  ctx.fill(LOGO_RING)
+  ctx.translate(50, 50)
+  ctx.rotate((33 * Math.PI) / 180)
+  ctx.beginPath()
+  ctx.ellipse(0, 0, 20.1, 7.3, 0, 0, Math.PI * 2)
+  ctx.fillStyle = C.paper
+  ctx.fill()
+  ctx.restore()
+  const nameX = PAD + 116
   ctx.fillStyle = C.paper
   ctx.font = display(72, 800)
-  ctx.fillText('OVICOUNTER', PAD, 40)
+  ctx.fillText('OVICOUNTER', nameX, 40)
   const nameW = ctx.measureText('OVICOUNTER').width
   ctx.font = display(72, 600)
-  ctx.fillText('AI', PAD + nameW + 8, 40)
+  ctx.fillText('AI', nameX + nameW + 8, 40)
   ctx.textAlign = 'right'
   ctx.font = mono(28, 500)
   ctx.fillStyle = C.action

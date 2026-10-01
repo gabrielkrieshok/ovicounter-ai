@@ -67,6 +67,12 @@ link away on Your fixes.
   Field Manual brief — do not "improve" it, do not add shadows for depth, and
   corners are square (`--r-*` are 0; `--r-device` is for the `?frame=1` phone
   frame only).
+- **The logo** (Oct 2026) is a dashed ring of ten segments round an egg — the
+  app's own "found" mark. `components/AppLogo.vue` draws it (ring in `--brand`,
+  #0064fc, which is the logo's alone; egg in the text colour) and leads the
+  wordmark; `public/favicon.svg` (egg follows the tab's light/dark scheme),
+  `icon.png`, `icon-192.png` and `apple-touch-icon.png` are made from the
+  original artwork and precached.
 - **Fonts** self-hosted in `public/fonts/` (Barlow Condensed 600/700/800,
   Barlow 400/500/600, JetBrains Mono 500/700) and precached with the shell.
   Never fetched from Google at runtime. Archivo and IBM Plex Mono are gone.

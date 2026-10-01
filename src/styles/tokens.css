@@ -26,6 +26,10 @@
      Processing's current step. It replaces --amber. */
   --action: #ffd23f;
 
+  /* The logo's blue (Oct 2026), and the logo only — brighter than --blue,
+     which means a mark found by the app and nothing else. */
+  --brand: #0064fc;
+
   /* The mark language — a mark and nothing else. Links are ink, underlined. */
   --blue: #1250c8;         /* found by the app: dashed */
   --green: #0a8f4d;        /* kept: solid */

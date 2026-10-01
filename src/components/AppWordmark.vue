@@ -1,13 +1,14 @@
 <script setup>
+import AppLogo from '@/components/AppLogo.vue'
+
 /* The wordmark: OVICOUNTER in Barlow Condensed 800, then AI in 600.
  *
  * The weight contrast is carried over from the v1 lockup, which set
  * `Ovicounter` at black and `AI` at thin; 600 is the lightest condensed weight
  * shipped, and nothing is fetched at runtime.
  *
- * The bot icon that used to lead the lockup is gone from it (Sep 30, 2026):
- * every Field Manual mockup draws the name alone on the black bar, and at 22px
- * the bot was a smudge beside it. It is still the favicon and the install icon.
+ * The mark leads it (Oct 2026): the dashed ring round an egg (AppLogo), at
+ * about cap height and a bit, its egg in the text colour.
  *
  * Not translated, and deliberately not in the i18n bundles. A product name is
  * not copy; it reads the same in every locale, and putting it in `en.js` would
@@ -22,11 +23,17 @@ defineProps({
 </script>
 
 <template>
-  <span class="wordmark" :style="{ fontSize: `${size}px` }"><b>OVICOUNTER</b><i>AI</i></span>
+  <span class="wordmark" :style="{ fontSize: `${size}px` }">
+    <AppLogo class="mark" :size="Math.round(size * 1.25)" />
+    <span><b>OVICOUNTER</b><i>AI</i></span>
+  </span>
 </template>
 
 <style scoped>
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
   font-family: var(--font-display);
   line-height: 1;
   white-space: nowrap;

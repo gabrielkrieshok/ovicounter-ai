@@ -33,7 +33,9 @@ function serviceWorker() {
         .filter((f) => f.endsWith('.woff2'))
         .map((f) => `${base}fonts/${f}`)
 
-      const precache = [base, ...hashed, ...fonts]
+      /* The logo, in every form a browser or a home screen asks for (Oct 2026). */
+      const icons = ['favicon.svg', 'icon.png', 'icon-192.png', 'apple-touch-icon.png'].map((f) => `${base}${f}`)
+      const precache = [base, ...hashed, ...fonts, ...icons]
 
       /* The cache name carries the build's own asset hashes, so a new build
          invalidates the old cache without any manual version bumping. */
