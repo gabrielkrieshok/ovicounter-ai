@@ -182,7 +182,7 @@ export default {
     twoFingers: 'Con dos dedos se mueve la tira.',
     clumpsOpen: 'Revisar los grupos · {done} de {total}',
     clumpOf: 'Grupo {n} de {total}',
-    clumpHint: 'La app lo separó en ~{app}; por su tamaño caben unos {size}. Indique cuántos huevos ve.',
+    clumpHint: 'La app marcó ~{app}; por su tamaño caben unos {size}. Indique cuántos huevos ve.',
     clumpFewer: 'Un huevo menos',
     clumpMore: 'Un huevo más',
     clumpPrev: 'Anterior',

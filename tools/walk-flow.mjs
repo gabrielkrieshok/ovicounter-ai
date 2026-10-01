@@ -568,7 +568,9 @@ async function main() {
   check('reviewed strip shows a human count', !numbers.machineStyled)
   const machineTotal = parseInt(String(numbers.machine ?? '').replace(/[^0-9]/g, ''), 10)
   check(`calibration: ${taps} taps`, taps === 0)
-  check(`machine total ${machineTotal} in 330–400`, machineTotal >= 330 && machineTotal <= 400)
+  // 392 since Oct 2026, when clumps the watershed left in one piece began to be
+  // counted by length (it was 364; neither is a hand count).
+  check(`machine total ${machineTotal} in 340–430`, machineTotal >= 340 && machineTotal <= 430)
 
   check(`a demo's result offers only Home (${numbers.buttons})`, numbers.buttons === 'Home')
   console.log(`  click "Home" → ${await clickText('Home')}`)

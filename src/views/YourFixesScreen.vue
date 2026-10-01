@@ -126,7 +126,7 @@ const clumpIndex = ref(0)
    most, the app's number is least to be trusted. Ties go to the bigger clump,
    which moves the count more. The order uses only the app's two counts, so it
    stays put while the person changes numbers. */
-const doubt = (c) => Math.abs(c.byArea - c.watershed)
+const doubt = (c) => Math.abs(c.byArea - (c.found ?? c.watershed))
 const queue = computed(() =>
   [...strip.clumps].sort((a, b) => doubt(b) - doubt(a) || b.area - a.area),
 )
@@ -236,7 +236,7 @@ function done() {
           {{ t(clumpIndex + 1 >= queue.length ? 'fixes.clumpLast' : 'fixes.clumpNext') }}
         </AppButton>
         </div>
-        <p class="clump-note t-body">{{ t('fixes.clumpHint', { app: current.watershed, size: current.byArea }) }}</p>
+        <p class="clump-note t-body">{{ t('fixes.clumpHint', { app: current.found ?? current.watershed, size: current.byArea }) }}</p>
         <AppButton variant="quiet" class="clump-prev" :disabled="clumpIndex === 0" @click="stepClump(-1)">{{ t('fixes.clumpPrev') }}</AppButton>
       </div>
 

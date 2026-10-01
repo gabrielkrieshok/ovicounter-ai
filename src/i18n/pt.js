@@ -188,7 +188,7 @@ export default {
     twoFingers: 'Com dois dedos move-se a tira.',
     clumpsOpen: 'Rever os aglomerados · {done} de {total}',
     clumpOf: 'Aglomerado {n} de {total}',
-    clumpHint: 'A app separou-o em ~{app}; pelo tamanho cabem cerca de {size}. Indique quantos ovos vê.',
+    clumpHint: 'A app marcou ~{app}; pelo tamanho cabem cerca de {size}. Indique quantos ovos vê.',
     clumpFewer: 'Menos um ovo',
     clumpMore: 'Mais um ovo',
     clumpPrev: 'Anterior',

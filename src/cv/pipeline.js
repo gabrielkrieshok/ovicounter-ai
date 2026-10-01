@@ -395,15 +395,30 @@ export function createPipeline(cv) {
         clumps[egg.clump].watershed++
       }
 
-      /* A clump the watershed could not cut at all — a dense mat with no
-         separable centres — gets as many eggs as its area holds, placed over
-         its pixels. Before Oct 2026 these were counted in `inferred` and never
-         reached the screen, so the eggs in them were silently lost. */
+      /* A clump the watershed cut into one piece or none is a contradiction:
+         it is a clump because it is bigger than one egg. It happens most
+         with eggs lying end to end, whose distance transform is one long
+         ridge with a single peak — about half of all clumps (Oct 2026: 24 of
+         44 on the demo strip, 143 of 351 on Portugal-2), and Gabriel saw that
+         they were nearly always two eggs. So such a clump is counted by its
+         LENGTH against a single egg's — end to end, length is what eggs add —
+         at least 2, at most what its area holds, and its eggs placed over its
+         pixels. Before Oct 2026 a clump with no seeds at all was counted in
+         `inferred` and never reached the screen. */
       const eggR = Math.sqrt(p.medianEggArea / Math.PI)
+      const eggLength = singles.length >= 20
+        ? median(singles.map((d) => Math.max(d.w, d.h)))
+        : Math.max(3, Math.sqrt(p.medianEggArea) * 1.8)
       const placed = []
+      const replaced = new Set()
       for (const c of clumps) {
-        if (c.watershed > 0) continue
-        for (const at of placeInClump(c.points, c.byArea, width / height)) {
+        if (c.watershed > 1) continue
+        const byLength = Math.round(c.lengthPx / Math.max(1, eggLength))
+        const k = Math.min(Math.max(2, c.byArea), Math.max(2, byLength))
+        c.byLength = k
+        replaced.add(c.id)
+        c.found = k
+        for (const at of placeInClump(c.points, k, width / height)) {
           placed.push({
             x: at.x * width - eggR,
             y: at.y * height - eggR,
@@ -417,7 +432,11 @@ export function createPipeline(cv) {
         }
       }
 
-      const detections = [...singles, ...split.eggs, ...placed].map((d) => ({
+      const kept = split.eggs.filter((e) => !replaced.has(e.clump))
+      /* `found`: how many marks the app put in each clump — the watershed's
+         pieces, or the length count where it gave one piece or none. */
+      for (const c of clumps) if (!replaced.has(c.id)) c.found = c.watershed
+      const detections = [...singles, ...kept, ...placed].map((d) => ({
         x: (d.x + d.w / 2) / width,
         y: (d.y + d.h / 2) / height,
         w: d.w / width,
@@ -765,6 +784,9 @@ function describeClumps(labels, clumpIndex, statsData, S, p, width, height) {
     const spread = Math.sqrt(((vxx - vyy) / 2) ** 2 + vxy ** 2)
     // A filled ellipse has variance a²/4 along its axis, so the semi-axis is
     // twice the standard deviation; padded so the outline clears the eggs.
+    // Along its long axis a clump of eggs lying end to end is about
+    // √(12·variance) long — the length of a uniform bar with that spread.
+    const lengthPx = Math.sqrt(12 * Math.max(0, mid + spread))
     const a = 2 * Math.sqrt(Math.max(0, mid + spread)) + pad
     const b = 2 * Math.sqrt(Math.max(0, mid - spread)) + pad
     return {
@@ -776,6 +798,7 @@ function describeClumps(labels, clumpIndex, statsData, S, p, width, height) {
       area: c.area,
       byArea: c.byArea,
       watershed: c.watershed,
+      lengthPx,
       cx: mx / width,
       cy: my / height,
       rx: a / width,

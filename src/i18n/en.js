@@ -233,7 +233,7 @@ export default {
     /* DRAFT (Oct 2026) — the clump pass on Manually refine. */
     clumpsOpen: 'Check the clumps · {done} of {total}',
     clumpOf: 'Clump {n} of {total}',
-    clumpHint: 'The app split it into ~{app}; its size fits about {size}. Set how many eggs you see.',
+    clumpHint: 'The app marked ~{app}; its size fits about {size}. Set how many eggs you see.',
     clumpFewer: 'One fewer egg',
     clumpMore: 'One more egg',
     clumpPrev: 'Previous',

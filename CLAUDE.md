@@ -322,6 +322,18 @@ Portugal-2 (1,211 vs 3,336 by area on Portugal-1); on the demo strip, whose
 truth is ~364, the watershed total is 368 and area's 409. Neither is truth on
 a dense mat, which is why the person gives the number.
 
+**A clump the watershed leaves in one piece is counted by length** (Oct
+2026). It is a clump because it is bigger than one egg, so "~1" contradicts
+itself — and it was about half of all clumps (24 of 44 on the demo, 143 of
+351 on Portugal-2), nearly always eggs lying end to end, whose distance
+transform is one ridge with one peak (Gabriel saw they were mostly two).
+Such a clump gets round(long-axis length / a single egg's length), at least 2
+and at most its area's count, placed by `cv/place.js`; `found` is what the
+app put in each clump. The demo total went 368 → 392; Portugal-1 1,211 →
+1,263 (length is cautious where area says 3,336). The demo's long-quoted
+"364" was never a hand count (surpass-v1-brief: "No figure above is scored
+against a hand count").
+
 **A tap that lands on a CLUMP** inflates the measured area, the size filter
 scales with it, and every single egg is then rejected as too small. Nothing in
 the pipeline can see this — a clump is a well-formed dark blob. The probe
