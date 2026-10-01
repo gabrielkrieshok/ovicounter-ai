@@ -141,7 +141,9 @@ export default {
     badgeDarkSpecks: 'PONTOS ESCUROS MANTIDOS',
     badgeMarks: 'MARCAS COLOCADAS',
     lookTitle: 'Como foram encontradas as marcas',
-    lookHint: 'Toque num passo para ver essa imagem.',
+    lookHint: 'Toque num passo para ver essa imagem. Mantenha premida a imagem para ver a foto por baixo.',
+    stepPhoto: 'FOTO',
+    badgePhoto: 'A FOTO',
   },
 
   refine: {
@@ -247,6 +249,7 @@ export default {
     skipped: 'ignorado',
     optional: 'opcional',
     backTo: 'Voltar a {step}',
+    continueTo: 'Seguir para {step}',
     redoTitle: 'Procurar as marcas de novo?',
     redoBody: 'Isto volta a procurar as marcas desta tira desde o início. Perdem-se as marcas que retirou, acrescentou ou separou.',
     redoStay: 'Manter as minhas correções',

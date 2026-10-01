@@ -59,11 +59,14 @@ function choose(row) {
 <template>
   <ol v-if="current >= 0 && rows.length" class="step-list" :class="part">
     <li v-for="row in rows" :key="row.step.key">
-      <component
-        :is="row.open ? 'button' : 'div'"
+      <!-- A button even when it cannot be opened (disabled): a dynamic
+           <component :is> compiles its children as a stable slot, and the ✓
+           and labels inside would not follow the step as it changed. -->
+      <button
         class="row"
         :class="{ done: row.done, here: row.here, open: row.open }"
-        :type="row.open ? 'button' : undefined"
+        type="button"
+        :disabled="!row.open"
         :aria-current="row.here ? 'step' : undefined"
         :data-step="row.step.key"
         @click="choose(row)"
@@ -75,7 +78,7 @@ function choose(row) {
           <span v-else-if="row.step.optional" class="aside t-label">{{ t('steps.optional') }}</span>
         </span>
         <span v-if="row.done && !row.here" class="state t-title" aria-hidden="true">✓</span>
-      </component>
+      </button>
     </li>
   </ol>
 </template>
@@ -125,6 +128,9 @@ li + li {
 }
 .row.here {
   border-left-color: var(--action);
+}
+.row:disabled {
+  cursor: default;
 }
 .row.open:hover,
 .row.open:active {

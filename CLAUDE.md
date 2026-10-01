@@ -48,8 +48,9 @@ strip on a table, or a test pattern drawn on the phone with a known number of
 ovoids (`lib/test-pattern.js`), which Strip result states beside the count.
 **Welcome has one way in** (Oct 2026): "Count a single paper strip" opens onto
 where the photo comes from — Use the camera, Choose a photo (the phone's picker,
-straight from Welcome), or the three demos — so the demo reaches a number in
-**four** decisions and the walker checks four. A session is the quiet link
+straight from Welcome), or the three demos. The demo reaches a number in
+**five** decisions — count a strip, which demo, Use this photo, Continue past
+Measure, Done — and the walker checks five. A session is the quiet link
 under it. **The camera is asked for only after someone chooses it**: Capture
 opens on the camera/photo choice unless it came from "Use the camera" or the
 session's last photo did (`session.source`). Every photo, camera or chosen,
@@ -141,8 +142,12 @@ from where its counterpart was to its new place — the finished step rises into
 the folded row, the next step's row rises into the open header — while the
 open step's contents unfold and the photo fades in (`slideRows` in App.vue).
 Every step title carries its number in a yellow square (`StepNumber`); steps
-not open sit greyed on `--panel`. **Measure reopens** from the list once there
-are marks, as Processing's look mode (`?look=1`): `strip.inspect()` runs the
+not open sit greyed on `--panel`. **Measure stops on its last picture** (Oct
+2026): the run plays its four pictures and waits on the marks, with the
+pictures as buttons, the photograph as a fifth to compare, press-and-hold on
+the stage to see the photograph under any picture, and a yellow "Continue to …"
+bar. **Measure reopens** from the list once there are marks, as Processing's
+look mode (`?look=1`): `strip.inspect()` runs the
 pipeline again for its pictures only — marks, fixes and undo untouched — and
 the person steps through the four. Nothing moves under
 `prefers-reduced-motion`. ZoomPanStage measures its layout position

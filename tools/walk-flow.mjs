@@ -16,10 +16,10 @@
  *      picker, two strips, calibration carried forward, summary. Must write
  *      one session and two strips.
  *   3. THE CORRECTION PATH — Refine → Mark one egg, one tap, back to Refine.
- *   4. THE UNTOUCHED PASS — demo straight through with no gesture: four
- *      decisions (demo, which demo, Use this photo, Done — the demo opens onto
- *      a choice of three since Oct 2026), and the result must show a machine
- *      count, not a human one.
+ *   4. THE UNTOUCHED PASS — demo straight through with no gesture: five
+ *      decisions (count a strip, which demo, Use this photo, Continue past
+ *      Measure, Done), and the result must show a machine count, not a human
+ *      one.
  *   5. THE CAPTURE PATH — the fake camera's test pattern, which the gate must
  *      refuse.
  *
@@ -181,12 +181,20 @@ async function main() {
     return `${opened} → ${await clickText('A clean strip')}`
   }
 
+  /* Measure stops on its last picture and waits for "Continue to …" (Oct
+     2026). Waiting for a route beyond it presses that bar when it appears —
+     one decision, counted by the untouched pass below. */
+  let continues = 0
   const waitForRoute = async (hashes, ms = 15000) => {
     const wanted = [].concat(hashes)
     const until = Date.now() + ms
     while (Date.now() < until) {
       const h = await route()
       if (wanted.includes(h)) return h
+      if (h.startsWith('#/processing') && !wanted.some((w) => w.startsWith('#/processing'))) {
+        const pressed = await evaluate(`(() => { const b = document.querySelector('.processing .footer button'); if (!b) return false; b.click(); return true })()`)
+        if (pressed) continues++
+      }
       await sleep(250)
     }
     return null
@@ -576,15 +584,17 @@ async function main() {
   let decisions = 0
   await startDemo(); decisions += 2
   await sleep(2500)
+  const continuesBefore = continues
   await clickText('Use this photo'); decisions++
   console.log(`  → ${await waitForRoute('#/fixes', 15000)}`)
   await sleep(600)
+  decisions += continues - continuesBefore
   await clickText('Done'); decisions++
   await sleep(1200)
   const untouched = await readResult()
   console.log(`  ${untouched.sentence}`)
   console.log(`  count "${untouched.count}" · legend "${untouched.legend || '(none)'}"`)
-  check(`result reached in ${decisions} decisions (≤4)`, decisions <= 4 && (await route()) === '#/result')
+  check(`result reached in ${decisions} decisions (≤5)`, decisions <= 5 && (await route()) === '#/result')
   check(
     'untouched strip → machine styling, no human count',
     untouched.machineStyled && /^~/.test(untouched.count ?? '') && !/checked by you/.test(untouched.sentence ?? ''),

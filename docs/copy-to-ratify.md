@@ -48,6 +48,7 @@ attention. All of it must survive translation to Spanish.
 | About | The whole screen: "What it does", "Why it marks too much", "What is kept", "On this phone", "Open source", "Version {version}" | Oct 1: from the menu. Names no partner or funder — add them if they should be named. |
 | Strip result | "Share" / "Saved the marked and original photos, and copied the summary." | Oct 1: shares the marked-up image, the original and the result sentence through the system share sheet; on a laptop, saves and copies instead. |
 | Menu | "Everything runs on this phone. Nothing is sent anywhere unless you share it." | Replaces "… Nothing is sent anywhere.", which stopped being true without the qualifier once Share existed. |
+| Processing | "PHOTO" / "THE PHOTO" · "Tap a step to see that picture. Press and hold the picture to see the photo under it." · "Continue to {step}" | Oct 1: Measure stops on the marks and waits; the photograph is a fifth picture to compare against, and holding any picture shows it. |
 
 ## Also unresolved
 

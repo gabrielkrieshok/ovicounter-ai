@@ -167,7 +167,9 @@ export default {
     /* DRAFT (Oct 2026) — Measure reopened from the step list: the same four
        pictures, chosen by the person, nothing measured again for the count. */
     lookTitle: 'How the marks were found',
-    lookHint: 'Tap a step to see that picture.',
+    lookHint: 'Tap a step to see that picture. Press and hold the picture to see the photo under it.',
+    stepPhoto: 'PHOTO',
+    badgePhoto: 'THE PHOTO',
   },
 
   refine: {
@@ -311,6 +313,7 @@ export default {
     skipped: 'skipped',
     optional: 'optional',
     backTo: 'Back to {step}',
+    continueTo: 'Continue to {step}',
     redoTitle: 'Find the marks again?',
     redoBody: 'This finds the marks on this strip again from the start. The marks you removed, added or split will be lost.',
     redoStay: 'Keep my fixes',

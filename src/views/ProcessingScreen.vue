@@ -27,11 +27,17 @@ import { useStripStore } from '@/stores/strip'
  * animated that did not happen, and no step is shown before the buffer behind
  * it exists.
  *
- * LOOKING BACK (`?look=1`, Oct 2026). Reopened from the step list, the screen
- * does not scan: it runs the pipeline once more with the settings in hand for
- * its pictures alone (strip.inspect), leaves every mark and fix as it was, and
- * lets the person step through the four pictures themselves. The title says
- * what it is showing — how the marks were found — not that it is measuring.
+ * THEN IT STOPS (Oct 2026). The run plays the four pictures and stays on the
+ * marks: the pictures become buttons, the photograph itself is a fifth to
+ * compare against, pressing and holding any picture shows the photograph under
+ * it, and the yellow bar moves on when the person is ready. The title then says
+ * what the screen is showing — how the marks were found — not that it is
+ * measuring.
+ *
+ * LOOKING BACK (`?look=1`). Reopened from the step list, the screen does not
+ * scan: it runs the pipeline once more with the settings in hand for its
+ * pictures alone (strip.inspect), leaves every mark and fix as it was, and
+ * opens settled, with the bar going back to where the person was.
  */
 
 const route = useRoute()
@@ -44,50 +50,68 @@ const strip = useStripStore()
    become a wait. */
 const STEP_HOLD_MS = 500
 
+/* The photograph itself first, then the four pictures the pipeline makes. The
+   run plays the four; the photograph is there to compare against once it has
+   stopped (Oct 2026). */
 const STEPS = [
+  { key: 'photo', label: 'processing.stepPhoto', badge: 'processing.badgePhoto' },
   { key: 'lightDark', label: 'processing.stepLightDark', badge: 'processing.badgeLightDark' },
   { key: 'darkSpecks', label: 'processing.stepDarkSpecks', badge: 'processing.badgeDarkSpecks' },
   { key: 'boxes', label: 'processing.stepBoxes', badge: 'processing.badgeBoxes' },
   { key: 'marks', label: 'processing.stepMarks', badge: 'processing.badgeMarks' },
 ]
+const MARKS = STEPS.length - 1
 
-const stepIndex = ref(0)
-const shown = ref(null)
-const boxes = ref([])
-const marks = ref([])
+const stepIndex = ref(1)
+/* Once the run has played (or straight away when looking back), the screen
+   stays on the marks and waits: the pictures become buttons, the photograph
+   can be held up against any of them, and the yellow bar moves on. */
+const settled = ref(false)
+/* Pressing and holding the picture shows the photograph underneath it. */
+const peeking = ref(false)
 
-const progress = computed(() => ((stepIndex.value + 1) / STEPS.length) * 100)
-const currentBadge = computed(() => t(STEPS[stepIndex.value].badge))
+let buffers = {}
+let detections = []
+
+const looking = computed(() => route.query.look === '1' && strip.marks.length > 0)
+
+const progress = computed(() => (Math.max(0, stepIndex.value) / MARKS) * 100)
+const currentBadge = computed(() => t(STEPS[peeking.value ? 0 : stepIndex.value].badge))
+
+/* What the stage shows for a step. */
+function picture(index) {
+  const key = STEPS[index].key
+  const photo = strip.working?.canvas ?? null
+  if (key === 'lightDark' || key === 'darkSpecks') return { src: buffers[key] ?? photo, boxes: [], marks: [] }
+  if (key === 'boxes') return { src: buffers.lightDark ?? photo, boxes: detections, marks: [] }
+  if (key === 'marks') return { src: photo, boxes: [], marks: strip.marks }
+  return { src: photo, boxes: [], marks: [] }
+}
+const view = computed(() => picture(peeking.value ? 0 : stepIndex.value))
+
+function show(index) {
+  if (settled.value) stepIndex.value = index
+}
+
+function peek(on) {
+  if (settled.value) peeking.value = on
+}
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const looking = computed(() => route.query.look === '1' && strip.marks.length > 0)
-let inspected = null
-
-/* Show one of the four pictures, in look mode. */
-function show(index) {
-  if (!inspected) return
-  stepIndex.value = index
-  const key = STEPS[index].key
-  if (key === 'lightDark' || key === 'darkSpecks') {
-    shown.value = inspected.buffers[key] ?? strip.working.canvas
-    boxes.value = []
-    marks.value = []
-  } else if (key === 'boxes') {
-    shown.value = inspected.buffers.lightDark ?? strip.working.canvas
-    boxes.value = inspected.detections
-    marks.value = []
-  } else {
-    shown.value = strip.working.canvas
-    boxes.value = []
-    marks.value = strip.marks
+/* Where the yellow bar goes. Looking back: to the furthest step reached. After
+   a run: a quick count to the marks (the sliders are one link away there), a
+   session to Refine first, and a correction made from Refine back to Refine
+   (`?then=refine`). */
+const next = computed(() => {
+  if (looking.value) {
+    return STRIP_STEPS.find((s) => s.key === strip.furthest && s.key !== 'measure') ?? STRIP_STEPS[4]
   }
-}
-
-/* Back to the furthest step reached — where the person was before looking. */
-const backTo = computed(() => STRIP_STEPS.find((s) => s.key === strip.furthest && s.key !== 'measure') ?? STRIP_STEPS[4])
-function goBack() {
-  router.push({ name: backTo.value.route })
+  const route_ = route.query.then === 'refine' ? 'refine' : session.isQuick ? 'fixes' : 'refine'
+  return STRIP_STEPS.find((s) => s.route === route_)
+})
+function goOn() {
+  router.replace({ name: next.value.route })
 }
 
 onMounted(async () => {
@@ -97,44 +121,29 @@ onMounted(async () => {
   }
 
   if (looking.value) {
-    inspected = await strip.inspect()
-    show(0)
+    const seen = await strip.inspect()
+    buffers = seen.buffers
+    detections = seen.detections
+    stepIndex.value = MARKS
+    settled.value = true
     return
   }
 
-  const buffers = {}
   const result = await strip.scan({
     wantStages: true,
     onStage: (stage, bitmap) => {
       buffers[stage] = bitmap
     },
   })
+  detections = result.detections
 
-  // 1–2: the real intermediate buffers, in the order the pipeline made them.
-  for (const [index, key] of ['lightDark', 'darkSpecks'].entries()) {
-    stepIndex.value = index
-    if (buffers[key]) shown.value = buffers[key]
-    await wait(STEP_HOLD_MS)
+  // The real intermediate buffers, in the order the pipeline made them, then
+  // what it boxed, then the marks over the photograph.
+  for (let i = 1; i <= MARKS; i++) {
+    stepIndex.value = i
+    if (i < MARKS) await wait(STEP_HOLD_MS)
   }
-
-  // 3: what the scan boxed, over the buffer it boxed it on.
-  stepIndex.value = 2
-  shown.value = buffers.lightDark ?? strip.working.canvas
-  boxes.value = result.detections
-  await wait(STEP_HOLD_MS)
-
-  // 4: the marks, over the photograph itself.
-  stepIndex.value = 3
-  shown.value = strip.working.canvas
-  boxes.value = []
-  marks.value = strip.marks
-  await wait(STEP_HOLD_MS)
-
-  /* A quick count goes straight to the marks; the sliders are one link away
-     on Your fixes for anyone who wants them. A session tunes first. A
-     correction made from Refine goes back to Refine (`?then=refine`). */
-  const next = route.query.then === 'refine' ? 'refine' : session.isQuick ? 'fixes' : 'refine'
-  router.replace({ name: next })
+  settled.value = true
 })
 </script>
 
@@ -146,47 +155,57 @@ onMounted(async () => {
     <header class="head" data-step="measure">
       <div class="title-row">
         <StepNumber />
-        <h1 class="title t-display">{{ t(looking ? 'processing.lookTitle' : 'processing.title') }}</h1>
+        <h1 class="title t-display">{{ t(settled ? 'processing.lookTitle' : 'processing.title') }}</h1>
       </div>
-      <p v-if="looking" class="look-hint t-body">{{ t('processing.lookHint') }}</p>
+      <p v-if="settled" class="look-hint t-body">{{ t('processing.lookHint') }}</p>
       <div v-else class="track">
         <span class="fill" :style="{ width: `${progress}%` }" />
       </div>
     </header>
 
-    <div class="stage-wrap">
-      <ImageStage :src="shown" fit="contain" background="var(--ink)" v-slot="{ rect, stage }">
-        <MarkLayer :marks="marks" :boxes="boxes" :rect="rect" :stage="stage" />
+    <div
+      class="stage-wrap"
+      @pointerdown="peek(true)"
+      @pointerup="peek(false)"
+      @pointerleave="peek(false)"
+      @pointercancel="peek(false)"
+    >
+      <ImageStage :src="view.src" fit="contain" background="var(--ink)" v-slot="{ rect, stage }">
+        <MarkLayer :marks="view.marks" :boxes="view.boxes" :rect="rect" :stage="stage" />
       </ImageStage>
       <span class="buffer-badge t-label">{{ currentBadge }}</span>
     </div>
 
     <div class="rail">
-      <component
-        :is="looking ? 'button' : 'div'"
+      <!-- Buttons from the start, disabled while the run plays. Not a dynamic
+           <component :is>: its children are compiled as a slot Vue treats as
+           stable, and the ◀ stayed on Marks after another picture was chosen. -->
+      <button
         v-for="(step, i) in STEPS"
         :key="step.key"
         class="rail-step"
-        :class="{ current: i === stepIndex, pickable: looking }"
-        :type="looking ? 'button' : undefined"
-        @click="looking && show(i)"
+        :class="{ current: i === stepIndex, pickable: settled }"
+        type="button"
+        :disabled="!settled"
+        @click="show(i)"
       >
         <div class="thumb">
-          <span v-if="step.key === 'lightDark'" class="histogram">
+          <span v-if="step.key === 'photo'" class="mini-photo"><i /><i /><i /></span>
+          <span v-else-if="step.key === 'lightDark'" class="histogram">
             <i style="height: 30%" /><i style="height: 85%" /><i style="height: 60%" /><i style="height: 15%" />
           </span>
           <span v-else-if="step.key === 'boxes'" class="mini-box" />
           <span v-else-if="step.key === 'marks'" class="mini-ring" />
         </div>
         <div class="rail-label t-label">
-          {{ t(step.label) }}<template v-if="i === stepIndex"> ◀</template>
+          {{ t(step.label) }}<span v-if="i === stepIndex" aria-hidden="true"> ◀</span>
         </div>
-      </component>
+      </button>
     </div>
 
-    <div v-if="looking" class="footer">
-      <AppButton variant="primary" bar @click="goBack">
-        {{ t('steps.backTo', { step: t(`steps.${backTo.key}`) }) }}
+    <div v-if="settled" class="footer">
+      <AppButton variant="primary" bar @click="goOn">
+        {{ t(looking ? 'steps.backTo' : 'steps.continueTo', { step: t(`steps.${next.key}`) }) }}
       </AppButton>
     </div>
 
@@ -248,12 +267,13 @@ onMounted(async () => {
 .rail {
   flex: none;
   display: flex;
-  gap: var(--sp-8);
+  gap: 6px;
   padding: var(--sp-14) var(--sp-16) 18px;
 }
 .rail-step {
   flex: 1;
   color: inherit;
+  cursor: default;
   min-width: 0;
   text-align: center;
 }
@@ -304,6 +324,21 @@ onMounted(async () => {
 .histogram i {
   flex: 1;
   background: var(--muted);
+}
+.mini-photo {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: var(--panel);
+}
+.mini-photo i {
+  width: 8px;
+  height: 3px;
+  background: var(--ink);
+  transform: rotate(30deg);
 }
 .mini-box {
   width: 16px;
