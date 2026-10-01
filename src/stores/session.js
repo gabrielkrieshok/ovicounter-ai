@@ -2,6 +2,34 @@ import { defineStore } from 'pinia'
 import { DEFAULT_BANDS, bandFor } from '@/lib/bands'
 import * as storage from '@/lib/storage'
 
+/* Settings opened from a file (lib/export.js), kept on this device between
+   visits. A small convenience record, so localStorage, guarded: a private
+   window or blocked storage only means the file has to be opened again. */
+const SETTINGS_KEY = 'ovicounterai.settings'
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY)
+    if (!raw) return null
+    const s = JSON.parse(raw)
+    if (s?.bands) s.bands = s.bands.map((b) => ({ ...b, max: b.max === null ? Infinity : b.max }))
+    return s
+  } catch {
+    return null
+  }
+}
+function storeSettings(settings) {
+  try {
+    if (settings) {
+      const bands = settings.bands?.map((b) => ({ ...b, max: Number.isFinite(b.max) ? b.max : null }))
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...settings, bands }))
+    } else {
+      localStorage.removeItem(SETTINGS_KEY)
+    }
+  } catch {
+    /* not kept; it still applies until the page is closed */
+  }
+}
+
 /* The session is the top-level object (design brief §3).
  *
  * One sitting, one phone, one lighting condition, N strips. Everything that is
@@ -52,6 +80,11 @@ export const useSessionStore = defineStore('session', {
     refusals: 0,
 
     bands: DEFAULT_BANDS,
+
+    /* Settings opened from a file — { calibration, params, bands, name } —
+       that every new session and quick count starts from until the person
+       stops using them (Oct 2026). Never applied to a demo. */
+    settings: loadSettings(),
 
     /* Finished sessions read back from this device. Stays empty until
        persistence lands; Welcome renders whatever is here and nothing else. */
@@ -112,7 +145,8 @@ export const useSessionStore = defineStore('session', {
       this.demoKind = demo ? (demoKind ?? 'clean') : null
       this.source = null
       this.isQuick = quick
-      this.calibration = null
+      this.calibration = demo ? null : (this.settings?.calibration ?? null)
+      this.bands = !demo && this.settings?.bands ? this.settings.bands : DEFAULT_BANDS
       this.strips = []
       this.refusals = 0
       this.resumable = null
@@ -132,7 +166,14 @@ export const useSessionStore = defineStore('session', {
      */
     countAnother() {
       this.strips = []
-      this.calibration = null
+      this.calibration = this.isDemo ? null : (this.settings?.calibration ?? null)
+    },
+
+    /** Use settings opened from a file, or stop using them (null). */
+    useSettings(settings) {
+      this.settings = settings
+      storeSettings(settings)
+      if (!this.isActive || this.isDemo) this.bands = settings?.bands ?? DEFAULT_BANDS
     },
 
     /**
@@ -252,12 +293,17 @@ export const useSessionStore = defineStore('session', {
         counts: this.counts,
         refusals: this.refusals,
         wasDemo: this.isDemo,
+        /* Kept for Session summary's files (lib/export.js); not written to the
+           device, where the strips already are. */
+        strips: this.strips,
+        calibration: this.calibration,
       }
       this.lastFinished = finished
       // A demo saves nothing, and a quick count is not a session at all — it
       // ends without a summary and never enters the history.
       if (!this.isDemo && !this.isQuick) {
-        this.previous.unshift(finished)
+        const { strips, calibration, ...listed } = finished
+        this.previous.unshift(listed)
         if (this.storageReady) {
           storage
             .putSession({ ...this.snapshot(), endedAt, minutes: finished.minutes })

@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import StripHeader from '@/components/StripHeader.vue'
 import { bandHistogram } from '@/lib/bands'
+import { saveCsv, saveJson, sessionCsv, sessionFile, stamp } from '@/lib/export'
 import { t, weekday } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -41,6 +42,16 @@ const histogram = computed(() =>
 const day = computed(() =>
   finished.value ? weekday(finished.value.startedAt) : '',
 )
+
+/* The session's results as files (Oct 2026, lib/export.js): everything as
+   JSON, or one row per strip for a spreadsheet. */
+const canSave = computed(() => !!finished.value?.strips?.length)
+function saveSessionJson() {
+  saveJson(sessionFile(finished.value, session.bands), `ovicounterai-session-${stamp(finished.value.startedAt)}.json`)
+}
+function saveSessionCsv() {
+  saveCsv(sessionCsv(finished.value), `ovicounterai-session-${stamp(finished.value.startedAt)}.csv`)
+}
 
 function backHome() {
   router.push({ name: 'welcome' })
@@ -92,6 +103,11 @@ function backHome() {
       <template v-if="finished?.wasDemo">{{ t('summary.demoNotSaved') }}</template>
       <template v-else>✓ {{ t('summary.saved') }}</template>
     </p>
+
+    <div v-if="canSave" class="files">
+      <AppButton variant="secondary" @click="saveSessionCsv">{{ t('summary.saveCsv') }}</AppButton>
+      <AppButton variant="quiet" @click="saveSessionJson">{{ t('summary.saveJson') }}</AppButton>
+    </div>
 
     <div class="footer">
       <AppButton variant="primary" bar @click="backHome">
@@ -188,5 +204,15 @@ function backHome() {
   margin: 0 auto;
   border-left: var(--bd) solid var(--ink);
   border-right: var(--bd) solid var(--ink);
+}
+.files {
+  padding: 0 var(--sp-16) var(--sp-16);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-12);
+}
+.files > :first-child {
+  align-self: stretch;
 }
 </style>

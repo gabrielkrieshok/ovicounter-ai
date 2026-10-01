@@ -13,6 +13,7 @@ import { demoPhoto } from '@/lib/samples'
 import StepList from '@/components/StepList.vue'
 import StepNumber from '@/components/StepNumber.vue'
 import { i18n, t, tParts } from '@/i18n'
+import { saveJson, stamp, stripFile } from '@/lib/export'
 import { shareOrSave, storyImage } from '@/lib/share'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -102,6 +103,8 @@ onMounted(() => {
          verdict; the first real session through the gallery picker did. */
       gate: strip.gate ? toRaw(strip.gate) : null,
       params: { ...strip.params },
+        /* The frame the marks are normalised against. */
+        image: strip.working ? { width: strip.working.width, height: strip.working.height } : null,
         marks: strip.marks.map((m) => ({ ...m })),
         /* Each clump with the app's two counts and, where the person gave
            one, theirs — without the pixel sample used to place its marks. */
@@ -232,6 +235,14 @@ async function buildCard() {
   return blob
 }
 
+/* Save this strip's record as a JSON file — the same record written to the
+   phone, as plain data anyone's tools can read. */
+function saveStrip() {
+  const record = session.strips[strip.recordedIndex ?? session.strips.length - 1]
+  if (!record) return
+  saveJson(stripFile(record), `ovicounterai-strip-${(record.index ?? 0) + 1}-${stamp()}.json`)
+}
+
 async function share() {
   if (sharing.value || !strip.working) return
   sharing.value = true
@@ -339,6 +350,9 @@ function backHome() {
           {{ t('share.button') }}
         </AppButton>
         <p v-if="shareNote" class="share-note t-body" role="status">{{ shareNote }}</p>
+        <!-- The record itself, as data: marks, settings, judgments (Oct 2026,
+             lib/export.js). -->
+        <AppButton variant="quiet" :disabled="!ready" @click="saveStrip">{{ t('result.saveJson') }}</AppButton>
       </div>
     </section>
 

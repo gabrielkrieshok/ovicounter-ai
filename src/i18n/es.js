@@ -45,6 +45,16 @@ export default {
     language: 'Idioma',
     endSession: 'Terminar esta sesión',
     about: 'Todo funciona en este teléfono. No se envía nada a ninguna parte a menos que usted lo comparta.',
+    settings: 'Ajustes',
+    exportSettings: 'Guardar ajustes',
+    importSettings: 'Abrir ajustes',
+    clearSettings: 'Dejar de usarlos',
+    settingsInUse: 'Los conteos nuevos parten de {name}.',
+    settingsSaved: 'Guardado en las descargas de este dispositivo.',
+    settingsOpened: 'Abierto. Los conteos nuevos parten de estos ajustes; las demostraciones no.',
+    settingsBad: 'Ese archivo no contiene ajustes de OvicounterAI.',
+    settingsNewer: 'Ese archivo es de una versión más nueva de OvicounterAI. Actualice la app para abrirlo.',
+    settingsNone: 'Cuente una tira primero; después podrá guardar sus ajustes.',
     leaveTitle: '¿Salir de esta tira?',
     leaveBody:
       'Esta tira aún no se ha contado, así que se perderá. Las tiras que ya terminó están guardadas.',
@@ -208,6 +218,7 @@ export default {
     sentence: '{n} huevos, revisados por usted — esta tira es {band}',
     unchecked: '~{n} encontrados por la aplicación. Usted no hizo cambios.',
     appFound: 'la app encontró ~{n}',
+    saveJson: 'Guardar como archivo (JSON)',
     testDrawn: 'Patrón de prueba: {n} dibujados',
     saved: 'GUARDADO EN ESTE TELÉFONO ✓',
     notSavedDemo: 'EJEMPLO — NO SE GUARDÓ',
@@ -220,6 +231,8 @@ export default {
   },
 
   summary: {
+    saveCsv: 'Guardar como hoja de cálculo (CSV)',
+    saveJson: 'Guardar todo (JSON)',
     title: 'Sesión terminada',
     meta: '{day} · {minutes} min',
     stripsCounted: 'tiras contadas',

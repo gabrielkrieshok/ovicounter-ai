@@ -285,7 +285,8 @@ export const useStripStore = defineStore('strip', {
     useSessionCalibration() {
       const session = useSessionStore()
       if (!session.calibration) return false
-      this.params = { ...DEFAULT_PARAMS, ...seedParamsFromEgg(session.calibration) }
+      /* Slider values from opened settings sit over what the egg seeds. */
+      this.params = { ...DEFAULT_PARAMS, ...seedParamsFromEgg(session.calibration), ...(session.isDemo ? {} : session.settings?.params ?? {}) }
       this.calibrationSource = session.calibration.source ?? 'tap'
       return true
     },

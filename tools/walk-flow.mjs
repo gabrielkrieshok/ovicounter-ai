@@ -174,6 +174,20 @@ async function main() {
 
   const route = () => evaluate('location.hash')
 
+  /* Files the app saves (lib/export.js) are caught in the page instead of
+     downloaded: the blob handed to an <a download> is kept and read back. */
+  const captureSaves = () =>
+    evaluate(`(() => {
+      if (window.__saved) return 'already';
+      window.__saved = [];
+      const make = URL.createObjectURL;
+      URL.createObjectURL = (blob) => { window.__saved.push(blob); return make(blob); };
+      const click = HTMLAnchorElement.prototype.click;
+      HTMLAnchorElement.prototype.click = function () { if (!this.download) click.call(this); };
+      return 'ok';
+    })()`)
+  const lastSaved = () => evaluate(`window.__saved.length ? window.__saved.at(-1).text() : Promise.resolve('')`)
+
   /* "Try it with a demo photo" opens a choice of three demos (Oct 2026); the
      walk always takes the clean strip, which the counts below are measured on. */
   const startDemo = async () => {
@@ -618,6 +632,51 @@ async function main() {
   // counted by length (it was 364; neither is a hand count).
   check(`machine total ${machineTotal} in 340–430`, machineTotal >= 340 && machineTotal <= 430)
 
+  /* The strip as a file. */
+  await captureSaves()
+  console.log(`  click "Save as a file (JSON)" → ${await clickText('Save as a file (JSON)')}`)
+  await sleep(300)
+  const stripJson = JSON.parse((await lastSaved()) || '{}')
+  console.log(`  strip file: ${stripJson.format} v${stripJson.version}, count ${stripJson.strip?.count}, ${stripJson.strip?.marks?.length} marks, ${stripJson.strip?.clumps?.length} clumps`)
+  check('the strip saves as an OvicounterAI strip file with its marks', stripJson.format === 'ovicounterai/strip' && stripJson.strip?.marks?.length > 300 && String(stripJson.strip?.count) === String(numbers.count))
+
+  /* Settings: save them from the menu, open them back, refuse a stranger. */
+  await evaluate(`document.querySelector('[aria-label="Menu"]').click()`)
+  await sleep(300)
+  console.log(`  menu → "Save settings" → ${await clickText('Save settings')}`)
+  await sleep(300)
+  await shot('flow-10b-menu-settings')
+  const settingsText = await lastSaved()
+  const settingsJson = JSON.parse(settingsText || '{}')
+  console.log(`  settings file: ${settingsJson.format}, egg area ${settingsJson.settings?.calibration?.areaPx}, cutoff ${settingsJson.settings?.params?.contrastFloor}, ${settingsJson.settings?.bands?.length} bands (top max ${settingsJson.settings?.bands?.at(-1)?.max})`)
+  check('settings save with the measured egg, the sliders and the bands', settingsJson.format === 'ovicounterai/settings' && settingsJson.settings?.calibration?.areaPx > 0 && Number.isFinite(settingsJson.settings?.params?.contrastFloor) && settingsJson.settings?.bands?.length === 4)
+  const opened = await evaluate(`(async () => {
+    const input = document.querySelector('.sheet input[type=file]');
+    const open = async (text, name) => {
+      const dt = new DataTransfer();
+      dt.items.add(new File([text], name, { type: 'application/json' }));
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+      await new Promise(r => setTimeout(r, 200));
+      return { note: document.querySelector('.settings-note')?.textContent.trim(), inUse: document.querySelector('.settings-in-use')?.textContent.trim() };
+    };
+    const bad = await open('{"format":"something-else"}', 'other.json');
+    const good = await open(${JSON.stringify(settingsText)}, 'walk-settings.json');
+    const pinia = document.querySelector('#app').__vue_app__.config.globalProperties.$pinia;
+    const settings = pinia._s.get('session').settings;
+    const topBand = settings?.bands?.at(-1)?.max;
+    [...document.querySelectorAll('.sheet button')].find(b => /Stop using/.test(b.textContent))?.click();
+    await new Promise(r => setTimeout(r, 100));
+    const after = pinia._s.get('session').settings;
+    return { bad: bad.note, good: good.note, inUse: good.inUse, topBand: String(topBand), cleared: after === null };
+  })()`)
+  console.log(`  open a stranger → "${opened.bad}"`)
+  console.log(`  open them back → "${opened.good}" / "${opened.inUse}" (top band max ${opened.topBand})`)
+  check('a file that is not settings is refused', /not OvicounterAI settings/.test(opened.bad ?? ''))
+  check('settings open back, open-ended band intact, and stop cleanly', /walk-settings\.json/.test(opened.inUse ?? '') && opened.topBand === 'Infinity' && opened.cleared)
+  await clickText('Close')
+  await sleep(300)
+
   check(`a demo's result offers only Home (${numbers.buttons})`, numbers.buttons === 'Home')
   console.log(`  click "Home" → ${await clickText('Home')}`)
   await sleep(800)
@@ -629,6 +688,21 @@ async function main() {
   )
 
   console.log('\n--- 2. a session: two strips through the gallery picker ---')
+  /* Opened settings are used: a file with a different cutoff, then a real
+     session — its first strip must count with that cutoff, not the probe's. */
+  const tuned = { ...settingsJson, settings: { ...settingsJson.settings, params: { ...settingsJson.settings.params, contrastFloor: 120 } } }
+  await evaluate(`document.querySelector('[aria-label="Menu"]').click()`)
+  await sleep(300)
+  await evaluate(`(async () => {
+    const input = document.querySelector('.sheet input[type=file]');
+    const dt = new DataTransfer();
+    dt.items.add(new File([${JSON.stringify(JSON.stringify(tuned))}], 'tuned.json', { type: 'application/json' }));
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
+    await new Promise(r => setTimeout(r, 200));
+  })()`)
+  await clickText('Close')
+  await sleep(300)
   console.log(`  click "Start a session" → ${await clickText('Start a session')}`)
   await sleep(1500)
   console.log(`Capture (${await route()})`)
@@ -638,6 +712,9 @@ async function main() {
   await useThisPhoto(['#/fixes'])
   await sleep(600)
   check('session goes from Measure to Manually refine', (await route()) === '#/fixes')
+  const usedCutoff = await evaluate(`document.querySelector('#app').__vue_app__.config.globalProperties.$pinia._s.get('strip').params.contrastFloor`)
+  check(`strip 1 counted with the opened settings' cutoff (${usedCutoff})`, usedCutoff === 120)
+  await evaluate(`document.querySelector('#app').__vue_app__.config.globalProperties.$pinia._s.get('session').useSettings(null)`)
   await clickText('Done')
   await sleep(1500)
   const s1 = await readResult()
@@ -673,6 +750,17 @@ async function main() {
   console.log(`  ${receipt.figures}`)
   console.log(`  ${receipt.bands}`)
   console.log(`  ${receipt.saved}`)
+  /* The session as files: a spreadsheet and everything. */
+  await captureSaves()
+  console.log(`  click "Save as a spreadsheet (CSV)" → ${await clickText('Save as a spreadsheet (CSV)')}`)
+  await sleep(300)
+  const csv = (await lastSaved()).trim().split('\n')
+  console.log(`  csv: ${csv.length} lines — ${csv[0]} / ${csv[1]}`)
+  check('the CSV has a header and one row per strip', csv.length === 3 && csv[0].startsWith('session,started,strip,count'))
+  console.log(`  click "Save everything (JSON)" → ${await clickText('Save everything (JSON)')}`)
+  await sleep(300)
+  const sessionJson = JSON.parse((await lastSaved()) || '{}')
+  check('the session file holds both strips with their marks', sessionJson.format === 'ovicounterai/session' && sessionJson.session?.strips?.length === 2 && sessionJson.session.strips.every(x => x.marks.length > 0))
   const afterSession = await dbCounts()
   check(
     `session wrote ${afterSession.sessions - afterDemo.sessions} session / ${afterSession.strips - afterDemo.strips} strips`,

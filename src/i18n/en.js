@@ -43,6 +43,18 @@ export default {
     /* Leaving mid-strip. Accurate rather than alarming: finished strips are
        written to the device as they are counted, so the only thing at risk is
        the one in hand. */
+    /* DRAFT (Oct 2026) — settings as files: the measured egg, the slider
+       values and the band scale. "Open", never "upload". */
+    settings: 'Settings',
+    exportSettings: 'Save settings',
+    importSettings: 'Open settings',
+    clearSettings: 'Stop using them',
+    settingsInUse: 'New counts start from {name}.',
+    settingsSaved: 'Saved to this device’s downloads.',
+    settingsOpened: 'Opened. New counts start from these settings; the demos do not.',
+    settingsBad: 'That file is not OvicounterAI settings.',
+    settingsNewer: 'That file is from a newer OvicounterAI. Update the app to open it.',
+    settingsNone: 'Count a strip first — then its settings can be saved.',
     leaveTitle: 'Leave this strip?',
     leaveBody:
       'This strip has not been counted yet, so it will be lost. Strips you already finished are saved.',
@@ -276,6 +288,8 @@ export default {
        count, labelled rather than struck through, which read as an error. */
     appFound: 'app found ~{n}',
     // DRAFT — the test-pattern demo knows how many it drew.
+    // DRAFT (Oct 2026) — the record as a file (lib/export.js).
+    saveJson: 'Save as a file (JSON)',
     testDrawn: 'Test pattern: {n} drawn',
     saved: 'SAVED ON THIS PHONE ✓',
     /* DRAFT — the handoff draws only the saved state, because it assumes a
@@ -292,6 +306,9 @@ export default {
   },
 
   summary: {
+    // DRAFT (Oct 2026) — the session's results as files.
+    saveCsv: 'Save as a spreadsheet (CSV)',
+    saveJson: 'Save everything (JSON)',
     /* DRAFT — the whole screen. Session summary exists only as wireframe 2j and
        has never had a hi-fi pass; these strings are the wireframe's own words,
        which is the best source available but is not a ratified one. */
