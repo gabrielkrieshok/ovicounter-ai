@@ -186,6 +186,15 @@ export default {
        pictures, chosen by the person, nothing measured again for the count. */
     lookTitle: 'How the marks were found',
     lookHint: 'Tap a step to see that picture. Zoom in to look closer; hold to see the photo.',
+    /* DRAFT (Oct 2026, Gabriel) — the pictures named for the OpenCV operation
+       that made each one, replacing the RATIFIED "LIGHT / DARK", "DARK SPECKS",
+       "BOXES", "MARKS" as the picture labels (the badges keep plain words).
+       The soft hyphens (\u00AD) are where a long name may break in the five
+       narrow columns on a phone, rather than at any letter. */
+    cvBlackHat: 'Black-hat',
+    cvThreshold: 'Thres\u00ADhold',
+    cvComponents: 'Compo\u00ADnents',
+    cvWatershed: 'Water\u00ADshed',
     stepPhoto: 'PHOTO',
     badgePhoto: 'THE PHOTO',
   },
@@ -203,6 +212,13 @@ export default {
     tickCaptionAuto:
       'Pink tick = the size of the eggs found here. Sliding past it means eggs that size would be lost.',
     /* DRAFT — the way back to Mark one egg now that it is no longer the entry. */
+    /* DRAFT (Oct 2026, Gabriel) — the sliders under their OpenCV names, each
+       with what it does in plain words. Replace the RATIFIED "Light / dark
+       split" and "Speck size". */
+    threshold: 'Threshold',
+    thresholdNote: 'How much darker than its own paper a speck must be.',
+    minArea: 'Minimum area',
+    minAreaNote: 'How big a speck must be, in pixels.',
     markAnEgg: 'Marks look wrong? Mark an egg',
   },
 

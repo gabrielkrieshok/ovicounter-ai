@@ -1,10 +1,9 @@
 # OvicounterAI — project instructions
 
 Assisted mosquito-egg counting for ovitrap surveillance. A technician
-photographs a strip; the app deliberately **over-proposes** candidate eggs; the
-technician **culls** them; the record is the photo, the settings, and the
-human-verified egg positions. **The operator is the authority; the machine
-proposes.**
+photographs a strip; the app deliberately candidate eggs; the
+technician manually refines them; the record is the photo, the settings, and the
+human-verified egg positions.
 
 ## Read these first, in order
 
@@ -12,8 +11,7 @@ proposes.**
    layouts, the mark language, and the ratified copy.
 2. `design_handoff_session_flow/Ovicounter Hi-Fi.dc.html` — the 8 screens at
    380×788. The reference for **structure, flow and ratified copy**. Open it in
-   a browser. Its colours and type are superseded (below); "recreate
-   pixel-perfectly" no longer applies to colour or type.
+   a browser.
 3. `docs/field-manual-brief.md` and `src/styles/tokens.css` — the reference
    for **colour, type, radius and rules** (Field Manual, Sep 30, 2026: pure
    black and white, square corners, heavy rules, safety-yellow primary action,
@@ -27,7 +25,7 @@ proposes.**
 
 ## Nomenclature
 
-Screens are named, never coded. Use these names in code, in commits, and in
+Screens are named, not coded. Use these names in code, in commits, and in
 conversation — they are the handoff's `data-screen-label` values:
 
 **Welcome · Capture · Refusal · Crop · Mark one egg · Processing · Your fixes ·
@@ -242,7 +240,12 @@ at zoom 1 — a mark has to show what it marks.
 Banned words: model, algorithm, inference, confidence, machine learning, learn,
 teach, train, upload, loading. The machine "finds" and "marks"; the person
 "checks", "confirms", "removes", "adds". Mechanism copy stays physical ("light
-and dark separated", never "thresholding").
+and dark separated") — **except on Measure, where the pictures and sliders
+carry their OpenCV names** (Gabriel, Oct 2026: Black-hat, Threshold,
+Components, Watershed; the sliders Threshold and Minimum area), each with a
+plain line beside it: the badge on the stage, the note under the slider. The
+names are what the operations are, so they say nothing untrue; the plain
+words stay for the person in the field.
 
 **"AI" is not banned** (decided Aug 2026). Both source documents list it — the
 handoff's copy rules and Design Brief v2 §8 — and that is why the hi-fi wordmark

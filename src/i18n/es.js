@@ -149,6 +149,10 @@ export default {
     badgeMarks: 'MARCAS COLOCADAS',
     lookTitle: 'Cómo se encontraron las marcas',
     lookHint: 'Toque un paso para ver esa imagen. Acerque para mirar de cerca; mantenga pulsado para ver la foto.',
+    cvBlackHat: 'Black-hat',
+    cvThreshold: 'Umbral',
+    cvComponents: 'Compo\u00ADnentes',
+    cvWatershed: 'Water\u00ADshed',
     stepPhoto: 'FOTO',
     badgePhoto: 'LA FOTO',
   },
@@ -162,6 +166,10 @@ export default {
     backToStart: 'Volver al inicio',
     tickCaptionAuto:
       'La marca rosa es el tamaño de los huevos encontrados aquí. Pasarse de ahí haría que se perdieran los huevos de ese tamaño.',
+    threshold: 'Umbral',
+    thresholdNote: 'Cuánto más oscura que su propio papel debe ser una mota.',
+    minArea: 'Área mínima',
+    minAreaNote: 'Qué tan grande debe ser una mota, en píxeles.',
     markAnEgg: '¿Las marcas se ven mal? Marque un huevo',
   },
 

@@ -155,6 +155,10 @@ export default {
     badgeMarks: 'MARCAS COLOCADAS',
     lookTitle: 'Como foram encontradas as marcas',
     lookHint: 'Toque num passo para ver essa imagem. Aproxime para ver de perto; mantenha premido para ver a foto.',
+    cvBlackHat: 'Black-hat',
+    cvThreshold: 'Limiar',
+    cvComponents: 'Compo\u00ADnentes',
+    cvWatershed: 'Water\u00ADshed',
     stepPhoto: 'FOTO',
     badgePhoto: 'A FOTO',
   },
@@ -168,6 +172,10 @@ export default {
     backToStart: 'Voltar ao início',
     tickCaptionAuto:
       'Traço rosa = o tamanho dos ovos encontrados aqui. Passar dele faz perder os ovos desse tamanho.',
+    threshold: 'Limiar',
+    thresholdNote: 'Quanto mais escuro do que o seu próprio papel tem de ser um ponto.',
+    minArea: 'Área mínima',
+    minAreaNote: 'Quão grande tem de ser um ponto, em píxeis.',
     markAnEgg: 'As marcas parecem erradas? Marque um ovo',
   },
 

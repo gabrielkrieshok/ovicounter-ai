@@ -57,10 +57,12 @@ const STEP_HOLD_MS = 500
    stopped (Oct 2026). */
 const STEPS = [
   { key: 'photo', label: 'processing.stepPhoto', badge: 'processing.badgePhoto' },
-  { key: 'lightDark', label: 'processing.stepLightDark', badge: 'processing.badgeLightDark' },
-  { key: 'darkSpecks', label: 'processing.stepDarkSpecks', badge: 'processing.badgeDarkSpecks' },
-  { key: 'boxes', label: 'processing.stepBoxes', badge: 'processing.badgeBoxes' },
-  { key: 'marks', label: 'processing.stepMarks', badge: 'processing.badgeMarks' },
+  /* Each picture named for the OpenCV operation that made it (Gabriel, Oct
+     2026); the badge on the stage says in plain words what it shows. */
+  { key: 'lightDark', label: 'processing.cvBlackHat', badge: 'processing.badgeLightDark' },
+  { key: 'darkSpecks', label: 'processing.cvThreshold', badge: 'processing.badgeDarkSpecks' },
+  { key: 'boxes', label: 'processing.cvComponents', badge: 'processing.badgeBoxes' },
+  { key: 'marks', label: 'processing.cvWatershed', badge: 'processing.badgeMarks' },
 ]
 const MARKS = STEPS.length - 1
 
@@ -340,7 +342,8 @@ onMounted(async () => {
 
     <div v-if="settled" class="controls">
       <div class="control">
-        <label class="label t-title" for="split">{{ t('refine.lightDarkSplit') }}</label>
+        <label class="label t-title" for="split">{{ t('refine.threshold') }}</label>
+        <p class="hint t-body">{{ t('refine.thresholdNote') }}</p>
         <div class="track">
           <input
             id="split"
@@ -354,7 +357,8 @@ onMounted(async () => {
         </div>
       </div>
       <div class="control">
-        <label class="label t-title" for="speck">{{ t('refine.speckSize') }}</label>
+        <label class="label t-title" for="speck">{{ t('refine.minArea') }}</label>
+        <p class="hint t-body">{{ t('refine.minAreaNote') }}</p>
         <div class="track">
           <input
             id="speck"
@@ -472,7 +476,8 @@ onMounted(async () => {
 .rail-label {
   margin-top: var(--sp-5);
   color: var(--disabled);
-  overflow-wrap: anywhere;
+  /* Breaks only at the soft hyphens in the names, never mid-syllable. */
+  hyphens: manual;
 }
 .current .rail-label {
   color: var(--action);
