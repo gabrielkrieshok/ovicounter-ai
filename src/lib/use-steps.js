@@ -38,9 +38,12 @@ export function useSteps() {
   function canGo(index) {
     if (index === current.value || index < 0) return false
     const step = steps.value[index]
-    if (step.key === 'measure' || step.key === 'count') return false
+    if (step.skipped || step.key === 'measure' || step.key === 'count') return false
     if (strip.recorded) return false
     if (step.key !== 'photo' && !strip.sourceUrl) return false
+    /* Optional Refine opens from the list once there are marks to tune, the
+       same moment "Adjust them" offers it. */
+    if (step.optional) return strip.marks.length > 0
     return index <= furthest.value
   }
 

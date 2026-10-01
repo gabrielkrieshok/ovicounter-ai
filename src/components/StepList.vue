@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 
+import { t } from '@/i18n'
 import { useSteps } from '@/lib/use-steps'
 
 /* The steps of this strip as ruled rows — the accordion on the laptop, and the
@@ -34,7 +35,10 @@ const rows = computed(() =>
     .map((step, index) => ({
       step,
       index,
-      done: index < current.value || (index > current.value && index <= furthest.value),
+      done:
+        !step.skipped &&
+        !step.optional &&
+        (index < current.value || (index > current.value && index <= furthest.value)),
       here: index === current.value,
       open: canGo(index),
     }))
@@ -48,7 +52,12 @@ const rows = computed(() =>
 )
 
 const folded = computed(() => props.part === 'before' && rows.value.length > 1 && !expanded.value)
-const summary = computed(() => rows.value.map((row) => label(row.step)).join(' · '))
+const summary = computed(() =>
+  rows.value
+    .filter((row) => !row.step.skipped)
+    .map((row) => label(row.step))
+    .join(' · '),
+)
 
 function choose(row) {
   if (!row.open) return
@@ -76,7 +85,11 @@ function choose(row) {
         @click="choose(row)"
       >
         <span class="num t-title">{{ row.index + 1 }}</span>
-        <span class="name t-title">{{ label(row.step) }}</span>
+        <span class="name t-title">
+          {{ label(row.step) }}
+          <span v-if="row.step.skipped" class="aside t-label">{{ t('steps.skipped') }}</span>
+          <span v-else-if="row.step.optional" class="aside t-label">{{ t('steps.optional') }}</span>
+        </span>
         <span v-if="row.done && !row.here" class="state t-title" aria-hidden="true">✓</span>
       </component>
     </li>
@@ -138,6 +151,10 @@ li + li {
   align-items: center;
   padding: var(--sp-8) var(--sp-14);
 }
+.name .aside {
+  margin-left: var(--sp-10);
+}
+
 .state {
   flex: none;
   width: 44px;

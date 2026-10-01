@@ -22,16 +22,27 @@ export const STEPS = [
 ]
 
 /**
- * The steps on this strip's path. The demo starts from a bundled photo, so it
- * has no Photograph step. A quick count skips Refine unless the person went
- * there ("Marks look wrong? Adjust them"), and then it is part of their path.
+ * All six steps, always, numbered as the Guide numbers them (Oct 2026) — so
+ * step 3 is Measure on every screen, in every path, and in the Guide. A path
+ * that does not need a step keeps it in its place, marked:
+ *
+ *   skipped   the demo starts from a photo it already has — no Photograph;
+ *   optional  a quick count goes from Measure to Check the marks, and Refine
+ *             is there to open ("Marks look wrong? Adjust them") — once it has
+ *             been opened, it is an ordinary step on this strip.
  */
 export function stepsFor({ isDemo, isQuick, visitedRefine }) {
-  return STEPS.filter((s) => {
-    if (s.key === 'photo' && isDemo) return false
-    if (s.key === 'refine' && isQuick && !visitedRefine) return false
-    return true
-  })
+  return STEPS.map((s) => ({
+    ...s,
+    skipped: s.key === 'photo' && isDemo,
+    optional: s.key === 'refine' && isQuick && !visitedRefine,
+  }))
+}
+
+/** A step's place among the six, for telling forward from back. */
+export function stepIndex(name) {
+  const step = stepForRoute(name)
+  return step ? STEPS.indexOf(step) : -1
 }
 
 /** The step a route belongs to, or null for screens outside a strip. */

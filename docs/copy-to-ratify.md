@@ -42,6 +42,7 @@ attention. All of it must survive translation to Spanish.
 | Welcome | "A clean strip" / "Dense and evenly lit — the easy case." · "A field strip, zoomed out" / "Stained and creased, with the table around it to crop away." · "A test pattern" / "Ovoids drawn on this phone. The result says how many." | Oct 1: the three demos the yellow demo button opens onto. |
 | Welcome | "One photo to a number. Nothing is saved unless you ask." · "Strip after strip, settings carried forward, every strip saved on this phone." | One line under Count one strip and Start a new session, so the two doors read as different things. |
 | Strip result | "Test pattern: {n} drawn" | The test-pattern demo knows how many ovoids it drew; shown under the count. |
+| Steps | "skipped" / "optional" | Oct 1: every strip shows the Guide's six steps; a step this path does not need is marked (the demo's Photograph, a quick count's Refine). |
 
 ## Also unresolved
 

@@ -372,10 +372,24 @@ function paint() {
    under a pinch. */
 let lastOrigin = null
 
+/* The stage's place in the page's layout, ignoring CSS transforms. A screen
+   sliding in between steps (App.vue) is translated while it mounts; measured
+   with getBoundingClientRect, that slide would later read as the stage having
+   moved, and the strip would jump sideways by the width of the screen. */
+function layoutOrigin(el) {
+  let left = 0
+  let top = 0
+  for (let e = el; e; e = e.offsetParent) {
+    left += e.offsetLeft
+    top += e.offsetTop
+  }
+  return { left, top }
+}
+
 function measure() {
   const el = root.value
   if (!el) return
-  const bounds = el.getBoundingClientRect()
+  const bounds = layoutOrigin(el)
   const before = lastOrigin && natural.value.width ? {
     x: lastOrigin.x + rect.value.left,
     y: lastOrigin.y + rect.value.top,

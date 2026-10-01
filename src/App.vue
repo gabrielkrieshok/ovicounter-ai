@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onBeforeUnmount, provide, ref } from 'vue'
+import { computed, onBeforeUnmount, provide, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AppBar from '@/components/AppBar.vue'
 import ConfirmSheet from '@/components/ConfirmSheet.vue'
 import StepStrip from '@/components/StepStrip.vue'
+import { stepIndex } from '@/lib/steps'
 
 /* Three ways the same screens are framed.
  *
@@ -46,6 +47,23 @@ const wide = computed(
   () => laptopViewport.value && !framedByQuery && route.query.frame !== '1',
 )
 provide('wideLayout', wide)
+
+/* Moving between steps moves (Oct 2026): forward and back through the six
+   steps the Guide numbers, so the app feels like going down that list. On a
+   phone the next step slides in from the right — from the left going back.
+   On a laptop the step rows stay where they are, the leaving step fades, and
+   the new step's section unfolds between them: the accordion opening. Screens
+   outside a strip (Welcome, Guide, Summary) change without motion, and so does
+   everything for anyone whose device asks for reduced motion (CSS below). */
+const stepMotion = ref('none')
+watch(
+  () => route.name,
+  (to, from) => {
+    const a = stepIndex(from)
+    const b = stepIndex(to)
+    stepMotion.value = a >= 0 && b >= 0 && a !== b ? (b > a ? 'step-fwd' : 'step-back') : 'none'
+  },
+)
 </script>
 
 <template>
@@ -56,7 +74,11 @@ provide('wideLayout', wide)
            left column instead (components/StepList.vue). -->
       <StepStrip v-if="showBar && !wide" />
       <div class="screen">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+          <Transition :name="stepMotion">
+            <component :is="Component" :key="route.name" />
+          </Transition>
+        </RouterView>
       </div>
       <ConfirmSheet />
     </div>
@@ -119,6 +141,84 @@ provide('wideLayout', wide)
     height: 100dvh;
     border: 0;
     border-radius: 0;
+  }
+}
+</style>
+
+<!-- Not scoped: these classes land on the screens' root elements, and on the
+     laptop on their children. -->
+<style>
+/* While two screens overlap, the leaving one is lifted out of the flow. */
+.screen > .step-fwd-leave-active,
+.screen > .step-back-leave-active {
+  position: absolute;
+  inset: 0;
+}
+.screen > .step-fwd-enter-active,
+.screen > .step-back-enter-active {
+  position: relative;
+  z-index: 1;
+}
+
+/* Phone: a slide. */
+.step-fwd-enter-active,
+.step-fwd-leave-active,
+.step-back-enter-active,
+.step-back-leave-active {
+  transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 280ms ease;
+}
+.step-fwd-enter-from { transform: translateX(100%); }
+.step-fwd-leave-to { transform: translateX(-30%); opacity: 0; }
+.step-back-enter-from { transform: translateX(-100%); }
+.step-back-leave-to { transform: translateX(30%); opacity: 0; }
+
+/* Laptop: the accordion. No slide; the leaving step fades, and in the
+   entering one everything in the left column except the step rows unfolds
+   from the top while the photograph fades in. The root carries a transition
+   of the same length so Vue keeps the classes on until the children finish. */
+.wide .step-fwd-enter-from,
+.wide .step-back-enter-from {
+  transform: none;
+  opacity: 0.99;
+}
+.wide .step-fwd-leave-to,
+.wide .step-back-leave-to {
+  transform: none;
+  opacity: 0;
+}
+.wide .step-fwd-enter-active,
+.wide .step-back-enter-active {
+  transition: opacity 340ms linear;
+}
+.wide .step-fwd-leave-active,
+.wide .step-back-leave-active {
+  transition: opacity 200ms ease;
+}
+.wide :is(.step-fwd-enter-active, .step-back-enter-active)
+  > :not(.steps-before, .steps-after, .stage-wrap, .body, .viewfinder, .thumb, .under) {
+  transition: clip-path 340ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.wide :is(.step-fwd-enter-from, .step-back-enter-from)
+  > :not(.steps-before, .steps-after, .stage-wrap, .body, .viewfinder, .thumb, .under) {
+  clip-path: inset(0 0 100% 0);
+}
+.wide :is(.step-fwd-enter-active, .step-back-enter-active)
+  > :is(.stage-wrap, .body, .viewfinder, .thumb, .under) {
+  transition: opacity 340ms ease;
+}
+.wide :is(.step-fwd-enter-from, .step-back-enter-from)
+  > :is(.stage-wrap, .body, .viewfinder, .thumb, .under) {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-fwd-enter-active,
+  .step-fwd-leave-active,
+  .step-back-enter-active,
+  .step-back-leave-active,
+  .step-fwd-enter-active *,
+  .step-back-enter-active * {
+    transition: none !important;
   }
 }
 </style>

@@ -24,9 +24,13 @@ const open = ref(false)
         <span
           v-for="(step, i) in steps"
           :key="step.key"
-          class="seg"
-          :class="{ done: i !== current && i <= furthest, here: i === current }"
-        />
+          class="seg t-label"
+          :class="{
+            done: i !== current && i <= furthest && !step.skipped && !step.optional,
+            here: i === current,
+            skipped: step.skipped,
+          }"
+        >{{ i + 1 }}</span>
       </span>
       <span class="where t-label">
         {{ t('steps.position', { n: current + 1, total: steps.length }) }} · {{ label(steps[current]) }}
@@ -62,17 +66,29 @@ const open = ref(false)
   display: flex;
   gap: 3px;
 }
+/* Six numbered squares, the Guide's numbers: filled when done, yellow where
+   you are, struck through when this path skips the step. */
 .seg {
-  width: 12px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
   border: var(--bd-inner) solid var(--ink);
   background: var(--paper);
+  color: var(--ink);
 }
 .seg.done {
   background: var(--ink);
+  color: var(--paper);
 }
 .seg.here {
   background: var(--action);
+}
+.seg.skipped {
+  border-color: var(--rule-idle);
+  color: var(--disabled);
+  text-decoration: line-through;
 }
 .where {
   flex: 1;

@@ -278,6 +278,8 @@ export default {
     check: 'Check the marks',
     count: 'Count',
     position: 'Step {n} of {total}',
+    skipped: 'skipped',
+    optional: 'optional',
     redoTitle: 'Find the marks again?',
     redoBody: 'This finds the marks on this strip again from the start. The marks you removed, added or split will be lost.',
     redoStay: 'Keep my fixes',

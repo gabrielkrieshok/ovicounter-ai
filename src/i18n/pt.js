@@ -223,6 +223,8 @@ export default {
     check: 'Verificar as marcas',
     count: 'Contar',
     position: 'Passo {n} de {total}',
+    skipped: 'ignorado',
+    optional: 'opcional',
     redoTitle: 'Procurar as marcas de novo?',
     redoBody: 'Isto volta a procurar as marcas desta tira desde o início. Perdem-se as marcas que retirou, acrescentou ou separou.',
     redoStay: 'Manter as minhas correções',

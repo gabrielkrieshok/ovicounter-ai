@@ -217,6 +217,8 @@ export default {
     check: 'Revisar las marcas',
     count: 'Contar',
     position: 'Paso {n} de {total}',
+    skipped: 'omitido',
+    optional: 'opcional',
     redoTitle: '¿Buscar las marcas de nuevo?',
     redoBody: 'Esto vuelve a buscar las marcas de esta tira desde el principio. Se perderán las marcas que usted quitó, agregó o separó.',
     redoStay: 'Conservar mis cambios',

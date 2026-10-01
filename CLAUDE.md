@@ -114,13 +114,21 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
 
 `src/lib/steps.js`, `lib/use-steps.js` (Sep 30, 2026 — a deliberate addition to
 the handoff's structure, which showed the flow as separate screens with no
-sense of where you are). A strip's steps: **Photograph · Crop · Measure ·
-Refine · Check the marks · Count** — the demo has no Photograph, a quick count
-no Refine unless the person went there. Mark one egg belongs to Measure, Refusal
-to Photograph. On the laptop each stage screen's left column is the list
+sense of where you are). A strip's steps are always the Guide's six, with the
+Guide's numbers: **1 Photograph · 2 Crop · 3 Measure · 4 Refine · 5 Check the
+marks · 6 Count** (Oct 2026). A path that does not need one keeps it in place,
+marked — the demo's Photograph is *skipped*, a quick count's Refine *optional*
+(openable once there are marks). Mark one egg belongs to Measure, Refusal to
+Photograph. On the laptop each stage screen's left column is the list
 (`StepList` before and after the screen's own header and actions; finished
-steps fold into one row); on the phone a 44px `StepStrip` under the app bar
-opens it as a sheet.
+steps fold into one row); on the phone a 44px `StepStrip` of six numbered
+squares under the app bar opens it as a sheet. **Moving between steps moves**
+(App.vue): on the phone the next step slides in from the right (back: from the
+left); on the laptop the rows stay put and the new step's section unfolds
+between them while the photo fades in. Nothing moves under
+`prefers-reduced-motion`. ZoomPanStage measures its layout position
+(`offsetLeft/Top`), not its transformed one, so a slide never reads as the stage
+having moved.
 
 **Going back only looks.** Later work stays until an earlier step is actually
 changed. Anything that finds the marks again — a changed crop, a Refine slider,
