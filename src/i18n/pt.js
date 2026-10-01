@@ -203,6 +203,21 @@ export default {
     backHome: 'Voltar ao início',
   },
 
+  about: {
+    link: 'Sobre',
+    version: 'Versão {version}',
+    whatTitle: 'O que faz',
+    what: 'O Ovicounter AI ajuda a contar ovos de mosquito no papel da ovitrampa. Fotografa uma tira; a aplicação marca o que encontra; verifica cada marca. A contagem é sua.',
+    whyTitle: 'Porque marca a mais',
+    why: 'A aplicação marca mais do que devia de propósito. Retirar uma marca errada é um toque; encontrar um ovo que escapou obriga a percorrer a tira toda. Por isso a aplicação propõe e decide quem verifica.',
+    recordTitle: 'O que fica guardado',
+    record: 'Numa sessão, cada tira fica guardada neste telemóvel com a foto, as definições e cada marca que manteve, retirou ou acrescentou, para que a contagem possa sempre ser verificada de novo. Contar uma única tira não guarda nada a não ser que peça.',
+    phoneTitle: 'Neste telemóvel',
+    phone: 'Tudo funciona neste telemóvel. Nada é enviado para lado nenhum a não ser que decida partilhar, e depois de aberta a aplicação funciona sem ligação.',
+    openSourceTitle: 'Código aberto',
+    openSource: 'O Ovicounter AI é de código aberto, com licença Apache 2.0.',
+  },
+
   guide: {
     open: 'Como funciona',
     title: 'Como funciona',

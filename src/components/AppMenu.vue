@@ -29,6 +29,11 @@ function openGuide() {
   router.push({ name: 'guide' })
 }
 
+function openAbout() {
+  emit('close')
+  router.push({ name: 'about' })
+}
+
 function endSession() {
   emit('close')
   router.push({ name: 'summary' })
@@ -64,6 +69,7 @@ function endSession() {
       </AppButton>
 
       <AppButton variant="secondary" @click="openGuide">{{ t('guide.open') }}</AppButton>
+      <AppButton variant="secondary" @click="openAbout">{{ t('about.link') }}</AppButton>
 
       <p class="about t-body">{{ t('menu.about') }}</p>
 

@@ -45,6 +45,7 @@ attention. All of it must survive translation to Spanish.
 | Steps | "skipped" / "optional" | Oct 1: every strip shows the Guide's six steps; a step this path does not need is marked (the demo's Photograph, a quick count's Refine). |
 | Processing (look mode) | "How the marks were found" / "Tap a step to see that picture." / "Back to {step}" | Oct 1: Measure reopened from the step list shows the same four pictures, chosen by the person; nothing is measured again for the count. |
 | Welcome | "Count a single paper strip" · "Use the camera" / "Photograph the strip now. The app will ask to use the camera." · "Choose a photo" / "A photo of a strip already on this phone." · "Or try a demo photo" · "Counting several strips? Start a session" | Oct 1: one way in, then the photo's source. Retires the RATIFIED "Start a new session" and "Try it with a demo photo" on Welcome, the draft door notes and the demo note, and "WORKS OFFLINE ✓". "Choose a photo", never "upload". |
+| About | The whole screen: "What it does", "Why it marks too much", "What is kept", "On this phone", "Open source", "Version {version}" | Oct 1: from the menu. Names no partner or funder — add them if they should be named. |
 
 ## Also unresolved
 

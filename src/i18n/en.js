@@ -255,6 +255,23 @@ export default {
     backHome: 'Back to home',
   },
 
+  /* DRAFT (Oct 2026) — the About page (views/AboutScreen.vue), from the menu.
+     Names no partner or funder; that is for Gabriel to add. */
+  about: {
+    link: 'About',
+    version: 'Version {version}',
+    whatTitle: 'What it does',
+    what: 'Ovicounter AI helps count mosquito eggs on ovitrap paper. You photograph a strip; the app marks what it finds; you check every mark. The count is yours.',
+    whyTitle: 'Why it marks too much',
+    why: 'The app marks more than it should on purpose. Removing a wrong mark takes one tap; finding an egg that was missed means searching the whole strip. So the app proposes, and you decide.',
+    recordTitle: 'What is kept',
+    record: 'In a session, each strip is saved on this phone with its photo, its settings and every mark you kept, removed or added, so a count can always be checked again. Counting a single strip saves nothing unless you ask.',
+    phoneTitle: 'On this phone',
+    phone: 'Everything runs on this phone. Nothing is sent anywhere unless you choose to share it, and once the app has opened it works without a connection.',
+    openSourceTitle: 'Open source',
+    openSource: 'Ovicounter AI is open source, under the Apache 2.0 licence.',
+  },
+
   /* DRAFT (Sep 30, 2026) — the Guide (views/GuideScreen.vue): one section per
      step, under the step names in `steps`. Written to the copy rules: the app
      finds and marks, the person checks, removes and adds; nothing learns and

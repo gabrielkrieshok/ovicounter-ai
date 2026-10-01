@@ -33,7 +33,8 @@ conversation — they are the handoff's `data-screen-label` values:
 **Welcome · Capture · Refusal · Crop · Mark one egg · Processing · Refine ·
 Your fixes · Strip result · Session summary** — and **Guide** ("How it works",
 Sep 30, 2026: not in the handoff; reached from Welcome and the menu, one
-section per step under the step list's names).
+section per step under the step list's names) and **About** (Oct 2026, from the
+menu: what it does, why it over-marks, what is kept, on this phone, licence).
 
 Two paths through them (Sep 2026, `docs/surpass-v1-brief.md` §4). A **session**:
 Capture → Crop → Processing → Refine → Your fixes → Strip result → Next strip …
