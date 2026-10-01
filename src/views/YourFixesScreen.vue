@@ -109,11 +109,13 @@ function done() {
     <StepList v-if="wide" class="steps-before" part="before" />
 
     <StripHeader class="head" :title="t('fixes.title')" :eyebrow="wide ? eyebrow : ''">
-      <ol v-if="wide" class="steps">
-        <li><span class="num t-title">1</span><span class="t-body">{{ t('fixes.step1') }}</span></li>
-        <li><span class="num t-title">2</span><span class="t-body">{{ t('fixes.step2') }}</span></li>
-        <li><span class="num t-title">3</span><span class="t-body">{{ t('fixes.step3') }}</span></li>
-      </ol>
+      <!-- Bulleted with the marks each gesture makes, not numbered: numbers
+           here read as more steps in the step list beside them. -->
+      <ul v-if="wide" class="howto">
+        <li><span class="glyph removed t-title" aria-hidden="true">✕</span><span class="t-body">{{ t('fixes.step1') }}</span></li>
+        <li><span class="glyph added t-title" aria-hidden="true">+</span><span class="t-body">{{ t('fixes.step2') }}</span></li>
+        <li><span class="glyph split t-title" aria-hidden="true">╱</span><span class="t-body">{{ t('fixes.step3') }}</span></li>
+      </ul>
       <div v-else class="cells">
         <span class="cell t-label">{{ t('fixes.cellTap') }}</span>
         <span class="cell t-label">{{ t('fixes.cellHold') }}</span>
@@ -246,32 +248,27 @@ function done() {
   border-left: var(--bd) solid var(--ink);
 }
 
-.steps {
+.howto {
   list-style: none;
-  margin: var(--sp-8) calc(-1 * var(--sp-16)) calc(-1 * var(--sp-14));
-  padding: 0;
-  border-top: var(--bd) solid var(--ink);
-}
-.steps li {
+  margin: var(--sp-8) 0 0;
+  padding: 0 0 0 var(--sp-8);
   display: flex;
-  align-items: stretch;
-  min-height: var(--hit-secondary);
+  flex-direction: column;
+  gap: var(--sp-8);
 }
-.steps li + li {
-  border-top: var(--bd) solid var(--ink);
+.howto li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-12);
 }
-.num {
+.glyph {
   flex: none;
-  width: 56px;
-  display: grid;
-  place-items: center;
-  border-right: var(--bd) solid var(--ink);
+  width: 18px;
+  text-align: center;
 }
-.steps .t-body {
-  display: flex;
-  align-items: center;
-  padding: var(--sp-8) var(--sp-16);
-}
+.glyph.removed { color: var(--red); }
+.glyph.added { color: var(--pink); }
+.glyph.split { color: var(--ink); }
 
 .band {
   flex: none;
@@ -337,7 +334,7 @@ function done() {
 }
 
 /* Laptop (Field Manual brief §3, §5): the controls column on the left — the
-   header with its numbered steps, the tally, the way to the sliders, and Undo
+   header with its bulleted gestures, the tally, the way to the sliders, and Undo
    and Done as one bar at the foot; the photograph on the right at contain, with
    the zoom rail, coverage and the mark key in a strip beneath it. */
 .wide .fixes {

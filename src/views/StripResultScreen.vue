@@ -11,6 +11,7 @@ import StatusBadge from '@/components/StatusBadge.vue'
 import { bandFor } from '@/lib/bands'
 import { demoPhoto } from '@/lib/samples'
 import StepList from '@/components/StepList.vue'
+import StepNumber from '@/components/StepNumber.vue'
 import { t, tParts } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -183,7 +184,8 @@ function backHome() {
          so they are shown done but not reopened (lib/use-steps.js). -->
     <StepList v-if="wide" class="steps-before" part="before" />
 
-    <header class="head">
+    <header class="head" data-step="count">
+      <StepNumber />
       <span class="title t-label">{{ t('result.title', { n: session.strips.length }) }}</span>
       <!-- Struck through, grey, mono, with a leading `~`. Everything about it
            says "superseded" — so it only appears when something superseded it. -->
@@ -283,11 +285,12 @@ function backHome() {
 .head {
   flex: none;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
+  gap: var(--sp-12);
   padding: var(--sp-16) var(--sp-16) 0;
 }
 .machine {
+  margin-left: auto;
   text-decoration: line-through;
 }
 

@@ -43,6 +43,7 @@ attention. All of it must survive translation to Spanish.
 | Welcome | "One photo to a number. Nothing is saved unless you ask." · "Strip after strip, settings carried forward, every strip saved on this phone." | One line under Count one strip and Start a new session, so the two doors read as different things. |
 | Strip result | "Test pattern: {n} drawn" | The test-pattern demo knows how many ovoids it drew; shown under the count. |
 | Steps | "skipped" / "optional" | Oct 1: every strip shows the Guide's six steps; a step this path does not need is marked (the demo's Photograph, a quick count's Refine). |
+| Processing (look mode) | "How the marks were found" / "Tap a step to see that picture." / "Back to {step}" | Oct 1: Measure reopened from the step list shows the same four pictures, chosen by the person; nothing is measured again for the count. |
 
 ## Also unresolved
 

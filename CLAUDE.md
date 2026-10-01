@@ -124,8 +124,15 @@ Photograph. On the laptop each stage screen's left column is the list
 steps fold into one row); on the phone a 44px `StepStrip` of six numbered
 squares under the app bar opens it as a sheet. **Moving between steps moves**
 (App.vue): on the phone the next step slides in from the right (back: from the
-left); on the laptop the rows stay put and the new step's section unfolds
-between them while the photo fades in. Nothing moves under
+left); on the laptop each step-tagged row and header (`[data-step]`) slides
+from where its counterpart was to its new place — the finished step rises into
+the folded row, the next step's row rises into the open header — while the
+open step's contents unfold and the photo fades in (`slideRows` in App.vue).
+Every step title carries its number in a yellow square (`StepNumber`); steps
+not open sit greyed on `--panel`. **Measure reopens** from the list once there
+are marks, as Processing's look mode (`?look=1`): `strip.inspect()` runs the
+pipeline again for its pictures only — marks, fixes and undo untouched — and
+the person steps through the four. Nothing moves under
 `prefers-reduced-motion`. ZoomPanStage measures its layout position
 (`offsetLeft/Top`), not its transformed one, so a slide never reads as the stage
 having moved.

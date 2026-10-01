@@ -2,10 +2,13 @@
 import { computed, inject, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
 import StepList from '@/components/StepList.vue'
+import StepNumber from '@/components/StepNumber.vue'
 import { t } from '@/i18n'
+import { STEPS as STRIP_STEPS } from '@/lib/steps'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -23,6 +26,12 @@ import { useStripStore } from '@/stores/strip'
  * already done; the pacing exists so a person can watch it. Nothing is
  * animated that did not happen, and no step is shown before the buffer behind
  * it exists.
+ *
+ * LOOKING BACK (`?look=1`, Oct 2026). Reopened from the step list, the screen
+ * does not scan: it runs the pipeline once more with the settings in hand for
+ * its pictures alone (strip.inspect), leaves every mark and fix as it was, and
+ * lets the person step through the four pictures themselves. The title says
+ * what it is showing — how the marks were found — not that it is measuring.
  */
 
 const route = useRoute()
@@ -52,9 +61,44 @@ const currentBadge = computed(() => t(STEPS[stepIndex.value].badge))
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+const looking = computed(() => route.query.look === '1' && strip.marks.length > 0)
+let inspected = null
+
+/* Show one of the four pictures, in look mode. */
+function show(index) {
+  if (!inspected) return
+  stepIndex.value = index
+  const key = STEPS[index].key
+  if (key === 'lightDark' || key === 'darkSpecks') {
+    shown.value = inspected.buffers[key] ?? strip.working.canvas
+    boxes.value = []
+    marks.value = []
+  } else if (key === 'boxes') {
+    shown.value = inspected.buffers.lightDark ?? strip.working.canvas
+    boxes.value = inspected.detections
+    marks.value = []
+  } else {
+    shown.value = strip.working.canvas
+    boxes.value = []
+    marks.value = strip.marks
+  }
+}
+
+/* Back to the furthest step reached — where the person was before looking. */
+const backTo = computed(() => STRIP_STEPS.find((s) => s.key === strip.furthest && s.key !== 'measure') ?? STRIP_STEPS[4])
+function goBack() {
+  router.push({ name: backTo.value.route })
+}
+
 onMounted(async () => {
   if (!strip.working) {
     router.replace({ name: 'welcome' })
+    return
+  }
+
+  if (looking.value) {
+    inspected = await strip.inspect()
+    show(0)
     return
   }
 
@@ -99,9 +143,13 @@ onMounted(async () => {
     <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
     <StepList v-if="wide" class="steps-before" part="before" />
 
-    <header class="head">
-      <h1 class="title t-display">{{ t('processing.title') }}</h1>
-      <div class="track">
+    <header class="head" data-step="measure">
+      <div class="title-row">
+        <StepNumber />
+        <h1 class="title t-display">{{ t(looking ? 'processing.lookTitle' : 'processing.title') }}</h1>
+      </div>
+      <p v-if="looking" class="look-hint t-body">{{ t('processing.lookHint') }}</p>
+      <div v-else class="track">
         <span class="fill" :style="{ width: `${progress}%` }" />
       </div>
     </header>
@@ -114,11 +162,14 @@ onMounted(async () => {
     </div>
 
     <div class="rail">
-      <div
+      <component
+        :is="looking ? 'button' : 'div'"
         v-for="(step, i) in STEPS"
         :key="step.key"
         class="rail-step"
-        :class="{ current: i === stepIndex }"
+        :class="{ current: i === stepIndex, pickable: looking }"
+        :type="looking ? 'button' : undefined"
+        @click="looking && show(i)"
       >
         <div class="thumb">
           <span v-if="step.key === 'lightDark'" class="histogram">
@@ -130,7 +181,13 @@ onMounted(async () => {
         <div class="rail-label t-label">
           {{ t(step.label) }}<template v-if="i === stepIndex"> ◀</template>
         </div>
-      </div>
+      </component>
+    </div>
+
+    <div v-if="looking" class="footer">
+      <AppButton variant="primary" bar @click="goBack">
+        {{ t('steps.backTo', { step: t(`steps.${backTo.key}`) }) }}
+      </AppButton>
     </div>
 
     <!-- Laptop: the steps still to come, below this one's actions. -->
@@ -150,7 +207,13 @@ onMounted(async () => {
   flex: none;
   padding: var(--sp-16);
 }
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-12);
+}
 .title {
+  flex: 1;
   margin: 0;
   color: var(--paper);
 }
@@ -190,6 +253,7 @@ onMounted(async () => {
 }
 .rail-step {
   flex: 1;
+  color: inherit;
   min-width: 0;
   text-align: center;
 }
@@ -214,6 +278,18 @@ onMounted(async () => {
 }
 .current .rail-label {
   color: var(--action);
+}
+
+.rail-step.pickable {
+  min-height: var(--hit-min);
+  cursor: pointer;
+}
+.look-hint {
+  margin: var(--sp-8) 0 0;
+  color: var(--paper);
+}
+.footer {
+  flex: none;
 }
 
 .histogram {
@@ -246,10 +322,11 @@ onMounted(async () => {
 .wide .processing {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto auto 1fr auto auto auto;
 }
 .wide .processing > .head { grid-column: 1; grid-row: 2; }
 .wide .processing > .rail { grid-column: 1; grid-row: 4; }
+.wide .processing > .footer { grid-column: 1; grid-row: 5; }
 .wide .processing > .stage-wrap {
   grid-column: 2;
   grid-row: 1 / -1;

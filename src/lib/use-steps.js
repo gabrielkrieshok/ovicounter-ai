@@ -38,8 +38,11 @@ export function useSteps() {
   function canGo(index) {
     if (index === current.value || index < 0) return false
     const step = steps.value[index]
-    if (step.skipped || step.key === 'measure' || step.key === 'count') return false
+    if (step.skipped || step.key === 'count') return false
     if (strip.recorded) return false
+    /* Measure runs on its own; it reopens to be looked at once there are marks
+       to explain (Processing's look mode). */
+    if (step.key === 'measure') return strip.marks.length > 0 && index <= furthest.value
     if (step.key !== 'photo' && !strip.sourceUrl) return false
     /* Optional Refine opens from the list once there are marks to tune, the
        same moment "Adjust them" offers it. */
@@ -49,7 +52,8 @@ export function useSteps() {
 
   function go(index) {
     if (!canGo(index)) return
-    router.push({ name: steps.value[index].route })
+    const step = steps.value[index]
+    router.push(step.key === 'measure' ? { name: step.route, query: { look: '1' } } : { name: step.route })
   }
 
   const label = (step) => t(`steps.${step.key}`)

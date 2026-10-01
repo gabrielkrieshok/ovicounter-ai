@@ -283,6 +283,26 @@ export const useStripStore = defineStore('strip', {
      * Run the pipeline. `onStage` receives each real intermediate buffer as it
      * is produced, for the screens that show the work.
      */
+    /**
+     * Run the pipeline again with the settings in hand, for its pictures only:
+     * returns { buffers, detections } and changes nothing — not the marks, not
+     * the person's fixes, not the undo history. This is what lets the person go
+     * back to Measure and see how the marks were found without losing their
+     * work (Oct 2026).
+     */
+    async inspect() {
+      const { cv, ready } = useCv()
+      await ready
+      const buffers = {}
+      const result = await cv.run(this.params, {
+        wantStages: true,
+        onStage: (stage, bitmap) => {
+          buffers[stage] = bitmap
+        },
+      })
+      return { buffers, detections: result.detections }
+    },
+
     async scan({ params, wantStages = false, onStage } = {}) {
       const { cv, ready } = useCv()
       await ready

@@ -135,6 +135,8 @@ export default {
     badgeLightDark: 'CLARO Y OSCURO SEPARADOS',
     badgeDarkSpecks: 'MOTAS OSCURAS CONSERVADAS',
     badgeMarks: 'MARCAS COLOCADAS',
+    lookTitle: 'Cómo se encontraron las marcas',
+    lookHint: 'Toque un paso para ver esa imagen.',
   },
 
   refine: {
@@ -219,6 +221,7 @@ export default {
     position: 'Paso {n} de {total}',
     skipped: 'omitido',
     optional: 'opcional',
+    backTo: 'Volver a {step}',
     redoTitle: '¿Buscar las marcas de nuevo?',
     redoBody: 'Esto vuelve a buscar las marcas de esta tira desde el principio. Se perderán las marcas que usted quitó, agregó o separó.',
     redoStay: 'Conservar mis cambios',

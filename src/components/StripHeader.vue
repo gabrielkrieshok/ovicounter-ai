@@ -1,4 +1,9 @@
 <script setup>
+import { computed } from 'vue'
+
+import StepNumber from '@/components/StepNumber.vue'
+import { useSteps } from '@/lib/use-steps'
+
 /* One header for every stage screen: where you are, then what to do.
  *
  * An optional `label`-role eyebrow ("Strip 2 · Wednesday"), the screen title in
@@ -13,12 +18,18 @@ defineProps({
   title: { type: String, required: true },
   eyebrow: { type: String, default: '' },
 })
+
+/* Which step this header heads, for the step-change animation in App.vue,
+   which slides it from where that step's row was. Empty outside a strip. */
+const { steps, current } = useSteps()
+const stepKey = computed(() => (current.value >= 0 ? steps.value[current.value].key : undefined))
 </script>
 
 <template>
-  <header class="strip-header">
+  <header class="strip-header" :data-step="stepKey">
     <div v-if="eyebrow" class="eyebrow t-label">{{ eyebrow }}</div>
     <div class="title-row">
+      <StepNumber class="number" />
       <h1 class="title t-display">{{ title }}</h1>
       <div v-if="$slots.aside" class="aside"><slot name="aside" /></div>
     </div>
@@ -42,7 +53,11 @@ defineProps({
   justify-content: space-between;
   gap: var(--sp-12);
 }
+.number {
+  margin-top: 1px;
+}
 .title {
+  flex: 1;
   margin: 0;
   min-width: 0;
   overflow-wrap: anywhere;

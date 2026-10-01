@@ -54,7 +54,7 @@ const rows = computed(() =>
 const folded = computed(() => props.part === 'before' && rows.value.length > 1 && !expanded.value)
 const summary = computed(() =>
   rows.value
-    .filter((row) => !row.step.skipped)
+    .filter((row) => !row.step.skipped && !row.step.optional)
     .map((row) => label(row.step))
     .join(' · '),
 )
@@ -68,7 +68,13 @@ function choose(row) {
 
 <template>
   <div v-if="folded" class="step-list before">
-    <button class="row done open" type="button" :aria-expanded="false" @click="expanded = true">
+    <button
+      class="row done open"
+      type="button"
+      :aria-expanded="false"
+      :data-step="rows[rows.length - 1].step.key"
+      @click="expanded = true"
+    >
       <span class="num t-title" aria-hidden="true">✓</span>
       <span class="name t-title">{{ summary }}</span>
       <span class="state t-title" aria-hidden="true">▸</span>
@@ -82,6 +88,7 @@ function choose(row) {
         :class="{ done: row.done, here: row.here, open: row.open }"
         :type="row.open ? 'button' : undefined"
         :aria-current="row.here ? 'step' : undefined"
+        :data-step="row.step.key"
         @click="choose(row)"
       >
         <span class="num t-title">{{ row.index + 1 }}</span>
@@ -99,11 +106,15 @@ function choose(row) {
 <style scoped>
 /* Not `.steps`: Your fixes names its numbered instructions that, and a parent's
    scoped rule reaches a child component's root. */
+/* Steps that are not this one sit on the sunken panel, in grey, so the open
+   step — on paper, numbered in yellow — is the one thing that reads as here.
+   Finished steps are --muted (still legible: they can be returned to);
+   upcoming ones --disabled. */
 .step-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  background: var(--paper);
+  background: var(--panel);
 }
 .step-list.before {
   border-bottom: var(--bd) solid var(--ink);
@@ -122,11 +133,15 @@ li + li {
   align-items: stretch;
   text-align: left;
   color: var(--disabled);
-  background: var(--paper);
+  background: var(--panel);
 }
 .row.done,
+.row.open {
+  color: var(--muted);
+}
 .row.here {
   color: var(--ink);
+  background: var(--paper);
 }
 .row {
   border-left: 6px solid transparent;
@@ -134,8 +149,9 @@ li + li {
 .row.here {
   border-left-color: var(--action);
 }
+.row.open:hover,
 .row.open:active {
-  background: var(--panel);
+  color: var(--ink);
 }
 
 .num {

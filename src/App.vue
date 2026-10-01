@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, provide, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import AppBar from '@/components/AppBar.vue'
 import ConfirmSheet from '@/components/ConfirmSheet.vue'
@@ -56,6 +56,40 @@ provide('wideLayout', wide)
    outside a strip (Welcome, Guide, Summary) change without motion, and so does
    everything for anyone whose device asks for reduced motion (CSS below). */
 const stepMotion = ref('none')
+const router = useRouter()
+
+/* The accordion's motion, on the laptop. Just before a step change, note
+   where every step-tagged row and header sits ([data-step]: StepList rows,
+   StripHeader, the Processing and Strip result heads). When the next screen
+   comes in, each of its own tagged elements starts where its counterpart was
+   and slides home — the step just finished rises into the folded row, the
+   next step's row rises to become the open header, the rows below drop to
+   make room. The leaving screen fades under it; the open step's contents
+   unfold (CSS below). */
+const lastPlaces = new Map()
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+router.beforeEach((to, from) => {
+  lastPlaces.clear()
+  if (!wide.value || reduceMotion.matches) return
+  if (stepIndex(from.name) < 0 || stepIndex(to.name) < 0) return
+  for (const el of document.querySelectorAll('.screen [data-step]')) {
+    lastPlaces.set(el.dataset.step, el.getBoundingClientRect().top)
+  }
+})
+function slideRows(el) {
+  if (!lastPlaces.size) return
+  for (const node of el.querySelectorAll('[data-step]')) {
+    const was = lastPlaces.get(node.dataset.step)
+    if (was === undefined) continue
+    const dy = was - node.getBoundingClientRect().top
+    if (Math.abs(dy) < 1) continue
+    node.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], {
+      duration: 380,
+      easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)',
+    })
+  }
+  lastPlaces.clear()
+}
 watch(
   () => route.name,
   (to, from) => {
@@ -75,7 +109,7 @@ watch(
       <StepStrip v-if="showBar && !wide" />
       <div class="screen">
         <RouterView v-slot="{ Component }">
-          <Transition :name="stepMotion">
+          <Transition :name="stepMotion" @enter="slideRows">
             <component :is="Component" :key="route.name" />
           </Transition>
         </RouterView>
@@ -172,9 +206,10 @@ watch(
 .step-back-enter-from { transform: translateX(-100%); }
 .step-back-leave-to { transform: translateX(30%); opacity: 0; }
 
-/* Laptop: the accordion. No slide; the leaving step fades, and in the
-   entering one everything in the left column except the step rows unfolds
-   from the top while the photograph fades in. The root carries a transition
+/* Laptop: the accordion. No slide; the leaving step fades, the step rows and
+   the open header slide from their old places (slideRows, above), and the
+   rest of the open step's column unfolds from the top while the photograph
+   fades in. The root carries a transition
    of the same length so Vue keeps the classes on until the children finish. */
 .wide .step-fwd-enter-from,
 .wide .step-back-enter-from {
@@ -195,11 +230,11 @@ watch(
   transition: opacity 200ms ease;
 }
 .wide :is(.step-fwd-enter-active, .step-back-enter-active)
-  > :not(.steps-before, .steps-after, .stage-wrap, .body, .viewfinder, .thumb, .under) {
+  > :not(.steps-before, .steps-after, [data-step], .stage-wrap, .body, .viewfinder, .thumb, .under) {
   transition: clip-path 340ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .wide :is(.step-fwd-enter-from, .step-back-enter-from)
-  > :not(.steps-before, .steps-after, .stage-wrap, .body, .viewfinder, .thumb, .under) {
+  > :not(.steps-before, .steps-after, [data-step], .stage-wrap, .body, .viewfinder, .thumb, .under) {
   clip-path: inset(0 0 100% 0);
 }
 .wide :is(.step-fwd-enter-active, .step-back-enter-active)

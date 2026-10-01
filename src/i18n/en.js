@@ -162,6 +162,10 @@ export default {
     badgeLightDark: 'LIGHT AND DARK SPLIT',
     badgeDarkSpecks: 'DARK SPECKS KEPT',
     badgeMarks: 'MARKS PLACED',
+    /* DRAFT (Oct 2026) — Measure reopened from the step list: the same four
+       pictures, chosen by the person, nothing measured again for the count. */
+    lookTitle: 'How the marks were found',
+    lookHint: 'Tap a step to see that picture.',
   },
 
   refine: {
@@ -280,6 +284,7 @@ export default {
     position: 'Step {n} of {total}',
     skipped: 'skipped',
     optional: 'optional',
+    backTo: 'Back to {step}',
     redoTitle: 'Find the marks again?',
     redoBody: 'This finds the marks on this strip again from the start. The marks you removed, added or split will be lost.',
     redoStay: 'Keep my fixes',
