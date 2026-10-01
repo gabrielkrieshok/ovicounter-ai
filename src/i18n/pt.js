@@ -193,6 +193,19 @@ export default {
     backHome: 'Voltar ao início',
   },
 
+  guide: {
+    open: 'Como funciona',
+    title: 'Como funciona',
+    intro: 'Uma tira de cada vez. A aplicação marca o que encontra; verifica as marcas, e a contagem é sua. Tudo funciona neste telemóvel.',
+    photo: 'Coloque a tira plana com boa luz e preencha o enquadramento com ela. Se os ovos parecerem demasiado pequenos ou a foto estiver desfocada, a aplicação diz e pede outra.',
+    crop: 'A aplicação propõe um recorte à volta da tira. Arraste os cantos se não acertou, e endireite a tira se estiver inclinada.',
+    measure: 'A aplicação encontra um ovo típico nesta tira e marca cada ponto desse tamanho e tom. Se as marcas parecerem erradas, pode marcar um ovo e ela volta a medir a partir dele.',
+    refine: 'Dois controlos: quão escuro tem de ser um ponto, e quão grande. Mova-os até os anéis ficarem sobre ovos e não sobre sujidade. O traço rosa mostra o tamanho dos ovos encontrados.',
+    check: 'Cada marca é sua para julgar. Toque numa marca para a retirar. Mantenha premido o papel vazio para acrescentar um ovo. Trace uma linha sobre um aglomerado para o separar. Afaste os dedos, ou use + e −, para ver de perto. Uma marca fica azul até ter visto de perto a parte da tira onde está.',
+    count: 'A contagem é cada marca que não retirou. Coloca a tira num nível. Um número cinzento com ~ à frente é só da aplicação: ninguém verificou essas marcas.',
+    done: 'Entendido',
+  },
+
   steps: {
     photo: 'Fotografar',
     crop: 'Recortar',

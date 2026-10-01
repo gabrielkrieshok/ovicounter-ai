@@ -38,6 +38,7 @@ const routes = [
 
   // Built in step 5.
   { path: '/result', name: 'result', meta: { screen: 'Strip result' }, component: () => import('@/views/StripResultScreen.vue') },
+  { path: '/guide', name: 'guide', meta: { screen: 'Guide' }, component: () => import('@/views/GuideScreen.vue') },
   { path: '/summary', name: 'summary', meta: { screen: 'Session summary' }, component: () => import('@/views/SessionSummaryScreen.vue') },
 
   { path: '/:pathMatch(.*)*', redirect: '/' },

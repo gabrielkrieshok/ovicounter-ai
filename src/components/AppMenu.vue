@@ -24,6 +24,11 @@ const session = useSessionStore()
 
 const localeNames = { en: 'English', es: 'Español', pt: 'Português' }
 
+function openGuide() {
+  emit('close')
+  router.push({ name: 'guide' })
+}
+
 function endSession() {
   emit('close')
   router.push({ name: 'summary' })
@@ -57,6 +62,8 @@ function endSession() {
       <AppButton v-if="session.isActive && !session.isQuick" variant="secondary" @click="endSession">
         {{ t('menu.endSession') }}
       </AppButton>
+
+      <AppButton variant="secondary" @click="openGuide">{{ t('guide.open') }}</AppButton>
 
       <p class="about t-body">{{ t('menu.about') }}</p>
 

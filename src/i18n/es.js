@@ -187,6 +187,19 @@ export default {
     backHome: 'Volver al inicio',
   },
 
+  guide: {
+    open: 'Cómo funciona',
+    title: 'Cómo funciona',
+    intro: 'Una tira a la vez. La aplicación marca lo que encuentra; usted revisa las marcas, y el conteo es suyo. Todo funciona en este teléfono.',
+    photo: 'Ponga la tira plana con buena luz y llene el recuadro con ella. Si los huevos se ven muy pequeños o la foto está borrosa, la aplicación lo dice y pide otra.',
+    crop: 'La aplicación propone un recuadro alrededor de la tira. Arrastre las esquinas si no acertó, y enderece la tira si está inclinada.',
+    measure: 'La aplicación encuentra un huevo típico en esta tira y marca cada mota de ese tamaño y tono. Si las marcas se ven mal, puede marcar usted un huevo y vuelve a medir a partir de él.',
+    refine: 'Dos controles: qué tan oscura debe ser una mota, y qué tan grande. Muévalos hasta que los anillos queden sobre huevos y no sobre suciedad. La marca rosa indica el tamaño de los huevos encontrados.',
+    check: 'Cada marca la juzga usted. Toque una marca para quitarla. Mantenga pulsado el papel vacío para agregar un huevo. Trace una línea sobre un grupo para separarlo. Pellizque, o use + y −, para ver de cerca. Una marca sigue azul hasta que usted haya visto de cerca su parte de la tira.',
+    count: 'El conteo es cada marca que usted no quitó. Ubica la tira en un nivel. Un número gris con ~ delante es solo de la aplicación: nadie revisó esas marcas.',
+    done: 'Entendido',
+  },
+
   steps: {
     photo: 'Fotografiar',
     crop: 'Recortar',

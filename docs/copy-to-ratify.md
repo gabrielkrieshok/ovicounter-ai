@@ -38,6 +38,7 @@ attention. All of it must survive translation to Spanish.
 | Everywhere (steps) | "Photograph" · "Crop" · "Measure" · "Refine" · "Check the marks" · "Count", and "Step {n} of {total}" | Sep 30: the step list (laptop) and step strip (phone). Short names for the steps; each screen keeps its ratified title. |
 | Crop, Refine, Mark one egg | "Find the marks again?" / "This finds the marks on this strip again from the start. The marks you removed, added or split will be lost." / "Keep my fixes" / "Find them again" | Asked before anything finds the marks again on a strip the person has worked on. Names what is lost instead of counting it ("your 1 fixes"). |
 | Capture | "Take a new photo?" / "A new photo starts this strip again. The marks you removed, added or split on it will be lost." / "Keep this strip" / "Take a new photo" | The same, for a new photo taken after going back to Photograph. |
+| Guide | The whole screen: "How it works", the intro, one paragraph per step, "Got it" | Sep 30: an in-app guide, reached from Welcome ("How it works" link) and the menu. Under the step list's own names, so the guide and the app agree on what a step is called. Written to the copy rules; translated to es/pt. |
 
 ## Also unresolved
 

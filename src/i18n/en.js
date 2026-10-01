@@ -237,6 +237,23 @@ export default {
     backHome: 'Back to home',
   },
 
+  /* DRAFT (Sep 30, 2026) — the Guide (views/GuideScreen.vue): one section per
+     step, under the step names in `steps`. Written to the copy rules: the app
+     finds and marks, the person checks, removes and adds; nothing learns and
+     nothing leaves the phone. */
+  guide: {
+    open: 'How it works',
+    title: 'How it works',
+    intro: 'One strip at a time. The app marks what it finds; you check the marks, and the count is yours. Everything runs on this phone.',
+    photo: 'Lay the strip flat in good light and fill the box with it. If the eggs are too small or the photo is soft, the app says so and asks for another.',
+    crop: 'The app proposes a box around the strip. Drag the corners if it missed, and straighten the strip if it is tilted.',
+    measure: 'The app finds a typical egg on this strip and marks every speck of that size and darkness. If the marks look wrong, you can mark one egg yourself and it measures again from that.',
+    refine: 'Two sliders: how dark a speck must be, and how big. Move them until the rings sit on eggs and not on dirt. The pink tick shows the size of the eggs found.',
+    check: 'Every mark is yours to judge. Tap a mark to remove it. Hold empty paper to add an egg. Draw a line across a clump to split it. Pinch, or use + and −, to look closer. A mark stays blue until you have looked at its part of the strip up close.',
+    count: 'The count is every mark you did not remove. It places the strip in a band. A grey number with ~ in front is the app’s alone: nobody checked those marks.',
+    done: 'Got it',
+  },
+
   /* DRAFT (Sep 30, 2026) — the step list and step strip (lib/steps.js), and
      the two confirmations asked before finding the marks again on a strip the
      person has worked on. The bodies name what is lost rather than counting it:

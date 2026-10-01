@@ -31,7 +31,9 @@ Screens are named, never coded. Use these names in code, in commits, and in
 conversation — they are the handoff's `data-screen-label` values:
 
 **Welcome · Capture · Refusal · Crop · Mark one egg · Processing · Refine ·
-Your fixes · Strip result · Session summary**
+Your fixes · Strip result · Session summary** — and **Guide** ("How it works",
+Sep 30, 2026: not in the handoff; reached from Welcome and the menu, one
+section per step under the step list's names).
 
 Two paths through them (Sep 2026, `docs/surpass-v1-brief.md` §4). A **session**:
 Capture → Crop → Processing → Refine → Your fixes → Strip result → Next strip …

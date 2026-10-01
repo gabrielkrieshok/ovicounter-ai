@@ -128,6 +128,10 @@ async function startDemo() {
         </div>
       </div>
 
+      <AppButton variant="quiet" class="how" @click="router.push({ name: 'guide' })">
+        {{ t('guide.open') }}
+      </AppButton>
+
       <p class="note t-body">{{ t('welcome.demoNote') }}</p>
     </section>
 
