@@ -326,18 +326,19 @@ function backHome() {
       </div>
     </div>
 
-    <!-- What will be sent, before it is: the card itself, small, beside the
-         button. -->
-    <div class="share">
-      <img v-if="preview" class="share-preview" :src="preview" :alt="t('share.previewAlt')" />
-      <div class="share-side">
+    <!-- What will be sent, before it is: the card itself, centred and large
+         enough to read, in one panel with what it is and the button that
+         sends it (Oct 2026). -->
+    <section class="share">
+      <div class="share-panel">
+        <img v-if="preview" class="share-preview" :src="preview" :alt="t('share.previewAlt')" />
         <p class="share-what t-body">{{ t('share.what') }}</p>
         <AppButton variant="secondary" class="share-button" :disabled="sharing || !preview" @click="share">
           {{ t('share.button') }}
         </AppButton>
         <p v-if="shareNote" class="share-note t-body" role="status">{{ shareNote }}</p>
       </div>
-    </div>
+    </section>
 
     <!-- A demo is not tied to anything: its result ends at Home (Oct 2026). -->
     <div v-if="session.isDemo" class="footer" :class="{ ready }">
@@ -435,36 +436,47 @@ function backHome() {
 
 .share {
   flex: none;
-  display: flex;
-  align-items: flex-end;
-  gap: var(--sp-14);
   padding: 0 var(--sp-16) var(--sp-14);
 }
-.share-preview {
-  flex: none;
-  width: 72px;
-  height: 128px;
-  object-fit: cover;
-  border: var(--bd) solid var(--ink);
-}
-.share-side {
-  flex: 1;
-  min-width: 0;
+.share-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-8);
+  align-items: center;
+  gap: var(--sp-12);
+  padding: var(--sp-16);
+  background: var(--panel);
+  border: var(--bd) solid var(--ink);
+}
+/* The card at 9:16, tall enough to read its count. */
+.share-preview {
+  display: block;
+  height: 280px;
+  aspect-ratio: 1080 / 1920;
+  border: var(--bd) solid var(--ink);
+  background: var(--paper);
 }
 .share-what {
   margin: 0;
   color: var(--muted);
+  text-align: center;
+}
+.share-button {
+  align-self: stretch;
 }
 .share-note {
-  margin: var(--sp-8) 0 0;
+  margin: 0;
   color: var(--muted);
+  text-align: center;
 }
 
+/* The actions stay on screen while the page scrolls under them: the share
+   panel made this page taller than a phone (Oct 2026). */
 .footer {
   flex: none;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  background: var(--paper);
   display: flex;
   opacity: 0;
   transition: opacity 0.12s linear;
@@ -488,6 +500,9 @@ function backHome() {
 /* Laptop (brief §5): the count and its breakdown in the left column, the
    checked strip on the right at full height. */
 .wide .result {
+  /* A size container, so the strip on the right can be exactly the visible
+     height while the left column scrolls past it. */
+  container-type: size;
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
   grid-template-rows: auto auto auto auto 1fr auto;
@@ -501,6 +516,10 @@ function backHome() {
 .wide .result > .thumb {
   grid-column: 2;
   grid-row: 1 / -1;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100cqh;
   margin: 0;
   border-width: 0 0 0 var(--bd);
 }
