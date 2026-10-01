@@ -102,7 +102,7 @@ watch(
 
 <template>
   <div class="harness" :class="{ wide }">
-    <div class="device" :class="{ wide }">
+    <div class="device" :class="{ wide, page: wide && route.meta.page }">
       <AppBar v-if="showBar" />
       <!-- The phone's step row. The laptop draws the steps in each screen's
            left column instead (components/StepList.vue). -->
@@ -182,10 +182,28 @@ watch(
 <!-- Not scoped: these classes land on the screens' root elements, and on the
      laptop on their children. -->
 <style>
+/* Laptop, reading pages (Welcome, Guide, About — `meta.page`): the panel
+   grows with its content and the browser window scrolls, as a web page does,
+   rather than a box inside the window. Stage screens keep the fixed panel:
+   the photograph needs a known height to fit. */
+.harness .device.wide.page {
+  height: auto;
+  min-height: calc(100dvh - 2 * var(--laptop-gutter));
+  overflow: visible;
+}
+.harness .device.wide.page .screen {
+  flex: none;
+}
+.harness .device.wide.page .screen > * {
+  height: auto;
+  min-height: calc(100dvh - 2 * var(--laptop-gutter) - var(--hit-secondary));
+  overflow: visible;
+}
+
 /* Laptop: a stage screen whose left column — every step row, the open step,
    its actions — is taller than the window scrolls as a whole rather than
    cutting the column off. On a 900px-tall laptop nothing needs to. */
-.wide .screen > * {
+.device.wide:not(.page) .screen > * {
   overflow-y: auto;
 }
 

@@ -22,7 +22,7 @@ import { useStripStore } from '@/stores/strip'
  * Screens are named, never coded — use these names in code and in conversation.
  */
 const routes = [
-  { path: '/', name: 'welcome', meta: { screen: 'Welcome' }, component: () => import('@/views/WelcomeScreen.vue') },
+  { path: '/', name: 'welcome', meta: { screen: 'Welcome', page: true }, component: () => import('@/views/WelcomeScreen.vue') },
 
   // Built in step 6.
   { path: '/capture', name: 'capture', meta: { screen: 'Capture' }, component: () => import('@/views/CaptureScreen.vue') },
@@ -38,8 +38,8 @@ const routes = [
 
   // Built in step 5.
   { path: '/result', name: 'result', meta: { screen: 'Strip result' }, component: () => import('@/views/StripResultScreen.vue') },
-  { path: '/about', name: 'about', meta: { screen: 'About' }, component: () => import('@/views/AboutScreen.vue') },
-  { path: '/guide', name: 'guide', meta: { screen: 'Guide' }, component: () => import('@/views/GuideScreen.vue') },
+  { path: '/about', name: 'about', meta: { screen: 'About', page: true }, component: () => import('@/views/AboutScreen.vue') },
+  { path: '/guide', name: 'guide', meta: { screen: 'Guide', page: true }, component: () => import('@/views/GuideScreen.vue') },
   { path: '/summary', name: 'summary', meta: { screen: 'Session summary' }, component: () => import('@/views/SessionSummaryScreen.vue') },
 
   { path: '/:pathMatch(.*)*', redirect: '/' },
