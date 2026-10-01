@@ -74,7 +74,8 @@ export default {
     countOne: 'Count one strip',
     /* DRAFT (Sep 30, 2026) — Welcome's doors: one line under each so they read
        as different things, and the two other demos behind "Other demo photos". */
-    otherDemos: 'Other demo photos',
+    demoClean: 'A clean strip',
+    demoCleanNote: 'Dense and evenly lit — the easy case.',
     demoField: 'A field strip, zoomed out',
     demoFieldNote: 'Stained and creased, with the table around it to crop away.',
     demoPattern: 'A test pattern',

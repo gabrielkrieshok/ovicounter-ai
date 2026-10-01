@@ -42,10 +42,12 @@ Capture → Crop → Processing → Refine → Your fixes → Strip result → N
 → Your fixes → Strip result, three decisions from Welcome, no session, nothing
 saved unless "Start a session with these settings" is pressed — which makes
 that strip 1 of a real session. The demo is a quick count on one of three
-photographs (Sep 30, 2026, `lib/samples.js` DEMOS): the clean bundled strip
-(the yellow button), a stained field strip on a table, or a test pattern drawn
-on the phone with a known number of ovoids (`lib/test-pattern.js`), which Strip
-result states beside the count. `session.isQuick` is the switch; Refine is one
+photographs (`lib/samples.js` DEMOS): the clean bundled strip, a stained field
+strip on a table, or a test pattern drawn on the phone with a known number of
+ovoids (`lib/test-pattern.js`), which Strip result states beside the count. The
+yellow demo button opens onto the three (Oct 2026), so the demo reaches a
+number in **four** decisions — demo, which demo, Use this photo, Done — and the
+walker checks four. `session.isQuick` is the switch; Refine is one
 link away on Your fixes.
 
 ## Stack — decided, don't relitigate

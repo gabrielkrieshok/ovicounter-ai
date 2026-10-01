@@ -16,8 +16,10 @@
  *      picker, two strips, calibration carried forward, summary. Must write
  *      one session and two strips.
  *   3. THE CORRECTION PATH — Refine → Mark one egg, one tap, back to Refine.
- *   4. THE UNTOUCHED PASS — demo straight through with no gesture: three
- *      decisions, and the result must show a machine count, not a human one.
+ *   4. THE UNTOUCHED PASS — demo straight through with no gesture: four
+ *      decisions (demo, which demo, Use this photo, Done — the demo opens onto
+ *      a choice of three since Oct 2026), and the result must show a machine
+ *      count, not a human one.
  *   5. THE CAPTURE PATH — the fake camera's test pattern, which the gate must
  *      refuse.
  *
@@ -170,6 +172,14 @@ async function main() {
     })()`)
 
   const route = () => evaluate('location.hash')
+
+  /* "Try it with a demo photo" opens a choice of three demos (Oct 2026); the
+     walk always takes the clean strip, which the counts below are measured on. */
+  const startDemo = async () => {
+    const opened = await clickText('Try it with a demo photo')
+    await sleep(300)
+    return `${opened} → ${await clickText('A clean strip')}`
+  }
 
   const waitForRoute = async (hashes, ms = 15000) => {
     const wanted = [].concat(hashes)
@@ -401,7 +411,7 @@ async function main() {
   const before = await dbCounts()
 
   console.log('\n--- 1. the demo: a quick count ---')
-  console.log(`  click "Try it with a demo photo" → ${await clickText('Try it with a demo photo')}`)
+  console.log(`  click "Try it with a demo photo" → ${await startDemo()}`)
   await sleep(3500) // the crop proposal needs OpenCV to finish loading
   console.log(`Crop (${await route()})`)
   await shot('flow-2-crop')
@@ -509,7 +519,7 @@ async function main() {
   await sleep(800)
 
   console.log('\n--- 3. the correction path (Refine → Mark one egg) ---')
-  await clickText('Try it with a demo photo')
+  await startDemo()
   await sleep(2500)
   await useThisPhoto(['#/fixes'])
   await clickText('Adjust them')
@@ -564,7 +574,7 @@ async function main() {
 
   console.log('\n--- 4. the untouched pass: demo → Use this photo → Done ---')
   let decisions = 0
-  await clickText('Try it with a demo photo'); decisions++
+  await startDemo(); decisions += 2
   await sleep(2500)
   await clickText('Use this photo'); decisions++
   console.log(`  → ${await waitForRoute('#/fixes', 15000)}`)
@@ -574,7 +584,7 @@ async function main() {
   const untouched = await readResult()
   console.log(`  ${untouched.sentence}`)
   console.log(`  count "${untouched.count}" · legend "${untouched.legend || '(none)'}"`)
-  check(`result reached in ${decisions} decisions (≤3)`, decisions <= 3 && (await route()) === '#/result')
+  check(`result reached in ${decisions} decisions (≤4)`, decisions <= 4 && (await route()) === '#/result')
   check(
     'untouched strip → machine styling, no human count',
     untouched.machineStyled && /^~/.test(untouched.count ?? '') && !/checked by you/.test(untouched.sentence ?? ''),
