@@ -51,6 +51,7 @@ attention. All of it must survive translation to Spanish.
 | Processing | "PHOTO" / "THE PHOTO" · "Tap a step to see that picture. Press and hold the picture to see the photo under it." · "Continue to {step}" | Oct 1: Measure stops on the marks and waits; the photograph is a fifth picture to compare against, and holding any picture shows it. |
 | Welcome | "Delete" · "Delete {day}’s session?" / "Its {n} strips, with their photos and marks, will be removed from this phone. This cannot be undone." / "Keep it" / "Delete" | Oct 1: deleting a previous session, confirmed first. |
 | Crop | "↩ Undo" · "Reset" · spoken/hover names "Rotate left" / "Rotate right" / "Straighten left" / "Straighten right" | Oct 1: ⟲ ⟳ and ‹ › as two matching pairs, plus undo and reset to the proposed box. Retires the RATIFIED "⟲ rotate" and the lone "⟳", which read as undo. |
+| Your fixes / step 4 | "Manually refine" | Oct 1 (Gabriel): replaces the RATIFIED "Check the marks" as the screen title and step name, now that Refine's sliders are part of Measure and this is the hand pass. es "Ajustar a mano", pt "Afinar à mão" need field review. |
 
 ## Also unresolved
 

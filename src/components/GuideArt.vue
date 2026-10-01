@@ -8,7 +8,7 @@
  * Drawings, not screenshots: they stay true whatever the screens look like
  * next month, cost nothing to load, and cannot be mistaken for a count. */
 defineProps({
-  kind: { type: String, required: true }, // photo | crop | measure | refine | count
+  kind: { type: String, required: true }, // photo | crop | measure | count
 })
 
 /* A few eggs on a strip, reused by several drawings. */
@@ -52,15 +52,6 @@ const EGGS = [
         <circle :cx="x" :cy="y + 12" r="9" class="ring found" />
       </g>
       <circle :cx="EGGS[4][0]" :cy="EGGS[4][1] + 12" r="14" class="ring sample" />
-    </template>
-
-    <!-- Refine: the two sliders, square thumbs, the pink tick. -->
-    <template v-else-if="kind === 'refine'">
-      <rect x="10" y="24" width="260" height="8" class="track" />
-      <rect x="138" y="14" width="28" height="28" class="thumb" />
-      <rect x="10" y="66" width="260" height="8" class="track" />
-      <rect x="70" y="56" width="28" height="28" class="thumb" />
-      <rect x="178" y="58" width="4" height="24" class="tick" />
     </template>
 
     <!-- Count: the person's number over the band scale. -->

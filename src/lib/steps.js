@@ -16,26 +16,22 @@ export const STEPS = [
   { key: 'photo', route: 'capture', also: ['refusal'] },
   { key: 'crop', route: 'crop' },
   { key: 'measure', route: 'processing', also: ['calibrate'] },
-  { key: 'refine', route: 'refine' },
   { key: 'check', route: 'fixes' },
   { key: 'count', route: 'result' },
 ]
 
 /**
- * All six steps, always, numbered as the Guide numbers them (Oct 2026) — so
- * step 3 is Measure on every screen, in every path, and in the Guide. A path
- * that does not need a step keeps it in its place, marked:
- *
- *   skipped   the demo starts from a photo it already has — no Photograph;
- *   optional  a quick count goes from Measure to Check the marks, and Refine
- *             is there to open ("Marks look wrong? Adjust them") — once it has
- *             been opened, it is an ordinary step on this strip.
+ * All five steps, always, numbered as the Guide numbers them — so step 3 is
+ * Measure on every screen, in every path, and in the Guide. Refine was a step
+ * of its own until Oct 2026; its sliders are now part of Measure, and step 4,
+ * Manually refine, is the hand pass. A path that does not need a step keeps it
+ * in its place, marked `skipped`: the demo starts from a photo it already has.
  */
-export function stepsFor({ isDemo, isQuick, visitedRefine }) {
+export function stepsFor({ isDemo }) {
   return STEPS.map((s) => ({
     ...s,
     skipped: s.key === 'photo' && isDemo,
-    optional: s.key === 'refine' && isQuick && !visitedRefine,
+    optional: false,
   }))
 }
 

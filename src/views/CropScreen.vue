@@ -175,7 +175,7 @@ async function useThisPhoto() {
      furthest step already reached, with every mark and fix as it was. */
   if (strip.applied && !strip.cropChanged && strip.marks.length) {
     const furthest = STEPS.find((s) => s.key === strip.furthest)
-    const ahead = furthest && ['refine', 'check'].includes(furthest.key) ? furthest.route : 'fixes'
+    const ahead = furthest && ['check', 'count'].includes(furthest.key) ? furthest.route : 'fixes'
     committing = true
     router.push({ name: ahead })
     return

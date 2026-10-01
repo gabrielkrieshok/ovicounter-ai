@@ -30,14 +30,15 @@ proposes.**
 Screens are named, never coded. Use these names in code, in commits, and in
 conversation — they are the handoff's `data-screen-label` values:
 
-**Welcome · Capture · Refusal · Crop · Mark one egg · Processing · Refine ·
-Your fixes · Strip result · Session summary** — and **Guide** ("How it works",
+**Welcome · Capture · Refusal · Crop · Mark one egg · Processing · Your fixes ·
+Strip result · Session summary** (Refine was a screen until Oct 2026; its
+sliders are now part of Processing, and Your fixes is titled "Manually refine") — and **Guide** ("How it works",
 Sep 30, 2026: not in the handoff; reached from Welcome and the menu, one
 section per step under the step list's names) and **About** (Oct 2026, from the
 menu: what it does, why it over-marks, what is kept, on this phone, licence).
 
 Two paths through them (Sep 2026, `docs/surpass-v1-brief.md` §4). A **session**:
-Capture → Crop → Processing → Refine → Your fixes → Strip result → Next strip …
+Capture → Crop → Processing → Your fixes → Strip result → Next strip …
 → Session summary, calibration carried strip to strip, every strip saved. A
 **quick count** ("Count one strip", and the demo): Capture → Crop → Processing
 → Your fixes → Strip result, three decisions from Welcome, no session, nothing
@@ -45,7 +46,7 @@ saved unless "Start a session with these settings" is pressed — which makes
 that strip 1 of a real session. The demo is a quick count on one of three
 photographs (`lib/samples.js` DEMOS): the clean bundled strip, a stained field
 strip on a table, or a test pattern drawn on the phone with a known number of
-ovoids (`lib/test-pattern.js`), which Strip result states beside the count.
+ovoids (`lib/test-pattern.js`), which Strip result states beside the count, and whose result ends at Home — nothing else.
 **Welcome has one way in** (Oct 2026): "Count a single paper strip" opens onto
 where the photo comes from — Use the camera, Choose a photo (the phone's picker,
 straight from Welcome), or the three demos. The demo reaches a number in
@@ -91,8 +92,9 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
 
 ## Non-negotiables
 
-1. **No machine total anywhere on Refine.** A visible total lets the operator
-   tune until the number matches what they expected. A tally of *human*
+1. **No machine total anywhere the sliders are** — Processing, since Refine's
+   sliders moved into it (Oct 2026). A visible total lets the operator tune
+   until the number matches what they expected. A tally of *human*
    judgments during review is explicitly fine.
 2. **No fake CV.** Processing shows real pipeline buffers, never a CSS filter
    standing in for one. If a buffer isn't ready, show the previous one.
@@ -129,11 +131,11 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
 
 `src/lib/steps.js`, `lib/use-steps.js` (Sep 30, 2026 — a deliberate addition to
 the handoff's structure, which showed the flow as separate screens with no
-sense of where you are). A strip's steps are always the Guide's six, with the
-Guide's numbers: **1 Photograph · 2 Crop · 3 Measure · 4 Refine · 5 Check the
-marks · 6 Count** (Oct 2026). A path that does not need one keeps it in place,
-marked — the demo's Photograph is *skipped*, a quick count's Refine *optional*
-(openable once there are marks). Mark one egg belongs to Measure, Refusal to
+sense of where you are). A strip's steps are always the Guide's five, with
+the Guide's numbers: **1 Photograph · 2 Crop · 3 Measure · 4 Manually refine ·
+5 Count** (Oct 2026 — Refine's sliders moved into Measure, which ends on its
+pictures and the two sliders; step 4 is the hand pass). A path that does not
+need one keeps it in place, marked *skipped* (the demo's Photograph). Mark one egg belongs to Measure, Refusal to
 Photograph. On the laptop each stage screen's left column is the list
 (`StepList` before and after the screen's own header and actions; every step
 keeps its own row, and a screen taller than the window scrolls); on the phone a 44px `StepStrip` of six numbered
@@ -162,8 +164,11 @@ Mark one egg, a new photo — asks first when the person has judgments to lose
 (`confirmRedo`), and `strip.scan()` then clears the undo history, `reviewed`
 and coverage, which described marks that no longer exist. Crop keeps the
 applied box on return (`strip.applied`) and puts it back if left unconfirmed.
-Once Strip result has written the record, earlier steps show done and do not
-reopen. One confirmation sheet serves the whole app (`lib/confirm.js`).
+**Going back from Count is allowed**: every earlier step reopens, and
+returning to Count records the same strip again in place
+(`session.completeStrip(…, at)`, `strip.recordedIndex`) — never a second one.
+The yellow bar always says where it goes in the steps' own direction:
+"Continue to …" for a step further on. One confirmation sheet serves the whole app (`lib/confirm.js`).
 
 ## The review gestures
 

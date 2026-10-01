@@ -31,7 +31,9 @@ const routes = [
   { path: '/crop', name: 'crop', meta: { screen: 'Crop' }, component: () => import('@/views/CropScreen.vue') },
   { path: '/calibrate', name: 'calibrate', meta: { screen: 'Mark one egg' }, component: () => import('@/views/MarkOneEggScreen.vue') },
   { path: '/processing', name: 'processing', meta: { screen: 'Processing' }, component: () => import('@/views/ProcessingScreen.vue') },
-  { path: '/refine', name: 'refine', meta: { screen: 'Refine' }, component: () => import('@/views/RefineScreen.vue') },
+  /* Refine's sliders are part of Measure since Oct 2026; the old address opens
+     Measure, settled, where they are. */
+  { path: '/refine', name: 'refine', redirect: { name: 'processing', query: { look: '1' } } },
 
   // Built in step 4.
   { path: '/fixes', name: 'fixes', meta: { screen: 'Your fixes' }, component: () => import('@/views/YourFixesScreen.vue') },

@@ -4,18 +4,19 @@
  *
  * Below 1000px wide the phone frame is kept (`?frame=1`) so screens can be
  * checked against the hi-fi; at 1440 the laptop layout is walked and the
- * photograph's share of the viewport is measured on Refine and Your fixes.
+ * photograph's share of the viewport is measured on Measure and Manually refine.
  *
  * What it walks, the way a technician would, reporting any console error:
  *
  *   1. THE DEMO — a quick count on the bundled strip. Crop → Processing → Your
- *      fixes (Refine is one link away and is visited), gestures, Done, result.
- *      Then "Count another" and "Back to home". Must reach a result with zero
+ *      fixes (Measure's sliders are one link away and are visited), gestures,
+ *      Done, result.
+ *      Then Home — a demo's result offers nothing else. Must reach a result with zero
  *      calibration taps and a machine total in 330–400, and must write nothing.
  *   2. A SESSION — "Start a new session", the demo strip fed through the gallery
  *      picker, two strips, calibration carried forward, summary. Must write
  *      one session and two strips.
- *   3. THE CORRECTION PATH — Refine → Mark one egg, one tap, back to Refine.
+ *   3. THE CORRECTION PATH — Measure → Mark one egg, one tap, back to Measure.
  *   4. THE UNTOUCHED PASS — demo straight through with no gesture: five
  *      decisions (count a strip, which demo, Use this photo, Continue past
  *      Measure, Done), and the result must show a machine count, not a human
@@ -426,16 +427,16 @@ async function main() {
   const taps = await useThisPhoto(['#/fixes'])
   await shot('flow-5-processing')
   console.log(`Your fixes (${await route()})`)
-  check('quick count skips Refine', (await route()) === '#/fixes')
+  check('lands on Manually refine', (await route()) === '#/fixes')
   await shot('flow-7-fixes')
   await photoShare('.fixes .stage')
 
   console.log(`  click "Adjust them" → ${await clickText('Adjust them')}`)
-  await sleep(800)
-  console.log(`Refine (${await route()})`)
+  await sleep(2500)
+  console.log(`Measure, looking back (${await route()})`)
   await shot('flow-6-refine')
-  await photoShare('.refine .stage-wrap canvas.photo')
-  console.log(`  click "Marks look right" → ${await clickText('Marks look right')}`)
+  await photoShare('.processing .stage-wrap canvas.photo')
+  console.log(`  click "Continue to …" → ${await clickText('Continue to')}`)
   await sleep(1200)
   console.log(`Your fixes again (${await route()})`)
   await exerciseGestures()
@@ -454,15 +455,8 @@ async function main() {
   check(`calibration: ${taps} taps`, taps === 0)
   check(`machine total ${machineTotal} in 330–400`, machineTotal >= 330 && machineTotal <= 400)
 
-  console.log(`  click "Count another" → ${await clickText('Count another')}`)
-  await sleep(2500)
-  console.log(`Count another (${await route()})`)
-  await useThisPhoto(['#/fixes'])
-  await clickText('Done')
-  await sleep(1200)
-  const second = await readResult()
-  console.log(`  second count: ${second.sentence}`)
-  console.log(`  click "Back to home" → ${await clickText('Back to home')}`)
+  check(`a demo's result offers only Home (${numbers.buttons})`, numbers.buttons === 'Home')
+  console.log(`  click "Home" → ${await clickText('Home')}`)
   await sleep(800)
   check(`back on Welcome (${await route()})`, (await route()) === '#/')
   const afterDemo = await dbCounts()
@@ -478,11 +472,9 @@ async function main() {
   console.log(`  pick demo strip from gallery → ${await pickDemoFile()}`)
   console.log(`  → ${await waitForRoute(['#/crop', '#/refusal'], 15000)}`)
   await sleep(3000)
-  await useThisPhoto(['#/refine'])
+  await useThisPhoto(['#/fixes'])
   await sleep(600)
-  check('session goes through Refine', (await route()) === '#/refine')
-  await clickText('Marks look right')
-  await sleep(1200)
+  check('session goes from Measure to Manually refine', (await route()) === '#/fixes')
   await clickText('Done')
   await sleep(1500)
   const s1 = await readResult()
@@ -495,13 +487,13 @@ async function main() {
   console.log(`  → ${await waitForRoute(['#/crop', '#/refusal'], 15000)}`)
   await sleep(3000)
   console.log(`  click "Use this photo" → ${await clickText('Use this photo')}`)
-  const strip2 = await waitForRoute(['#/calibrate', '#/refine'], 15000)
+  const strip2 = await waitForRoute(['#/calibrate', '#/processing'], 15000)
   check(
     `strip 2 after crop (${strip2}) — calibration carried forward, Mark one egg skipped`,
-    strip2 === '#/refine',
+    strip2 === '#/processing',
   )
-  await clickText('Marks look right')
-  await sleep(1200)
+  await waitForRoute(['#/fixes'], 15000)
+  await sleep(800)
   await clickText('Done')
   await sleep(1500)
   console.log(`  click "End session" → ${await clickText('End session')}`)
@@ -526,12 +518,12 @@ async function main() {
   await clickText('Back to home')
   await sleep(800)
 
-  console.log('\n--- 3. the correction path (Refine → Mark one egg) ---')
+  console.log('\n--- 3. the correction path (Measure → Mark one egg) ---')
   await startDemo()
   await sleep(2500)
   await useThisPhoto(['#/fixes'])
   await clickText('Adjust them')
-  await sleep(600)
+  await sleep(2500)
   console.log(`  click "Mark an egg" → ${await clickText('Mark an egg')}`)
   await sleep(600)
   console.log(`  Mark one egg (${await route()})`)
@@ -571,13 +563,14 @@ async function main() {
   }
   await shot('flow-16-correction-tapped')
   console.log(`  click "Looks right" → ${await clickText('Looks right')}`)
-  check('back on Refine with the tap calibration', (await waitForRoute('#/refine', 20000)) === '#/refine')
+  check('back on Measure with the tap calibration', (await waitForRoute('#/processing', 20000)) === '#/processing')
+  await sleep(3200)
   await shot('flow-17-correction-refine')
-  await clickText('Marks look right')
-  await sleep(1200)
+  await waitForRoute(['#/fixes'], 15000)
+  await sleep(800)
   await clickText('Done')
   await sleep(1200)
-  await clickText('Back to home')
+  await clickText('Home')
   await sleep(800)
 
   console.log('\n--- 4. the untouched pass: demo → Use this photo → Done ---')
@@ -600,7 +593,7 @@ async function main() {
     untouched.machineStyled && /^~/.test(untouched.count ?? '') && !/checked by you/.test(untouched.sentence ?? ''),
   )
   await shot('flow-18-result-untouched')
-  await clickText('Back to home')
+  await clickText('Home')
   await sleep(800)
 
   console.log('\n--- 5. the capture path: the fake camera, refused ---')

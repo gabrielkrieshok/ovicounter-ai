@@ -12,10 +12,8 @@ import { useStripStore } from '@/stores/strip'
  * which can be returned to.
  *
  * A step can be returned to when it is done (or done once and then left), it is
- * a screen and not an automatic one — Measure runs on its own — and the strip
- * has not been counted yet. Once Strip result has written the record, the
- * earlier steps are shown done but not reopened: changing them would change a
- * strip already saved.
+ * a screen with something to show. Going back from Count is allowed (Oct 2026):
+ * returning to Count records the strip again, replacing what was saved.
  */
 export function useSteps() {
   const route = useRoute()
@@ -24,7 +22,7 @@ export function useSteps() {
   const strip = useStripStore()
 
   const steps = computed(() =>
-    stepsFor({ isDemo: session.isDemo, isQuick: session.isQuick, visitedRefine: strip.visitedRefine }),
+    stepsFor({ isDemo: session.isDemo }),
   )
   const current = computed(() => {
     const step = stepForRoute(route.name)
@@ -38,15 +36,14 @@ export function useSteps() {
   function canGo(index) {
     if (index === current.value || index < 0) return false
     const step = steps.value[index]
-    if (step.skipped || step.key === 'count') return false
-    if (strip.recorded) return false
-    /* Measure runs on its own; it reopens to be looked at once there are marks
-       to explain (Processing's look mode). */
-    if (step.key === 'measure') return strip.marks.length > 0 && index <= furthest.value
+    if (step.skipped) return false
+    /* Count reopens once the strip has been counted: going back from it and
+       returning records the same strip again (Strip result). */
+    if (step.key === 'count') return strip.recorded
     if (step.key !== 'photo' && !strip.sourceUrl) return false
-    /* Optional Refine opens from the list once there are marks to tune, the
-       same moment "Adjust them" offers it. */
-    if (step.optional) return strip.marks.length > 0
+    /* Measure runs on its own; it reopens — pictures and sliders — once there
+       are marks (Processing's look mode). */
+    if (step.key === 'measure') return strip.marks.length > 0 && index <= furthest.value
     return index <= furthest.value
   }
 

@@ -187,15 +187,12 @@ export default {
 
   refine: {
     // RATIFIED
-    title: 'Refine the marks',
-    photoToggle: 'photo 👁',
     ghostCaption: 'faint rings = lost since you started moving',
     lightDarkSplit: 'Light / dark split',
     speckSize: 'Speck size',
     tickCaption:
       'Pink tick = the egg you marked. Sliding past it means your own egg would be lost.',
     backToStart: 'Back to start',
-    marksLookRight: 'Marks look right →',
     /* DRAFT — when the calibration was measured by the app rather than tapped,
        "the egg you marked" would be false. Same sentence, true subject. */
     tickCaptionAuto:
@@ -205,8 +202,10 @@ export default {
   },
 
   fixes: {
+    // Gabriel, Oct 2026 — was the RATIFIED "Check the marks": since Refine's
+    // sliders moved into Measure, this is the hand pass, and is named so.
+    title: 'Manually refine',
     // RATIFIED
-    title: 'Check the marks',
     undo: '↩ undo',
     done: 'Done — count them',
     /* DRAFT — a quick count arrives here without passing Refine; this is the
@@ -311,9 +310,8 @@ export default {
     intro: 'One strip at a time. The app marks what it finds; you check the marks, and the count is yours. Everything runs on this phone.',
     photo: 'Lay the strip flat in good light and fill the box with it. If the eggs are too small or the photo is soft, the app says so and asks for another.',
     crop: 'The app proposes a box around the strip. Drag the corners if it missed, and straighten the strip if it is tilted.',
-    measure: 'The app finds a typical egg on this strip and marks every speck of that size and darkness. If the marks look wrong, you can mark one egg yourself and it measures again from that.',
-    refine: 'Two sliders: how dark a speck must be, and how big. Move them until the rings sit on eggs and not on dirt. The pink tick shows the size of the eggs found.',
-    check: 'Every mark is yours to judge. Tap a mark to remove it. Hold empty paper to add an egg. Draw a line across a clump to split it. Pinch, or use + and −, to look closer. A mark stays blue until you have looked at its part of the strip up close.',
+    measure: 'The app finds a typical egg on this strip and marks every speck of that size and darkness, showing each picture it makes on the way. Then two sliders set how dark a speck must be and how big; move them until the rings sit on eggs and not on dirt. If the marks still look wrong, mark one egg yourself and it measures again from that.',
+    check: 'Now the marks are yours to judge, one by one. Tap a mark to remove it. Hold empty paper to add an egg. Draw a line across a clump to split it. Pinch, or use + and −, to look closer. A mark stays blue until you have looked at its part of the strip up close.',
     count: 'The count is every mark you did not remove. It places the strip in a band. A grey number with ~ in front is the app’s alone: nobody checked those marks.',
     done: 'Got it',
   },
@@ -326,12 +324,10 @@ export default {
     photo: 'Photograph',
     crop: 'Crop',
     measure: 'Measure',
-    refine: 'Refine',
-    check: 'Check the marks',
+    check: 'Manually refine',
     count: 'Count',
     position: 'Step {n} of {total}',
     skipped: 'skipped',
-    optional: 'optional',
     backTo: 'Back to {step}',
     continueTo: 'Continue to {step}',
     redoTitle: 'Find the marks again?',

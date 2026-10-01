@@ -213,9 +213,14 @@ export const useSessionStore = defineStore('session', {
      * rotation, the gate verdict, the pipeline settings used, and the marks —
      * the count is derived, not passed in, so the two can never disagree.
      */
-    async completeStrip(record, workingCanvas) {
-      const index = this.strips.length
-      this.strips.push({ ...record, index })
+    async completeStrip(record, workingCanvas, at = null) {
+      /* `at` is a strip already recorded and being recorded again — the person
+         went back from Count, changed something, and came back (Oct 2026). It
+         replaces that strip here and on the phone (same key), never adds one. */
+      const replacing = at !== null && at < this.strips.length
+      const index = replacing ? at : this.strips.length
+      if (replacing) this.strips[index] = { ...record, index }
+      else this.strips.push({ ...record, index })
 
       if (!this.recordsPersist) return false
 

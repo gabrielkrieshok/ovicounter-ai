@@ -9,6 +9,7 @@ import StepList from '@/components/StepList.vue'
 import StepNumber from '@/components/StepNumber.vue'
 import { t } from '@/i18n'
 import { STEPS as STRIP_STEPS } from '@/lib/steps'
+import { confirmRedo } from '@/lib/use-steps'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -99,17 +100,116 @@ function peek(on) {
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-/* Where the yellow bar goes. Looking back: to the furthest step reached. After
-   a run: a quick count to the marks (the sliders are one link away there), a
-   session to Refine first, and a correction made from Refine back to Refine
-   (`?then=refine`). */
+/* Where the yellow bar goes: on to Manually refine after a run, and on to the
+   furthest step already reached when looking back. Always forward, so always
+   "Continue to …" — it was "Back to …" while looking back, which read as going
+   backwards when it was not (Oct 2026). */
 const next = computed(() => {
-  if (looking.value) {
-    return STRIP_STEPS.find((s) => s.key === strip.furthest && s.key !== 'measure') ?? STRIP_STEPS[4]
-  }
-  const route_ = route.query.then === 'refine' ? 'refine' : session.isQuick ? 'fixes' : 'refine'
-  return STRIP_STEPS.find((s) => s.route === route_)
+  const check = STRIP_STEPS.find((s) => s.key === 'check')
+  if (!looking.value) return check
+  return STRIP_STEPS.find((s) => s.key === strip.furthest && ['check', 'count'].includes(s.key)) ?? check
 })
+
+/* THE SLIDERS (moved here from the Refine screen, Oct 2026): how dark a speck
+   must be, and how big. Each change runs the pipeline again with its pictures,
+   so the four pictures stay true to the settings, and the stage shows the
+   marks while they move. Still no machine total anywhere on this screen —
+   a visible number would let someone tune until it matched what they
+   expected (non-negotiable 1). */
+const initial = { ...strip.params }
+const contrastFloor = ref(strip.params.contrastFloor)
+const minArea = ref(strip.params.minArea)
+const busy = ref(false)
+const ghosts = ref([])
+let interacting = false
+let debounce = null
+
+/* Ranges are centred on what calibration produced, so the middle of each track
+   is the measured answer and the ends are the plausible extremes around it. */
+const contrastRange = computed(() => ({
+  min: Math.max(4, Math.round(initial.contrastFloor * 0.35)),
+  max: Math.min(220, Math.round(initial.contrastFloor * 1.9)),
+}))
+const areaRange = computed(() => ({
+  min: 2,
+  max: Math.max(12, Math.round(initial.medianEggArea * 1.6)),
+}))
+/* Where the calibration egg sits on the speck-size track; past it, eggs that
+   size would be dropped. The tick follows the thumb's centre, which stops half
+   its 28px width from either end. */
+const calibrationTick = computed(() => {
+  const { min, max } = areaRange.value
+  return Math.min(1, Math.max(0, (initial.medianEggArea - min) / Math.max(1, max - min)))
+})
+const THUMB = 28
+const tickOffset = computed(() => `calc(${THUMB / 2}px + (100% - ${THUMB}px) * ${calibrationTick.value})`)
+const tickCaption = computed(() =>
+  strip.calibrationSource === 'probe' ? t('refine.tickCaptionAuto') : t('refine.tickCaption'),
+)
+
+async function onSlide() {
+  /* After fixes by hand, a slider finds the marks again — ask first; declined,
+     the slider goes back. */
+  if (strip.judgments) {
+    const wanted = { contrastFloor: contrastFloor.value, minArea: minArea.value }
+    contrastFloor.value = strip.params.contrastFloor
+    minArea.value = strip.params.minArea
+    if (!(await confirmRedo('redo'))) return
+    contrastFloor.value = wanted.contrastFloor
+    minArea.value = wanted.minArea
+  }
+  if (!interacting) {
+    ghosts.value = strip.marks.slice()
+    interacting = true
+  }
+  stepIndex.value = MARKS
+  clearTimeout(debounce)
+  debounce = setTimeout(rerun, 70)
+}
+
+async function rerun() {
+  if (busy.value) return
+  busy.value = true
+  try {
+    const fresh = {}
+    const result = await strip.scan({
+      params: { ...strip.params, contrastFloor: contrastFloor.value, minArea: minArea.value },
+      wantStages: true,
+      onStage: (stage, bitmap) => {
+        fresh[stage] = bitmap
+      },
+    })
+    buffers = fresh
+    detections = result.detections
+    stepIndex.value = MARKS
+  } finally {
+    busy.value = false
+  }
+}
+
+/* Marks lost since the sliders started moving, drawn faint where nothing is
+   marked now. */
+const lostGhosts = computed(() => {
+  if (!ghosts.value.length) return []
+  const CELL = 0.01
+  const occupied = new Set(strip.marks.map((m) => `${Math.round(m.x / CELL)}:${Math.round(m.y / CELL)}`))
+  return ghosts.value.filter((g) => !occupied.has(`${Math.round(g.x / CELL)}:${Math.round(g.y / CELL)}`))
+})
+
+async function backToStart() {
+  if (!(await confirmRedo('redo'))) return
+  contrastFloor.value = initial.contrastFloor
+  minArea.value = initial.minArea
+  ghosts.value = []
+  interacting = false
+  rerun()
+}
+
+/* The correction: mark an egg by hand and measure again from it. */
+async function markAnEgg() {
+  if (!(await confirmRedo('redo'))) return
+  router.push({ name: 'calibrate' })
+}
 function goOn() {
   router.replace({ name: next.value.route })
 }
@@ -171,8 +271,17 @@ onMounted(async () => {
       @pointercancel="peek(false)"
     >
       <ImageStage :src="view.src" fit="contain" background="var(--ink)" v-slot="{ rect, stage }">
-        <MarkLayer :marks="view.marks" :boxes="view.boxes" :rect="rect" :stage="stage" />
+        <MarkLayer
+          :marks="view.marks"
+          :ghosts="view.marks.length ? lostGhosts : []"
+          :boxes="view.boxes"
+          :rect="rect"
+          :stage="stage"
+        />
       </ImageStage>
+      <p v-if="lostGhosts.length && view.marks.length" class="ghost-caption t-label">
+        {{ t('refine.ghostCaption') }}
+      </p>
       <span class="buffer-badge t-label">{{ currentBadge }}</span>
     </div>
 
@@ -203,9 +312,46 @@ onMounted(async () => {
       </button>
     </div>
 
+    <div v-if="settled" class="controls">
+      <div class="control">
+        <label class="label t-title" for="split">{{ t('refine.lightDarkSplit') }}</label>
+        <div class="track">
+          <input
+            id="split"
+            v-model.number="contrastFloor"
+            class="slider"
+            type="range"
+            :min="contrastRange.min"
+            :max="contrastRange.max"
+            @input="onSlide"
+          />
+        </div>
+      </div>
+      <div class="control">
+        <label class="label t-title" for="speck">{{ t('refine.speckSize') }}</label>
+        <div class="track">
+          <input
+            id="speck"
+            v-model.number="minArea"
+            class="slider"
+            type="range"
+            :min="areaRange.min"
+            :max="areaRange.max"
+            @input="onSlide"
+          />
+          <span class="tick" :style="{ left: tickOffset }" />
+        </div>
+        <p class="hint t-body">{{ tickCaption }}</p>
+      </div>
+      <div class="links">
+        <AppButton variant="quiet" @click="markAnEgg">{{ t('refine.markAnEgg') }}</AppButton>
+        <AppButton variant="quiet" @click="backToStart">{{ t('refine.backToStart') }}</AppButton>
+      </div>
+    </div>
+
     <div v-if="settled" class="footer">
       <AppButton variant="primary" bar @click="goOn">
-        {{ t(looking ? 'steps.backTo' : 'steps.continueTo', { step: t(`steps.${next.key}`) }) }}
+        {{ t('steps.continueTo', { step: t(`steps.${next.key}`) }) }}
       </AppButton>
     </div>
 
@@ -312,6 +458,98 @@ onMounted(async () => {
   flex: none;
 }
 
+/* The sliders, on paper below the pictures: an 8px ink-outlined track and a
+   28px square thumb in a 44px touch band, the pink calibration tick on the
+   speck-size track. */
+.controls {
+  flex: none;
+  padding: var(--sp-14) var(--sp-16);
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+.label {
+  display: block;
+  margin-bottom: var(--sp-10);
+}
+.hint {
+  margin: var(--sp-10) 0 0;
+  color: var(--muted);
+}
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-16);
+}
+.track {
+  position: relative;
+  height: 8px;
+  border: var(--bd-inner) solid var(--ink);
+  background: var(--track-progress);
+}
+.tick {
+  position: absolute;
+  top: -8px;
+  margin-left: -2px;
+  width: 4px;
+  height: 20px;
+  background: var(--pink);
+  pointer-events: none;
+}
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: var(--hit-min);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  touch-action: none;
+}
+.slider::-webkit-slider-runnable-track {
+  height: var(--hit-min);
+  background: transparent;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: calc((var(--hit-min) - 28px) / 2);
+  border-radius: 0;
+  background: var(--ink);
+  border: 0;
+  cursor: pointer;
+}
+.slider::-moz-range-track {
+  height: var(--hit-min);
+  background: transparent;
+}
+.slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  background: var(--ink);
+  border: 0;
+  cursor: pointer;
+}
+.ghost-caption {
+  position: absolute;
+  left: var(--sp-12);
+  bottom: var(--sp-12);
+  margin: 0;
+  padding: 4px 8px;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--bd-fine) solid var(--ink);
+}
+
 .histogram {
   width: 100%;
   height: 100%;
@@ -357,11 +595,12 @@ onMounted(async () => {
 .wide .processing {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto auto 1fr auto auto auto;
+  grid-template-rows: auto auto 1fr auto auto auto auto;
 }
 .wide .processing > .head { grid-column: 1; grid-row: 2; }
 .wide .processing > .rail { grid-column: 1; grid-row: 4; }
-.wide .processing > .footer { grid-column: 1; grid-row: 5; }
+.wide .processing > .controls { grid-column: 1; grid-row: 5; }
+.wide .processing > .footer { grid-column: 1; grid-row: 6; }
 .wide .processing > .stage-wrap {
   grid-column: 2;
   grid-row: 1 / -1;

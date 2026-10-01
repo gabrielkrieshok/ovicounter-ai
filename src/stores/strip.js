@@ -73,6 +73,9 @@ export const useStripStore = defineStore('strip', {
        result screen must not record it twice — the record is the artifact, so a
        duplicate is not a cosmetic problem. */
     recorded: false,
+    /* Which of the session's strips this one was recorded as, so recording it
+       again after going back from Count replaces it. */
+    recordedIndex: null,
 
     /* Whether the operator did anything at all on Your fixes — removed, added,
        split, or so much as zoomed or panned to look. Tapping straight through
@@ -101,10 +104,8 @@ export const useStripStore = defineStore('strip', {
     proposedCrop: null,
 
     /* The furthest step reached (lib/steps.js key), which the step list lets
-       the person return to; and whether Refine was part of this strip's path
-       on a quick count, which normally skips it. */
+       the person return to. */
     furthest: null,
-    visitedRefine: false,
 
     /* How many ovoids the test-pattern demo drew, or null for a photograph.
        Strip result shows it beside the count — it is a test. */
@@ -374,7 +375,6 @@ export const useStripStore = defineStore('strip', {
     reach(key, order) {
       const at = order.indexOf(key)
       if (at < 0) return
-      if (key === 'refine') this.visitedRefine = true
       if (this.furthest === null || order.indexOf(this.furthest) < at) this.furthest = key
     },
 

@@ -113,12 +113,10 @@ function keepMarks() {
   router.back()
 }
 
-/* After the scan, back to where the correction was asked for. Reached from
-   Refine, the operator was tuning and returns to the sliders with the new
-   calibration; reached automatically because the probe found nothing, the
-   flow continues as it would have. */
+/* After the tap, Measure runs again from it and stops on its pictures and
+   sliders, wherever the correction was asked for. */
 function go() {
-  router.push({ name: 'processing', query: correcting.value ? { then: 'refine' } : {} })
+  router.push({ name: 'processing' })
 }
 </script>
 

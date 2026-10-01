@@ -82,11 +82,14 @@ onMounted(() => {
     return
   }
 
-  /* Record once. Coming back to this screen must not add the strip twice, and
+  /* Record the strip — once, and again in place when the person went back from
+     Count and returned (Oct 2026). Coming back must never add the strip twice:
      the record — photo, settings, marks — is the artifact, so a duplicate is
      not a cosmetic problem. */
-  if (!strip.recorded) {
+  {
+    const again = strip.recorded
     strip.recorded = true
+    if (!again) strip.recordedIndex = session.strips.length
     session.completeStrip(
       {
       sourceUrl: strip.sourceUrl,
@@ -112,6 +115,7 @@ onMounted(() => {
         band: band.value.key,
       },
       strip.working?.canvas,
+      again ? strip.recordedIndex : null,
     ).catch((error) => {
       /* Writing failed — a full disk, or private browsing. The badge below
          reads from `recordsPersist`, so the screen will not claim otherwise.
@@ -335,12 +339,16 @@ function backHome() {
       </div>
     </div>
 
-    <div v-if="quick" class="footer stack" :class="{ ready }">
-      <AppButton v-if="!session.isDemo" variant="secondary" :disabled="!ready" @click="startSessionFromHere">
-        {{ t('result.startSession') }}
+    <!-- A demo is not tied to anything: its result ends at Home (Oct 2026). -->
+    <div v-if="session.isDemo" class="footer" :class="{ ready }">
+      <AppButton variant="primary" bar :disabled="!ready" @click="backHome">
+        {{ t('menu.home') }}
       </AppButton>
-      <AppButton v-else variant="secondary" :disabled="!ready" @click="backHome">
-        {{ t('summary.backHome') }}
+    </div>
+
+    <div v-else-if="quick" class="footer stack" :class="{ ready }">
+      <AppButton variant="secondary" :disabled="!ready" @click="startSessionFromHere">
+        {{ t('result.startSession') }}
       </AppButton>
       <AppButton variant="primary" bar :disabled="!ready" @click="countAnother">
         {{ t('result.countAnother') }}

@@ -35,7 +35,6 @@ const rows = computed(() =>
       index,
       done:
         !step.skipped &&
-        !step.optional &&
         (index < current.value || (index > current.value && index <= furthest.value)),
       here: index === current.value,
       open: canGo(index),
@@ -75,7 +74,6 @@ function choose(row) {
         <span class="name t-title">
           {{ label(row.step) }}
           <span v-if="row.step.skipped" class="aside t-label">{{ t('steps.skipped') }}</span>
-          <span v-else-if="row.step.optional" class="aside t-label">{{ t('steps.optional') }}</span>
         </span>
         <span v-if="row.done && !row.here" class="state t-title" aria-hidden="true">✓</span>
       </button>

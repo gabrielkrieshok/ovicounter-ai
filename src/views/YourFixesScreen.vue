@@ -90,9 +90,9 @@ async function onStroke(points) {
   if (usable.length > 1) await strip.splitAlong(usable)
 }
 
-/* A quick count skipped Refine on the way here; this is the way to it. */
+/* Back to Measure's pictures and sliders, to change how the marks are found. */
 function adjust() {
-  router.push({ name: 'refine' })
+  router.push({ name: 'processing', query: { look: '1' } })
 }
 
 function done() {
@@ -201,7 +201,7 @@ function done() {
       </template>
     </JudgmentTally>
 
-    <div v-if="session.isQuick" class="adjust">
+    <div class="adjust">
       <AppButton variant="quiet" @click="adjust">{{ t('fixes.adjust') }}</AppButton>
     </div>
 

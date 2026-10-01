@@ -26,7 +26,7 @@ const open = ref(false)
           :key="step.key"
           class="seg t-label"
           :class="{
-            done: i !== current && i <= furthest && !step.skipped && !step.optional,
+            done: i !== current && i <= furthest && !step.skipped,
             here: i === current,
             skipped: step.skipped,
           }"
