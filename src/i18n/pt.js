@@ -50,7 +50,7 @@ export default {
     home: 'Início',
     language: 'Idioma',
     endSession: 'Terminar esta sessão',
-    about: 'Tudo funciona neste telemóvel. Nada é enviado para lado nenhum.',
+    about: 'Tudo funciona neste telemóvel. Nada é enviado para lado nenhum a não ser que partilhe.',
     leaveTitle: 'Sair desta tira?',
     leaveBody:
       'Esta tira ainda não foi contada, por isso vai perder-se. As tiras que já terminou estão guardadas.',
@@ -201,6 +201,11 @@ export default {
       'Registo guardado neste telemóvel — fotos, definições e cada marca que verificou.',
     demoNotSaved: 'Isto foi o exemplo. Nada foi guardado.',
     backHome: 'Voltar ao início',
+  },
+
+  share: {
+    button: 'Partilhar',
+    saved: 'As fotos marcada e original foram guardadas e o resumo copiado.',
   },
 
   about: {

@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import { MARK_COLOUR as COLOUR, markRadius, ringWidth } from '@/lib/marks'
+import { drawMark } from '@/lib/marks'
 
 /* The mark language, drawn once for every screen that shows marks.
  *
@@ -45,64 +45,6 @@ const canvas = ref(null)
    keeps it from swallowing the paper on one whose eggs are thirty. Zooming in
    walks a mark up to the ceiling, which is the point of zooming. The ring
    thins as the mark shrinks so the egg stays visible inside it at zoom 1. */
-
-function drawRing(ctx, x, y, r, colour, dashed) {
-  const width = ringWidth(r)
-  ctx.setLineDash(dashed ? [3.5, 2.5] : [])
-
-  // White halo first, so the ring reads on dark eggs and pale paper alike.
-  // It scales with the ring, or at small sizes it is most of the mark.
-  ctx.lineWidth = width + 1.5
-  ctx.strokeStyle = 'rgba(255,255,255,.55)'
-  ctx.beginPath()
-  ctx.arc(x, y, r, 0, Math.PI * 2)
-  ctx.stroke()
-
-  ctx.lineWidth = width
-  ctx.strokeStyle = colour
-  ctx.beginPath()
-  ctx.arc(x, y, r, 0, Math.PI * 2)
-  ctx.stroke()
-  ctx.setLineDash([])
-}
-
-function drawGlyph(ctx, x, y, r, colour, glyph) {
-  const size = Math.max(13, r * 2.4)
-  /* Barlow 600 — the heaviest Barlow shipped (the brief asks for 700; there
-     is no 700 file, and a canvas would fake one). ✕ is outside the Latin
-     subset and comes from the system font either way. */
-  ctx.font = `600 ${size}px Barlow, system-ui, sans-serif`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.lineWidth = 3
-  ctx.strokeStyle = 'rgba(255,255,255,.8)'
-  ctx.strokeText(glyph, x, y)
-  ctx.fillStyle = colour
-  ctx.fillText(glyph, x, y)
-}
-
-function drawMark(ctx, mark, rect) {
-  const x = rect.left + mark.x * rect.width
-  const y = rect.top + mark.y * rect.height
-  const r = markRadius(mark, rect)
-
-  switch (mark.status) {
-    case 'kept':
-      drawRing(ctx, x, y, r, COLOUR.kept, false)
-      break
-    case 'removed':
-      // The ring is gone; only the ✕ remains, and faintly.
-      ctx.globalAlpha *= 0.75
-      drawGlyph(ctx, x, y, r, COLOUR.removed, '✕')
-      ctx.globalAlpha /= 0.75
-      break
-    case 'added':
-      drawGlyph(ctx, x, y, r, COLOUR.added, '+')
-      break
-    default:
-      drawRing(ctx, x, y, r, COLOUR.proposed, true)
-  }
-}
 
 function paint() {
   const el = canvas.value

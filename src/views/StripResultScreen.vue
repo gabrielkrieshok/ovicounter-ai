@@ -12,7 +12,8 @@ import { bandFor } from '@/lib/bands'
 import { demoPhoto } from '@/lib/samples'
 import StepList from '@/components/StepList.vue'
 import StepNumber from '@/components/StepNumber.vue'
-import { t, tParts } from '@/i18n'
+import { i18n, t, tParts } from '@/i18n'
+import { markedImage, originalPhoto, shareOrSave } from '@/lib/share'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -171,6 +172,49 @@ async function startSessionFromHere() {
   router.push({ name: 'capture' })
 }
 
+/* Share (Oct 2026): the marked-up photograph with its facts beneath it, the
+   original, and the same sentence this screen says, sent wherever the person
+   picks — nothing leaves the phone before that. Where files cannot be shared
+   (most laptops), both images are saved and the summary copied, and the
+   screen says so. */
+const sharing = ref(false)
+const shareNote = ref('')
+async function share() {
+  if (sharing.value || !strip.working) return
+  sharing.value = true
+  shareNote.value = ''
+  try {
+    const bandName = t(`bands.${band.value.key}`).toUpperCase()
+    const said = checked.value
+      ? t('result.sentence', { n: humanCount.value, band: bandName })
+      : t('result.unchecked', { n: strip.machineTotal })
+    const date = new Date().toLocaleDateString(i18n.locale, { day: 'numeric', month: 'long', year: 'numeric' })
+    const judged = checked.value
+      ? `✕ ${strip.removedCount} ${t('tally.removed')} · + ${strip.addedCount} ${t('tally.added')}`
+      : ''
+    const lines = [said, [date, judged].filter(Boolean).join(' · ')]
+    if (strip.drawn !== null) lines.push(t('result.testDrawn', { n: strip.drawn }))
+
+    const stem = `ovicounter-${new Date().toISOString().slice(0, 10)}`
+    const marked = await markedImage({
+      canvas: strip.working.canvas,
+      marks: strip.marks,
+      count: checked.value ? String(humanCount.value) : `~${strip.machineTotal}`,
+      lines,
+    })
+    const original = await originalPhoto(strip.sourceUrl)
+    const ext = original.type === 'image/png' ? 'png' : 'jpg'
+    const files = [
+      new File([marked], `${stem}-marked.jpg`, { type: 'image/jpeg' }),
+      new File([original], `${stem}-original.${ext}`, { type: original.type || 'image/jpeg' }),
+    ]
+    const outcome = await shareOrSave({ files, text: ['Ovicounter AI', ...lines].join('\n'), title: 'Ovicounter AI' })
+    if (outcome === 'saved') shareNote.value = t('share.saved')
+  } finally {
+    sharing.value = false
+  }
+}
+
 function backHome() {
   session.end()
   strip.$reset()
@@ -249,6 +293,13 @@ function backHome() {
           {{ savedBadge }}
         </StatusBadge>
       </div>
+    </div>
+
+    <div class="share">
+      <AppButton variant="secondary" class="share-button" :disabled="sharing" @click="share">
+        {{ t('share.button') }}
+      </AppButton>
+      <p v-if="shareNote" class="share-note t-body" role="status">{{ shareNote }}</p>
     </div>
 
     <div v-if="quick" class="footer stack" :class="{ ready }">
@@ -338,6 +389,15 @@ function backHome() {
   gap: var(--sp-8);
 }
 
+.share {
+  flex: none;
+  padding: 0 var(--sp-16) var(--sp-14);
+}
+.share-note {
+  margin: var(--sp-8) 0 0;
+  color: var(--muted);
+}
+
 .footer {
   flex: none;
   display: flex;
@@ -371,6 +431,7 @@ function backHome() {
 .wide .result > .head { grid-column: 1; grid-row: 2; }
 .wide .result > .count-block { grid-column: 1; grid-row: 3; }
 .wide .result > .legend { grid-column: 1; grid-row: 4; }
+.wide .result > .share { grid-column: 1; grid-row: 5; align-self: end; padding-top: var(--sp-14); }
 .wide .result > .footer { grid-column: 1; grid-row: 6; }
 .wide .result > .thumb {
   grid-column: 2;

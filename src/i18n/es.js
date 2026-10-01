@@ -44,7 +44,7 @@ export default {
     home: 'Inicio',
     language: 'Idioma',
     endSession: 'Terminar esta sesión',
-    about: 'Todo funciona en este teléfono. No se envía nada a ninguna parte.',
+    about: 'Todo funciona en este teléfono. No se envía nada a ninguna parte a menos que usted lo comparta.',
     leaveTitle: '¿Salir de esta tira?',
     leaveBody:
       'Esta tira aún no se ha contado, así que se perderá. Las tiras que ya terminó están guardadas.',
@@ -195,6 +195,11 @@ export default {
       'Registro guardado en este teléfono — fotos, ajustes y cada marca que usted revisó.',
     demoNotSaved: 'Esto fue el ejemplo. No se guardó nada.',
     backHome: 'Volver al inicio',
+  },
+
+  share: {
+    button: 'Compartir',
+    saved: 'Se guardaron las fotos marcada y original, y se copió el resumen.',
   },
 
   about: {

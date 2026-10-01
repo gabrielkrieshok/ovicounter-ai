@@ -39,7 +39,7 @@ export default {
     home: 'Home',
     language: 'Language',
     endSession: 'End this session',
-    about: 'Everything runs on this phone. Nothing is sent anywhere.',
+    about: 'Everything runs on this phone. Nothing is sent anywhere unless you share it.',
     /* Leaving mid-strip. Accurate rather than alarming: finished strips are
        written to the device as they are counted, so the only thing at risk is
        the one in hand. */
@@ -253,6 +253,13 @@ export default {
     saved: 'Record saved on this phone — photos, settings, and every mark you checked.',
     demoNotSaved: 'This was the demo. Nothing was saved.',
     backHome: 'Back to home',
+  },
+
+  /* DRAFT (Oct 2026) — Share on Strip result: the system share sheet on a
+     phone; on a laptop, the images are saved and the summary copied. */
+  share: {
+    button: 'Share',
+    saved: 'Saved the marked and original photos, and copied the summary.',
   },
 
   /* DRAFT (Oct 2026) — the About page (views/AboutScreen.vue), from the menu.
