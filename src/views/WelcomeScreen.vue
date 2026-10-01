@@ -212,6 +212,7 @@ function overflow(counts) {
 .wide .picture {
   width: 100%;
   max-width: 480px;
+  align-self: center;
 }
 .wide .history {
   padding-bottom: 48px;

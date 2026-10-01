@@ -44,10 +44,15 @@ saved unless "Start a session with these settings" is pressed — which makes
 that strip 1 of a real session. The demo is a quick count on one of three
 photographs (`lib/samples.js` DEMOS): the clean bundled strip, a stained field
 strip on a table, or a test pattern drawn on the phone with a known number of
-ovoids (`lib/test-pattern.js`), which Strip result states beside the count. The
-yellow demo button opens onto the three (Oct 2026), so the demo reaches a
-number in **four** decisions — demo, which demo, Use this photo, Done — and the
-walker checks four. `session.isQuick` is the switch; Refine is one
+ovoids (`lib/test-pattern.js`), which Strip result states beside the count.
+**Welcome has one way in** (Oct 2026): "Count a single paper strip" opens onto
+where the photo comes from — Use the camera, Choose a photo (the phone's picker,
+straight from Welcome), or the three demos — so the demo reaches a number in
+**four** decisions and the walker checks four. A session is the quiet link
+under it. **The camera is asked for only after someone chooses it**: Capture
+opens on the camera/photo choice unless it came from "Use the camera" or the
+session's last photo did (`session.source`). Every photo, camera or chosen,
+goes through the same gate (`lib/intake.js` `takeIn`). `session.isQuick` is the switch; Refine is one
 link away on Your fixes.
 
 ## Stack — decided, don't relitigate

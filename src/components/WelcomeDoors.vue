@@ -9,23 +9,26 @@ import fieldThumb from '@/assets/demo-thumbs/field.jpg'
 import patternThumb from '@/assets/demo-thumbs/pattern.jpg'
 import { demoPhoto } from '@/lib/samples'
 import { useSessionStore } from '@/stores/session'
+import { takeIn } from '@/lib/intake'
 import { useStripStore } from '@/stores/strip'
 
-/* Welcome's doors: an unfinished session to resume, the demo (which opens onto
- * its three photographs), Count one strip, Start a new session, and How it
- * works. One component because the laptop puts them in the right-hand column
- * and the phone under the intro — the same doors, in either place.
+/* Welcome's doors (Oct 2026): one way in — "Count a single paper strip" —
+ * which opens onto where the photograph comes from: the camera, a photo
+ * already on the phone, or one of the three demos. The camera is asked for
+ * only once someone presses Use the camera; Choose a photo opens the phone's
+ * own picker from here and never touches the camera at all.
  *
- * "Count one strip" (Sep 2026, brief §4) is the short path: photo → crop →
- * marks → fix if wanted → number. No session, nothing saved unless asked. The
- * demo is a quick count on a bundled or drawn strip; choosing which is the
- * second of its four decisions (Oct 2026). */
+ * A count of one strip is the short path: photo → crop → marks → fix if
+ * wanted → number. No session, nothing saved unless asked. Several strips in a
+ * row — a session, each strip saved — is the quiet link under it; an
+ * interrupted one waits above as a resume card. */
 
 const router = useRouter()
 const session = useSessionStore()
 const strip = useStripStore()
 
-const demosOpen = ref(false)
+const open = ref(false)
+const fileInput = ref(null)
 
 /* A small picture of each demo strip, so the choice is between strips and not
    between descriptions. Bundled with the app (and so precached) rather than
@@ -48,13 +51,25 @@ const resumeDay = computed(() => (session.resumable ? weekday(session.resumable.
 const resumeNext = computed(() => (session.resumable ? session.resumable.counts.length + 1 : 0))
 
 async function startSession() {
+  strip.$reset()
   await session.start()
   router.push({ name: 'capture' })
 }
 
-async function countOne() {
+async function useCamera() {
+  strip.$reset()
   await session.start({ quick: true })
-  router.push({ name: 'capture' })
+  router.push({ name: 'capture', query: { camera: '1' } })
+}
+
+/* The picker opens straight from the button press (a browser will only open it
+   from one); the photo then goes through the same gate as a camera frame. */
+async function photoChosen(event) {
+  const file = event.target.files?.[0]
+  event.target.value = ''
+  if (!file) return
+  await session.start({ quick: true })
+  router.push({ name: await takeIn(URL.createObjectURL(file), 'photo') })
 }
 
 /* The demo saves nothing. It skips Capture, because there is no photograph to
@@ -69,58 +84,54 @@ async function startDemo(kind) {
 
 <template>
   <div class="welcome-doors">
-    <!-- Above the doors: an interrupted session is unfinished
-         work, and starting a new one on top of it loses the thread. -->
+    <!-- Above the doors: an interrupted session is unfinished work, and
+         starting a new one on top of it loses the thread. -->
     <button v-if="session.resumable" class="resume" type="button" @click="resume">
       <span class="t-label">{{ t('welcome.resumeNext', { n: resumeNext }) }}</span>
       <span class="t-title">{{ t('welcome.resumeDay', { day: resumeDay }) }}</span>
     </button>
 
-    <div class="actions">
-      <!-- The demo first, in yellow: for now most people opening this are
-           seeing what it does, not counting a strip. It opens onto the three
-           demos (Oct 2026), so choosing one is the second decision and the
-           demo reaches a number in four. -->
-      <div class="demo">
-        <AppButton variant="primary" :aria-expanded="demosOpen" @click="demosOpen = !demosOpen">
-          {{ t('welcome.tryDemo') }}
-        </AppButton>
-        <div v-if="demosOpen" class="choices">
-          <button
-            v-for="c in DEMO_CHOICES"
-            :key="c.kind"
-            class="choice"
-            type="button"
-            @click="startDemo(c.kind)"
-          >
-            <img class="thumb" :src="c.thumb" alt="" />
-            <span class="words">
-              <span class="t-title">{{ t(`welcome.demo${cap(c.kind)}`) }}</span>
-              <span class="t-body note-line">{{ t(`welcome.demo${cap(c.kind)}Note`) }}</span>
-            </span>
-          </button>
-        </div>
-      </div>
+    <div class="count">
+      <AppButton variant="primary" :aria-expanded="open" @click="open = !open">
+        {{ t('welcome.countSingle') }}
+      </AppButton>
 
-      <div class="door">
-        <AppButton variant="secondary" @click="countOne">
-          {{ t('welcome.countOne') }}
-        </AppButton>
-        <p class="t-body note-line">{{ t('welcome.countOneNote') }}</p>
-      </div>
-      <div class="door">
-        <AppButton variant="secondary" @click="startSession">
-          {{ t('welcome.startSession') }}
-        </AppButton>
-        <p class="t-body note-line">{{ t('welcome.startSessionNote') }}</p>
+      <div v-if="open" class="sources">
+        <button class="choice" type="button" @click="useCamera">
+          <span class="words">
+            <span class="t-title">{{ t('welcome.useCamera') }}</span>
+            <span class="t-body note-line">{{ t('welcome.useCameraNote') }}</span>
+          </span>
+        </button>
+        <button class="choice" type="button" @click="fileInput.click()">
+          <span class="words">
+            <span class="t-title">{{ t('welcome.choosePhoto') }}</span>
+            <span class="t-body note-line">{{ t('welcome.choosePhotoNote') }}</span>
+          </span>
+        </button>
+        <input ref="fileInput" class="file" type="file" accept="image/*" @change="photoChosen" />
+
+        <div class="or t-label">{{ t('welcome.orDemo') }}</div>
+        <button
+          v-for="c in DEMO_CHOICES"
+          :key="c.kind"
+          class="choice"
+          type="button"
+          @click="startDemo(c.kind)"
+        >
+          <img class="thumb" :src="c.thumb" alt="" />
+          <span class="words">
+            <span class="t-title">{{ t(`welcome.demo${cap(c.kind)}`) }}</span>
+            <span class="t-body note-line">{{ t(`welcome.demo${cap(c.kind)}Note`) }}</span>
+          </span>
+        </button>
       </div>
     </div>
 
-    <AppButton variant="quiet" class="how" @click="router.push({ name: 'guide' })">
+    <AppButton variant="quiet" class="link" @click="startSession">{{ t('welcome.sessionLink') }}</AppButton>
+    <AppButton variant="quiet" class="link" @click="router.push({ name: 'guide' })">
       {{ t('guide.open') }}
     </AppButton>
-
-    <p class="note t-body">{{ t('welcome.demoNote') }}</p>
   </div>
 </template>
 
@@ -131,22 +142,33 @@ async function startDemo(kind) {
   gap: var(--sp-16);
 }
 
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-14);
-}
-
-.demo {
+.count {
   display: flex;
   flex-direction: column;
 }
-.choices {
+.sources {
   display: flex;
   flex-direction: column;
   border: var(--bd) solid var(--ink);
   border-top: 0;
 }
+.or {
+  padding: var(--sp-10) var(--sp-14) var(--sp-5);
+  border-top: var(--bd) solid var(--ink);
+  background: var(--panel);
+  color: var(--ink);
+}
+.file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.link {
+  margin: calc(-1 * var(--sp-8)) 0;
+}
+
 .choice {
   min-height: var(--hit-secondary);
   padding: var(--sp-10) var(--sp-14) var(--sp-10) var(--sp-10);
@@ -177,13 +199,6 @@ async function startDemo(kind) {
   background: var(--panel);
 }
 
-/* Each door with one line under it, so Count one strip and Start a new
-   session read as two different things rather than two of the same button. */
-.door {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-5);
-}
 .note-line {
   margin: 0;
   color: var(--muted);
@@ -204,12 +219,4 @@ async function startDemo(kind) {
   color: var(--ink);
 }
 
-.note {
-  margin: 0;
-  color: var(--muted);
-}
-
-.how {
-  margin: calc(-1 * var(--sp-8)) 0;
-}
 </style>

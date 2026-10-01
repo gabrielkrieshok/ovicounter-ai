@@ -13,6 +13,9 @@
   --ink: #000000;          /* text, rules, the app bar */
   --paper: #ffffff;        /* work surface, inverse text */
   --panel: #f1f1ee;        /* sunken panels, idle band zones */
+  --desk: #f9f9f7;         /* behind the laptop panel only — lighter than --panel, so
+                              the page around the app never matches the paper in
+                              the drawings (Oct 2026) */
   --muted: #4a4a4a;        /* secondary text — 4.5:1 on paper and on panel */
   --disabled: #9a9a9a;     /* disabled and upcoming; never text you must read */
   --rule-idle: #9a9a9a;    /* idle outlines: band zones not active */

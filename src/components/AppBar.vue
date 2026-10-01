@@ -1,10 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 import AppMenu from '@/components/AppMenu.vue'
 import AppWordmark from '@/components/AppWordmark.vue'
-import StatusBadge from '@/components/StatusBadge.vue'
 import { t } from '@/i18n'
 import { confirm } from '@/lib/confirm'
 import { useSessionStore } from '@/stores/session'
@@ -20,8 +19,7 @@ import { useStripStore } from '@/stores/strip'
  * It is NOT ON REFUSAL. That screen's whole discipline is one instruction and
  * one way forward; a home button and a menu would give three ways out of the
  * one place the operator most needs a single one. It IS on Welcome since the
- * Field Manual pass (Sep 30, 2026): one bar on every screen carries the name,
- * and there it also carries WORKS OFFLINE ✓.
+ * Field Manual pass (Sep 30, 2026): one bar on every screen carries the name.
  *
  * And LEAVING MID-STRIP ASKS FIRST. Finished strips are written to the device
  * as they are counted, so going home costs only the strip in hand, and the
@@ -29,7 +27,6 @@ import { useStripStore } from '@/stores/strip'
  * that, rather than a generic warning that would be either alarming or false.
  */
 
-const route = useRoute()
 const router = useRouter()
 const session = useSessionStore()
 const strip = useStripStore()
@@ -82,8 +79,6 @@ function leave() {
     </div>
 
     <div class="right">
-      <!-- On Welcome only: the promise belongs before anything starts. -->
-      <StatusBadge v-if="route.name === 'welcome'" on-dark>{{ t('app.offline') }}</StatusBadge>
       <button
         class="burger"
         type="button"
@@ -103,7 +98,7 @@ function leave() {
 <style scoped>
 /* Black, so the bar reads as app chrome rather than as another screen header.
    Anything that belongs to the bar rather than the screen (Welcome's
-   WORKS OFFLINE ✓) goes in the default slot, left of the menu. */
+   goes in the default slot, left of the menu. */
 .bar {
   flex: none;
   height: var(--hit-secondary);
@@ -128,14 +123,6 @@ function leave() {
   align-items: center;
   padding: 0 4px;
   color: var(--paper);
-}
-
-/* A long language's WORKS OFFLINE ("FUNCIONA SIN CONEXIÓN") wraps to two short
-   lines rather than sliding under the wordmark. */
-.right > :deep(.badge) {
-  white-space: normal;
-  max-width: 160px;
-  text-align: center;
 }
 
 .counter {

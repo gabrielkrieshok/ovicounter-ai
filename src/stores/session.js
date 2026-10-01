@@ -26,6 +26,10 @@ export const useSessionStore = defineStore('session', {
     /* Which demo (lib/samples.js DEMOS), so Count another and Next strip carry
        on with the same one. */
     demoKind: null,
+    /* Where this session's photographs come from — 'camera' or 'photo' (chosen
+       from the phone) — so the next strip opens the same way, and the camera
+       is only ever asked for after someone chose it (Oct 2026). */
+    source: null,
 
     /* Quick count (Sep 2026, docs/surpass-v1-brief.md §4): photo → crop →
        marks → fix if wanted → number, with no session and nothing saved unless
@@ -98,6 +102,7 @@ export const useSessionStore = defineStore('session', {
       this.startedAt = new Date().toISOString()
       this.isDemo = demo
       this.demoKind = demo ? (demoKind ?? 'clean') : null
+      this.source = null
       this.isQuick = quick
       this.calibration = null
       this.strips = []
@@ -155,6 +160,7 @@ export const useSessionStore = defineStore('session', {
       this.startedAt = record.startedAt
       this.isDemo = false
       this.demoKind = null
+      this.source = null
       this.isQuick = false
       this.refusals = record.refusals ?? 0
       this.calibration = record.calibration ?? null
@@ -253,6 +259,7 @@ export const useSessionStore = defineStore('session', {
       this.startedAt = null
       this.isDemo = false
       this.demoKind = null
+      this.source = null
       this.isQuick = false
       this.calibration = null
       this.strips = []

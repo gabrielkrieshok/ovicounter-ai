@@ -176,7 +176,7 @@ async function main() {
   /* "Try it with a demo photo" opens a choice of three demos (Oct 2026); the
      walk always takes the clean strip, which the counts below are measured on. */
   const startDemo = async () => {
-    const opened = await clickText('Try it with a demo photo')
+    const opened = await clickText('Count a single paper strip')
     await sleep(300)
     return `${opened} → ${await clickText('A clean strip')}`
   }
@@ -464,7 +464,7 @@ async function main() {
   )
 
   console.log('\n--- 2. a session: two strips through the gallery picker ---')
-  console.log(`  click "Start a new session" → ${await clickText('Start a new session')}`)
+  console.log(`  click "Start a session" → ${await clickText('Start a session')}`)
   await sleep(1500)
   console.log(`Capture (${await route()})`)
   console.log(`  pick demo strip from gallery → ${await pickDemoFile()}`)
@@ -594,7 +594,9 @@ async function main() {
   await sleep(800)
 
   console.log('\n--- 5. the capture path: the fake camera, refused ---')
-  console.log(`  click "Count one strip" → ${await clickText('Count one strip')}`)
+  console.log(`  click "Count a single paper strip" → ${await clickText('Count a single paper strip')}`)
+  await sleep(300)
+  console.log(`  click "Use the camera" → ${await clickText('Use the camera')}`)
   await sleep(2500)
   console.log(`Capture (${await route()})`)
   await shot('flow-13-capture')

@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import { DEMO_PHOTO } from '@/lib/samples'
 import { t } from '@/i18n'
+import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
 /* Refusal — the highest-stakes surface in the flow.
@@ -31,6 +32,7 @@ import { useStripStore } from '@/stores/strip'
  */
 
 const router = useRouter()
+const session = useSessionStore()
 const strip = useStripStore()
 
 const reason = computed(() => strip.gate?.reason ?? 'tooFar')
@@ -49,7 +51,9 @@ function takeAgain() {
      on their own, and a session is many photographs. */
   if (strip.sourceUrl?.startsWith('blob:')) URL.revokeObjectURL(strip.sourceUrl)
   strip.$reset()
-  router.replace({ name: 'capture' })
+  /* Back to the same way in: the camera if that is what took it, the photo
+     choice if a photo was chosen (Capture opens on the choice then). */
+  router.replace(session.source === 'camera' ? { name: 'capture', query: { camera: '1' } } : { name: 'capture' })
 }
 </script>
 

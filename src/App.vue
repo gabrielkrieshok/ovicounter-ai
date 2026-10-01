@@ -122,7 +122,7 @@ watch(
 <style scoped>
 .harness {
   min-height: 100dvh;
-  background: var(--panel);
+  background: var(--desk);
   display: grid;
   place-items: center;
 }

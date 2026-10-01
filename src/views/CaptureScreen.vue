@@ -1,11 +1,13 @@
 <script setup>
 import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
+import AppButton from '@/components/AppButton.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import StripHeader from '@/components/StripHeader.vue'
 import { useCv } from '@/cv/use-cv'
-import { WORKING_LONG_EDGE, downscaledImageData } from '@/lib/image'
+import { WORKING_LONG_EDGE } from '@/lib/image'
+import { takeIn } from '@/lib/intake'
 import StepList from '@/components/StepList.vue'
 import { t } from '@/i18n'
 import { confirmRedo } from '@/lib/use-steps'
@@ -22,8 +24,15 @@ import { useStripStore } from '@/stores/strip'
  * The loop is deliberately unhurried — a couple of times a second on a 480px
  * frame. It shares the worker with nothing else at this point in the flow, and
  * a viewfinder that stutters is worse than one that reacts a beat late.
+ *
+ * THE CAMERA IS ASKED FOR ONLY WHEN CHOSEN (Oct 2026). Arriving with
+ * `?camera=1` (Welcome's "Use the camera"), or on a strip of a session whose
+ * last photo came from the camera, it starts at once. Otherwise the screen
+ * opens on the choice — Use the camera, or Choose a photo — and nothing asks
+ * for the camera until the first is pressed.
  */
 
+const route = useRoute()
 const router = useRouter()
 const wide = inject('wideLayout', ref(false))
 const session = useSessionStore()
@@ -32,6 +41,7 @@ const strip = useStripStore()
 const video = ref(null)
 const fileInput = ref(null)
 const cameraError = ref(null)
+const cameraOn = ref(false)
 const busy = ref(false)
 const checks = ref({ sharp: false, close: false, eggsVisible: false })
 
@@ -48,11 +58,16 @@ const chips = computed(() => [
   { key: 'eggs', label: t('capture.chipEggs'), ok: checks.value.eggsVisible },
 ])
 
-onMounted(async () => {
+onMounted(() => {
   if (!session.isActive) {
     router.replace({ name: 'welcome' })
     return
   }
+  if (route.query.camera === '1' || session.source === 'camera') startCamera()
+})
+
+async function startCamera() {
+  cameraOn.value = true
   try {
     stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } },
@@ -67,7 +82,7 @@ onMounted(async () => {
        dead end. */
     cameraError.value = error?.message ?? 'no camera'
   }
-})
+}
 
 onBeforeUnmount(stopCamera)
 
@@ -114,28 +129,10 @@ async function runLiveCheck() {
   }
 }
 
-async function judgeAndGo(sourceUrl) {
-  const { cv, ready } = useCv()
-  await ready
-
-  const frame = await downscaledImageData(sourceUrl, 900)
-  const verdict = await cv.assess(frame, {
-    scale: 900 / WORKING_LONG_EDGE,
-  })
-
-  strip.beginFromPhoto(sourceUrl)
-  strip.gate = { pass: verdict.pass, reason: verdict.reason, metrics: verdict.metrics }
-
-  if (verdict.pass) {
-    stopCamera()
-    router.push({ name: 'crop' })
-  } else {
-    /* A refused photograph does not advance the strip counter and never enters
-       the record. It is counted only so the session summary can report it. */
-    session.recordRefusal()
-    stopCamera()
-    router.push({ name: 'refusal' })
-  }
+async function judgeAndGo(sourceUrl, source) {
+  const next = await takeIn(sourceUrl, source)
+  stopCamera()
+  router.push({ name: next })
 }
 
 async function shutter() {
@@ -149,7 +146,7 @@ async function shutter() {
     const blob = await new Promise((resolve) =>
       canvas.toBlob(resolve, 'image/jpeg', 0.92),
     )
-    await judgeAndGo(URL.createObjectURL(blob))
+    await judgeAndGo(URL.createObjectURL(blob), 'camera')
   } finally {
     busy.value = false
   }
@@ -164,7 +161,7 @@ async function pickFile(event) {
   if (!(await confirmRedo('retake'))) return
   busy.value = true
   try {
-    await judgeAndGo(URL.createObjectURL(file))
+    await judgeAndGo(URL.createObjectURL(file), 'photo')
   } finally {
     busy.value = false
   }
@@ -181,12 +178,19 @@ async function pickFile(event) {
     <div class="viewfinder">
       <video ref="video" class="feed" playsinline muted />
 
+      <!-- Until the camera is chosen, the choice. Nothing has asked for the
+           camera yet. -->
+      <div v-if="!cameraOn" class="choose">
+        <AppButton variant="primary" @click="startCamera">{{ t('welcome.useCamera') }}</AppButton>
+        <AppButton variant="secondary" @click="fileInput.click()">{{ t('welcome.choosePhoto') }}</AppButton>
+      </div>
+
       <div v-if="cameraError" class="no-camera t-body">{{ t('capture.noCamera') }}</div>
 
-      <div class="guide" />
-      <span class="caption t-title">{{ t('capture.guide') }}</span>
+      <div v-if="cameraOn" class="guide" />
+      <span v-if="cameraOn" class="caption t-title">{{ t('capture.guide') }}</span>
 
-      <div class="bar">
+      <div v-if="cameraOn" class="bar">
         <button class="gallery" type="button" @click="fileInput.click()" aria-label="Open photo" />
         <button class="shutter" type="button" :disabled="busy || !!cameraError" @click="shutter" />
         <span class="from t-label">{{ t('capture.fromPhotos') }}</span>
@@ -201,7 +205,7 @@ async function pickFile(event) {
       />
     </div>
 
-    <div class="panel">
+    <div v-if="cameraOn" class="panel">
       <div class="panel-title t-title">{{ t('capture.checkedTitle') }}</div>
       <div class="chips">
         <!-- A check that has passed is ink; one that has not stays muted, so
@@ -245,6 +249,18 @@ async function pickFile(event) {
   object-fit: cover;
   background: var(--ink);
 }
+.choose {
+  position: absolute;
+  inset: 0;
+  padding: var(--sp-22);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--sp-12);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
 .no-camera {
   position: absolute;
   inset: auto var(--sp-22) 55%;

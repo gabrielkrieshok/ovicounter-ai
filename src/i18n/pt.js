@@ -40,7 +40,6 @@
 
 export default {
   app: {
-    offline: 'FUNCIONA SEM INTERNET ✓',
     intro:
       'Fotografe uma tira de papel da ovitrampa. A aplicação marca o que encontra. Verifique as marcas — a contagem é sua.',
   },
@@ -60,23 +59,23 @@ export default {
   },
 
   welcome: {
-    startSession: 'Começar uma sessão nova',
-    tryDemo: 'Experimentar com uma foto de exemplo',
     previousSessions: 'Sessões anteriores',
     stripCount: '{n} tiras',
-    demoNote:
-      'A foto de exemplo percorre todo o processo com uma tira incluída. Nada é guardado.',
     resumeDay: 'Retomar {day}',
     resumeNext: 'Por terminar · segue a tira {n}',
-    countOne: 'Contar uma tira',
     demoClean: 'Uma tira limpa',
     demoCleanNote: 'Densa e com luz uniforme — o caso fácil.',
     demoField: 'Uma tira de campo, vista de longe',
     demoFieldNote: 'Manchada e amarrotada, com a mesa à volta para recortar.',
     demoPattern: 'Um padrão de teste',
     demoPatternNote: 'Ovais desenhadas neste telemóvel. O resultado diz quantas.',
-    countOneNote: 'De uma foto a um número. Nada é guardado a não ser que peça.',
-    startSessionNote: 'Tira após tira, com as definições mantidas e cada tira guardada neste telemóvel.',
+    countSingle: 'Contar uma única tira de papel',
+    useCamera: 'Usar a câmara',
+    useCameraNote: 'Fotografe a tira agora. A aplicação vai pedir para usar a câmara.',
+    choosePhoto: 'Escolher uma foto',
+    choosePhotoNote: 'Uma foto de uma tira que já está neste telemóvel.',
+    orDemo: 'Ou experimente com uma foto de exemplo',
+    sessionLink: 'Vai contar várias tiras? Comece uma sessão',
   },
 
   capture: {

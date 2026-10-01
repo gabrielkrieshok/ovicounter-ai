@@ -23,7 +23,6 @@ export default {
     /* The wordmark itself is not here — a product name is not copy. See
        components/AppWordmark.vue. */
     // RATIFIED
-    offline: 'WORKS OFFLINE ✓',
     /* DRAFT — the hi-fi opens straight onto the two buttons with no explanation
        at all. This says what the tool does in the operator's own terms before
        they commit to a session, and it states who owns the count, which is the
@@ -53,11 +52,8 @@ export default {
 
   welcome: {
     // RATIFIED
-    startSession: 'Start a new session',
-    tryDemo: 'Try it with a demo photo',
     previousSessions: 'Previous sessions',
     stripCount: '{n} strips',
-    demoNote: 'The demo photo runs the whole flow on a bundled strip. Nothing is saved.',
     /* DRAFT — the resume card exists only as wireframe 2a, never designed in
        hi-fi. The wireframe reads "Interrupted yesterday · 4 of ~12 strips", but
        nothing knows how many strips a sitting was going to be — there is no cap
@@ -71,7 +67,6 @@ export default {
     resumeNext: 'Unfinished · strip {n} next',
     /* DRAFT — the third door (Sep 2026, brief §4): photo → crop → marks → fix
        if wanted → number. No session, nothing saved unless the person asks. */
-    countOne: 'Count one strip',
     /* DRAFT (Sep 30, 2026) — Welcome's doors: one line under each so they read
        as different things, and the two other demos behind "Other demo photos". */
     demoClean: 'A clean strip',
@@ -80,8 +75,15 @@ export default {
     demoFieldNote: 'Stained and creased, with the table around it to crop away.',
     demoPattern: 'A test pattern',
     demoPatternNote: 'Ovoids drawn on this phone. The result says how many.',
-    countOneNote: 'One photo to a number. Nothing is saved unless you ask.',
-    startSessionNote: 'Strip after strip, settings carried forward, every strip saved on this phone.',
+    /* DRAFT (Oct 2026) — one way in, then where the photograph comes from.
+       "Choose a photo", never "upload": nothing leaves the phone. */
+    countSingle: 'Count a single paper strip',
+    useCamera: 'Use the camera',
+    useCameraNote: 'Photograph the strip now. The app will ask to use the camera.',
+    choosePhoto: 'Choose a photo',
+    choosePhotoNote: 'A photo of a strip already on this phone.',
+    orDemo: 'Or try a demo photo',
+    sessionLink: 'Counting several strips? Start a session',
   },
 
   capture: {
