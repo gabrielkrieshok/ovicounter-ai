@@ -193,6 +193,24 @@ export default {
     backHome: 'Voltar ao início',
   },
 
+  steps: {
+    photo: 'Fotografar',
+    crop: 'Recortar',
+    measure: 'Medir',
+    refine: 'Afinar',
+    check: 'Verificar as marcas',
+    count: 'Contar',
+    position: 'Passo {n} de {total}',
+    redoTitle: 'Procurar as marcas de novo?',
+    redoBody: 'Isto volta a procurar as marcas desta tira desde o início. Perdem-se as marcas que retirou, acrescentou ou separou.',
+    redoStay: 'Manter as minhas correções',
+    redoGo: 'Procurá-las de novo',
+    retakeTitle: 'Tirar uma foto nova?',
+    retakeBody: 'Uma foto nova recomeça esta tira. Perdem-se as marcas que retirou, acrescentou ou separou nela.',
+    retakeStay: 'Manter esta tira',
+    retakeGo: 'Tirar uma foto nova',
+  },
+
   markKey: {
     found: 'encontrada pela aplicação',
     kept: 'mantida por si',

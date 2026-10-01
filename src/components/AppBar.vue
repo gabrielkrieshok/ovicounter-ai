@@ -2,11 +2,11 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import AppButton from '@/components/AppButton.vue'
 import AppMenu from '@/components/AppMenu.vue'
 import AppWordmark from '@/components/AppWordmark.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import { t } from '@/i18n'
+import { confirm } from '@/lib/confirm'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -47,20 +47,26 @@ const stripLabel = computed(() => {
 })
 
 const menuOpen = ref(false)
-const confirming = ref(false)
 
 /* A strip is "in hand" once it has a working image but has not been written
    into the session. Before that there is nothing to lose; after it, the record
    is already safe. */
 const stripInHand = computed(() => !!strip.working && !strip.recorded)
 
-function goHome() {
-  if (stripInHand.value) confirming.value = true
-  else leave()
+async function goHome() {
+  if (stripInHand.value) {
+    const go = await confirm({
+      title: t('menu.leaveTitle'),
+      body: t('menu.leaveBody'),
+      stay: t('menu.leaveStay'),
+      go: t('menu.leaveGo'),
+    })
+    if (!go) return
+  }
+  leave()
 }
 
 function leave() {
-  confirming.value = false
   strip.$reset()
   router.push({ name: 'welcome' })
 }
@@ -92,20 +98,6 @@ function leave() {
 
   <AppMenu :open="menuOpen" @close="menuOpen = false" />
 
-  <div v-if="confirming" class="confirm" @click="confirming = false">
-    <div class="confirm-sheet" @click.stop>
-      <h2 class="title t-display">{{ t('menu.leaveTitle') }}</h2>
-      <p class="body t-body">{{ t('menu.leaveBody') }}</p>
-      <!-- Staying is the filled, larger, first button. The destructive path is
-           available but never the one the thumb falls on. -->
-      <AppButton variant="primary" @click="confirming = false">
-        {{ t('menu.leaveStay') }}
-      </AppButton>
-      <AppButton variant="secondary" @click="leave">
-        {{ t('menu.leaveGo') }}
-      </AppButton>
-    </div>
-  </div>
 </template>
 
 <style scoped>
@@ -165,42 +157,5 @@ function leave() {
   width: 22px;
   height: 3px;
   background: var(--paper);
-}
-
-/* Not `.scrim`: AppMenu's root element carries this component's scope
-   attribute too, as every child root does, so a `.scrim` rule here also styled
-   the menu's backdrop — and centred the menu sheet on a laptop. */
-.confirm {
-  position: absolute;
-  inset: 0;
-  z-index: 11;
-  background: var(--scrim);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: var(--sp-16);
-}
-/* Capped at the phone's width, for the same reason as the menu sheet. A
-   percentage margin is a share of the WIDTH, so 22% — about 76px in the frame —
-   became 300px on a laptop; the cap keeps the phone's drop at any width. */
-.confirm-sheet {
-  width: 100%;
-  max-width: var(--device-w);
-  margin-top: min(22%, 84px);
-  background: var(--paper);
-  border: var(--bd) solid var(--ink);
-  border-radius: var(--r-primary);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-12);
-}
-
-.title {
-  margin: 0;
-}
-.body {
-  margin: 0 0 4px;
-  color: var(--ink);
 }
 </style>

@@ -1,12 +1,14 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
 import StripHeader from '@/components/StripHeader.vue'
+import StepList from '@/components/StepList.vue'
 import { t } from '@/i18n'
+import { confirmRedo } from '@/lib/use-steps'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -32,6 +34,7 @@ import { useStripStore } from '@/stores/strip'
  */
 
 const router = useRouter()
+const wide = inject('wideLayout', ref(false))
 const session = useSessionStore()
 const strip = useStripStore()
 
@@ -80,7 +83,17 @@ let interacting = false
  * Every slider change re-runs the pipeline. Debounced to ~70ms, which is inside
  * the measured 13–38ms run time, so the overlay keeps up with the thumb.
  */
-function onSlide() {
+async function onSlide() {
+  /* Back here after checking the marks, a slider finds them all again — ask
+     before the person's fixes go. Declined, the slider goes back. */
+  if (strip.judgments) {
+    const wanted = { contrastFloor: contrastFloor.value, minArea: minArea.value }
+    contrastFloor.value = strip.params.contrastFloor
+    minArea.value = strip.params.minArea
+    if (!(await confirmRedo('redo'))) return
+    contrastFloor.value = wanted.contrastFloor
+    minArea.value = wanted.minArea
+  }
   if (!interacting) {
     // The state to measure the movement against, captured once per gesture.
     ghosts.value = strip.marks.slice()
@@ -120,7 +133,8 @@ const lostGhosts = computed(() => {
   )
 })
 
-function backToStart() {
+async function backToStart() {
+  if (!(await confirmRedo('redo'))) return
   contrastFloor.value = initial.contrastFloor
   minArea.value = initial.minArea
   ghosts.value = []
@@ -135,7 +149,9 @@ function done() {
 /* The correction. Calibration is measured by the probe on Crop; when the
    marks it produced look wrong, the operator marks an egg by hand and the
    strip is scanned again from that. */
-function markAnEgg() {
+async function markAnEgg() {
+  /* Marking an egg finds the marks again from it. */
+  if (!(await confirmRedo('redo'))) return
   router.push({ name: 'calibrate' })
 }
 
@@ -153,6 +169,9 @@ onMounted(() => {
 
 <template>
   <div class="refine">
+    <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
+    <StepList v-if="wide" class="steps-before" part="before" />
+
     <StripHeader class="head" :title="t('refine.title')">
       <template #aside>
         <button
@@ -239,6 +258,9 @@ onMounted(() => {
         {{ t('refine.marksLookRight') }}
       </AppButton>
     </div>
+
+    <!-- Laptop: the steps still to come, below this one's actions. -->
+    <StepList v-if="wide" class="steps-after" part="after" />
   </div>
 </template>
 
@@ -385,14 +407,16 @@ onMounted(() => {
 .wide .refine {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto auto auto 1fr auto auto;
 }
-.wide .refine > .head { grid-column: 1; grid-row: 1; }
-.wide .refine > .controls { grid-column: 1; grid-row: 2; border-top: 0; }
-.wide .refine > .footer { grid-column: 1; grid-row: 4; }
+.wide .refine > .head { grid-column: 1; grid-row: 2; }
+.wide .refine > .controls { grid-column: 1; grid-row: 3; border-top: 0; }
+.wide .refine > .footer { grid-column: 1; grid-row: 5; }
 .wide .refine > .stage-wrap {
   grid-column: 2;
   grid-row: 1 / -1;
   border-left: var(--bd) solid var(--ink);
 }
+.wide .refine > .steps-before { grid-column: 1; grid-row: 1; }
+.wide .refine > .steps-after { grid-column: 1; grid-row: -2; }
 </style>

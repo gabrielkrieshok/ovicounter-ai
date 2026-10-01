@@ -1,12 +1,15 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import StripHeader from '@/components/StripHeader.vue'
+import StepList from '@/components/StepList.vue'
 import { t } from '@/i18n'
+import { STEPS } from '@/lib/steps'
+import { confirmRedo } from '@/lib/use-steps'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -19,6 +22,7 @@ import { useStripStore } from '@/stores/strip'
  */
 
 const router = useRouter()
+const wide = inject('wideLayout', ref(false))
 const session = useSessionStore()
 const strip = useStripStore()
 
@@ -32,12 +36,23 @@ const HANDLES = ['tl', 'tr', 'bl', 'br']
 const STRAIGHTEN_STEP = 0.5
 
 onMounted(async () => {
+  /* Back here from a later step, the box is the one the marks were found on —
+     proposing a fresh one would quietly change it. */
+  if (strip.applied) return
   try {
     await strip.proposeCrop()
   } catch {
     /* No proposal is survivable — the box stays on the whole frame and the
        operator drags it. A failed proposal must not block the strip. */
   }
+})
+
+/* Leaving without confirming — back through the step list — puts the box back
+   to the one the marks were found on, so the record never carries a crop the
+   marks do not match. */
+let committing = false
+onBeforeUnmount(() => {
+  if (!committing) strip.restoreAppliedCrop()
 })
 
 const box = computed(() => strip.cropBox)
@@ -111,6 +126,17 @@ function straighten(delta) {
  */
 async function useThisPhoto() {
   if (busy.value) return
+  /* Returned to and left as it was: nothing to find again. Carry on to the
+     furthest step already reached, with every mark and fix as it was. */
+  if (strip.applied && !strip.cropChanged && strip.marks.length) {
+    const furthest = STEPS.find((s) => s.key === strip.furthest)
+    const ahead = furthest && ['refine', 'check'].includes(furthest.key) ? furthest.route : 'fixes'
+    committing = true
+    router.push({ name: ahead })
+    return
+  }
+  if (strip.applied && !(await confirmRedo('redo'))) return
+  committing = true
   busy.value = true
   try {
     await strip.applyCrop()
@@ -134,6 +160,9 @@ async function useThisPhoto() {
 
 <template>
   <div class="crop">
+    <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
+    <StepList v-if="wide" class="steps-before" part="before" />
+
     <StripHeader class="head" :title="t('crop.title')">
       <template #aside>
         <StatusBadge>{{ t('crop.stripBadge', { n: session.stripNumber }) }}</StatusBadge>
@@ -208,6 +237,9 @@ async function useThisPhoto() {
         {{ t('crop.useThisPhoto') }}
       </AppButton>
     </div>
+
+    <!-- Laptop: the steps still to come, below this one's actions. -->
+    <StepList v-if="wide" class="steps-after" part="after" />
   </div>
 </template>
 
@@ -314,15 +346,17 @@ async function useThisPhoto() {
 .wide .crop {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto auto;
   background: var(--paper);
 }
-.wide .crop > .head { grid-column: 1; grid-row: 1; }
-.wide .crop > .footer { grid-column: 1; grid-row: 3; }
+.wide .crop > .head { grid-column: 1; grid-row: 2; }
+.wide .crop > .footer { grid-column: 1; grid-row: 4; }
 .wide .crop > .body {
   grid-column: 2;
   grid-row: 1 / -1;
   background: var(--stage-bg);
   border-left: var(--bd) solid var(--ink);
 }
+.wide .crop > .steps-before { grid-column: 1; grid-row: 1; }
+.wide .crop > .steps-after { grid-column: 1; grid-row: -2; }
 </style>

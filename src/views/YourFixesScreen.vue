@@ -12,6 +12,7 @@ import Overview from '@/components/Overview.vue'
 import StripHeader from '@/components/StripHeader.vue'
 import ZoomPanStage from '@/components/ZoomPanStage.vue'
 import ZoomRail from '@/components/ZoomRail.vue'
+import StepList from '@/components/StepList.vue'
 import { t, weekday } from '@/i18n'
 import { markAt } from '@/lib/marks'
 import { useSessionStore } from '@/stores/session'
@@ -104,6 +105,9 @@ function done() {
 
 <template>
   <div class="fixes" :class="{ zoomed: zoom > 1.001 }">
+    <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
+    <StepList v-if="wide" class="steps-before" part="before" />
+
     <StripHeader class="head" :title="t('fixes.title')" :eyebrow="wide ? eyebrow : ''">
       <ol v-if="wide" class="steps">
         <li><span class="num t-title">1</span><span class="t-body">{{ t('fixes.step1') }}</span></li>
@@ -214,6 +218,9 @@ function done() {
         {{ t('fixes.done') }}
       </AppButton>
     </div>
+
+    <!-- Laptop: the steps still to come, below this one's actions. -->
+    <StepList v-if="wide" class="steps-after" part="after" />
   </div>
 </template>
 
@@ -248,7 +255,7 @@ function done() {
 .steps li {
   display: flex;
   align-items: stretch;
-  min-height: 60px;
+  min-height: var(--hit-secondary);
 }
 .steps li + li {
   border-top: var(--bd) solid var(--ink);
@@ -336,20 +343,22 @@ function done() {
 .wide .fixes {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto auto auto 1fr auto auto auto;
 }
-.wide .fixes > .head { grid-column: 1; grid-row: 1; border-bottom: 0; }
-.wide .fixes > .tally { grid-column: 1; grid-row: 2; border-bottom: var(--bd) solid var(--ink); }
-.wide .fixes > .adjust { grid-column: 1; grid-row: 4; padding-bottom: var(--sp-8); }
-.wide .fixes > .done-row { grid-column: 1; grid-row: 5; }
+.wide .fixes > .steps-before { grid-column: 1; grid-row: 1; }
+.wide .fixes > .head { grid-column: 1; grid-row: 2; border-bottom: 0; }
+.wide .fixes > .tally { grid-column: 1; grid-row: 3; border-bottom: var(--bd) solid var(--ink); }
+.wide .fixes > .adjust { grid-column: 1; grid-row: 5; padding-bottom: var(--sp-8); }
+.wide .fixes > .done-row { grid-column: 1; grid-row: 6; }
+.wide .fixes > .steps-after { grid-column: 1; grid-row: 7; }
 .wide .fixes > .stage-wrap {
   grid-column: 2;
-  grid-row: 1 / 5;
+  grid-row: 1 / 6;
   border-left: var(--bd) solid var(--ink);
 }
 .wide .fixes > .under {
   grid-column: 2;
-  grid-row: 5;
+  grid-row: 6 / -1;
   display: flex;
   align-items: center;
   gap: var(--sp-22);

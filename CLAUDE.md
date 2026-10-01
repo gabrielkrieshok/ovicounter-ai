@@ -102,6 +102,27 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
 7. **Every tap target ≥44px**; primary 62px, secondary 52px.
 8. **Band names and edges are configurable, never hard-coded** — `src/lib/bands.js`.
 
+## Steps and going back
+
+`src/lib/steps.js`, `lib/use-steps.js` (Sep 30, 2026 — a deliberate addition to
+the handoff's structure, which showed the flow as separate screens with no
+sense of where you are). A strip's steps: **Photograph · Crop · Measure ·
+Refine · Check the marks · Count** — the demo has no Photograph, a quick count
+no Refine unless the person went there. Mark one egg belongs to Measure, Refusal
+to Photograph. On the laptop each stage screen's left column is the list
+(`StepList` before and after the screen's own header and actions; finished
+steps fold into one row); on the phone a 44px `StepStrip` under the app bar
+opens it as a sheet.
+
+**Going back only looks.** Later work stays until an earlier step is actually
+changed. Anything that finds the marks again — a changed crop, a Refine slider,
+Mark one egg, a new photo — asks first when the person has judgments to lose
+(`confirmRedo`), and `strip.scan()` then clears the undo history, `reviewed`
+and coverage, which described marks that no longer exist. Crop keeps the
+applied box on return (`strip.applied`) and puts it back if left unconfirmed.
+Once Strip result has written the record, earlier steps show done and do not
+reopen. One confirmation sheet serves the whole app (`lib/confirm.js`).
+
 ## The review gestures
 
 `src/components/ZoomPanStage.vue`. A dense strip fits ~400 eggs about three

@@ -3,6 +3,8 @@ import { computed, onBeforeUnmount, provide, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AppBar from '@/components/AppBar.vue'
+import ConfirmSheet from '@/components/ConfirmSheet.vue'
+import StepStrip from '@/components/StepStrip.vue'
 
 /* Three ways the same screens are framed.
  *
@@ -50,9 +52,13 @@ provide('wideLayout', wide)
   <div class="harness" :class="{ wide }">
     <div class="device" :class="{ wide }">
       <AppBar v-if="showBar" />
+      <!-- The phone's step row. The laptop draws the steps in each screen's
+           left column instead (components/StepList.vue). -->
+      <StepStrip v-if="showBar && !wide" />
       <div class="screen">
         <RouterView />
       </div>
+      <ConfirmSheet />
     </div>
   </div>
 </template>

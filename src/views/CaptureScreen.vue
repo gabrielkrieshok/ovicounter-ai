@@ -1,12 +1,14 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import StatusBadge from '@/components/StatusBadge.vue'
 import StripHeader from '@/components/StripHeader.vue'
 import { useCv } from '@/cv/use-cv'
 import { WORKING_LONG_EDGE, downscaledImageData } from '@/lib/image'
+import StepList from '@/components/StepList.vue'
 import { t } from '@/i18n'
+import { confirmRedo } from '@/lib/use-steps'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -23,6 +25,7 @@ import { useStripStore } from '@/stores/strip'
  */
 
 const router = useRouter()
+const wide = inject('wideLayout', ref(false))
 const session = useSessionStore()
 const strip = useStripStore()
 
@@ -137,6 +140,8 @@ async function judgeAndGo(sourceUrl) {
 
 async function shutter() {
   if (busy.value) return
+  /* Back here from a later step, a new photo replaces the strip in hand. */
+  if (!(await confirmRedo('retake'))) return
   const canvas = grabFrame(WORKING_LONG_EDGE * 2)
   if (!canvas) return
   busy.value = true
@@ -156,6 +161,7 @@ async function pickFile(event) {
   const file = event.target.files?.[0]
   event.target.value = ''
   if (!file) return
+  if (!(await confirmRedo('retake'))) return
   busy.value = true
   try {
     await judgeAndGo(URL.createObjectURL(file))
@@ -167,6 +173,9 @@ async function pickFile(event) {
 
 <template>
   <div class="capture">
+    <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
+    <StepList v-if="wide" class="steps-before" part="before" />
+
     <StripHeader class="head" :title="t('capture.strip', { n: session.stripNumber })" />
 
     <div class="viewfinder">
@@ -208,6 +217,9 @@ async function pickFile(event) {
         </StatusBadge>
       </div>
     </div>
+
+    <!-- Laptop: the steps still to come, below this one's actions. -->
+    <StepList v-if="wide" class="steps-after" part="after" />
   </div>
 </template>
 
@@ -323,14 +335,16 @@ async function pickFile(event) {
 .wide .capture {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto auto;
   background: var(--paper);
 }
-.wide .capture > .head { grid-column: 1; grid-row: 1; }
-.wide .capture > .panel { grid-column: 1; grid-row: 3; }
+.wide .capture > .head { grid-column: 1; grid-row: 2; }
+.wide .capture > .panel { grid-column: 1; grid-row: 4; }
 .wide .capture > .viewfinder {
   grid-column: 2;
   grid-row: 1 / -1;
   border-left: var(--bd) solid var(--ink);
 }
+.wide .capture > .steps-before { grid-column: 1; grid-row: 1; }
+.wide .capture > .steps-after { grid-column: 1; grid-row: -2; }
 </style>

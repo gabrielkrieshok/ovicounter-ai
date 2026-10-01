@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, toRaw } from 'vue'
+import { computed, inject, onMounted, ref, toRaw } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
@@ -10,6 +10,7 @@ import MarkLayer from '@/components/MarkLayer.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import { bandFor } from '@/lib/bands'
 import { DEMO_PHOTO } from '@/lib/samples'
+import StepList from '@/components/StepList.vue'
 import { t, tParts } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -31,6 +32,7 @@ import { useStripStore } from '@/stores/strip'
  */
 
 const router = useRouter()
+const wide = inject('wideLayout', ref(false))
 const session = useSessionStore()
 const strip = useStripStore()
 
@@ -175,6 +177,10 @@ function backHome() {
 
 <template>
   <div class="result">
+    <!-- Laptop: the steps that led here, collapsed. Counted strips are saved,
+         so they are shown done but not reopened (lib/use-steps.js). -->
+    <StepList v-if="wide" class="steps-before" part="before" />
+
     <header class="head">
       <span class="title t-label">{{ t('result.title', { n: session.strips.length }) }}</span>
       <!-- Struck through, grey, mono, with a leading `~`. Everything about it
@@ -346,12 +352,13 @@ function backHome() {
 .wide .result {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-rows: auto auto auto auto 1fr auto;
 }
-.wide .result > .head { grid-column: 1; grid-row: 1; }
-.wide .result > .count-block { grid-column: 1; grid-row: 2; }
-.wide .result > .legend { grid-column: 1; grid-row: 3; }
-.wide .result > .footer { grid-column: 1; grid-row: 5; }
+.wide .result > .steps-before { grid-column: 1; grid-row: 1; }
+.wide .result > .head { grid-column: 1; grid-row: 2; }
+.wide .result > .count-block { grid-column: 1; grid-row: 3; }
+.wide .result > .legend { grid-column: 1; grid-row: 4; }
+.wide .result > .footer { grid-column: 1; grid-row: 6; }
 .wide .result > .thumb {
   grid-column: 2;
   grid-row: 1 / -1;

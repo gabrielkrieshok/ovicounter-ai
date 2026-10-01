@@ -1,9 +1,10 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import ImageStage from '@/components/ImageStage.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
+import StepList from '@/components/StepList.vue'
 import { t } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -26,6 +27,7 @@ import { useStripStore } from '@/stores/strip'
 
 const route = useRoute()
 const router = useRouter()
+const wide = inject('wideLayout', ref(false))
 const session = useSessionStore()
 const strip = useStripStore()
 
@@ -94,6 +96,9 @@ onMounted(async () => {
 
 <template>
   <div class="processing">
+    <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
+    <StepList v-if="wide" class="steps-before" part="before" />
+
     <header class="head">
       <h1 class="title t-display">{{ t('processing.title') }}</h1>
       <div class="track">
@@ -127,6 +132,9 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
+    <!-- Laptop: the steps still to come, below this one's actions. -->
+    <StepList v-if="wide" class="steps-after" part="after" />
   </div>
 </template>
 
@@ -238,13 +246,15 @@ onMounted(async () => {
 .wide .processing {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto auto;
 }
-.wide .processing > .head { grid-column: 1; grid-row: 1; }
-.wide .processing > .rail { grid-column: 1; grid-row: 3; }
+.wide .processing > .head { grid-column: 1; grid-row: 2; }
+.wide .processing > .rail { grid-column: 1; grid-row: 4; }
 .wide .processing > .stage-wrap {
   grid-column: 2;
   grid-row: 1 / -1;
   border-left: var(--bd) solid var(--paper);
 }
+.wide .processing > .steps-before { grid-column: 1; grid-row: 1; }
+.wide .processing > .steps-after { grid-column: 1; grid-row: -2; }
 </style>

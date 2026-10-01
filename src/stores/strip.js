@@ -92,6 +92,16 @@ export const useStripStore = defineStore('strip', {
        COVERAGE_ZOOM. It measures the person's effort — where they looked close
        up — and never the machine's count. Nothing is blocked on it. */
     looked: Array(COVERAGE_PARTS).fill(false),
+
+    /* The crop the marks were found on — set when the crop is applied — so a
+       return to Crop can tell "looked again" from "changed it". */
+    applied: null,
+
+    /* The furthest step reached (lib/steps.js key), which the step list lets
+       the person return to; and whether Refine was part of this strip's path
+       on a quick count, which normally skips it. */
+    furthest: null,
+    visitedRefine: false,
   }),
 
   getters: {
@@ -105,6 +115,17 @@ export const useStripStore = defineStore('strip', {
        accepts them — but they stay `proposed` in the record, and Strip result
        says how many parts that was (`partsNotLooked`). */
     humanCount: (s) => s.marks.filter((m) => m.status !== 'removed').length,
+
+    /* The person's own judgments on this strip — what finding the marks
+       again would throw away, and so what a confirmation counts. */
+    judgments: (s) => s.history.length,
+
+    /* Whether the crop on screen differs from the one the marks were found on. */
+    cropChanged: (s) =>
+      !!s.applied &&
+      (s.applied.quarterTurns !== s.quarterTurns ||
+        s.applied.straightenAngle !== s.straightenAngle ||
+        ['l', 't', 'r', 'b'].some((k) => Math.abs(s.applied.cropBox[k] - s.cropBox[k]) > 1e-6)),
 
     /* Parts of the strip never wholly on screen at zoom ≥ 2. */
     partsNotLooked: (s) => s.looked.filter((done) => !done).length,
@@ -153,6 +174,11 @@ export const useStripStore = defineStore('strip', {
         this.straightenAngle,
       )
       this.working = markRaw(image)
+      this.applied = {
+        cropBox: { ...this.cropBox },
+        quarterTurns: this.quarterTurns,
+        straightenAngle: this.straightenAngle,
+      }
 
       const ctx = image.canvas.getContext('2d', { willReadFrequently: true })
       // Transferred to the worker, so it must be a fresh read each time.
@@ -272,6 +298,14 @@ export const useStripStore = defineStore('strip', {
           source: 'machine',
           status: 'proposed',
         }))
+        /* New marks: whatever the person did to the old ones described marks
+           that no longer exist. Undo must not reach back to them, nor a strip
+           count as reviewed or looked at because the previous marks were.
+           Asking before throwing away judgments is the caller's job
+           (lib/confirm.js) — Crop, Refine and Mark one egg all do. */
+        this.history = []
+        this.reviewed = false
+        this.looked = Array(COVERAGE_PARTS).fill(false)
         return result
       } finally {
         this.scanning = false
@@ -298,6 +332,23 @@ export const useStripStore = defineStore('strip', {
     },
 
     /** Any act of review — including just zooming in to look. */
+    /** Put the crop back to the one the marks were found on — leaving Crop
+     *  without confirming a change must not leave a box the marks don't match. */
+    restoreAppliedCrop() {
+      if (!this.applied) return
+      this.cropBox = { ...this.applied.cropBox }
+      this.quarterTurns = this.applied.quarterTurns
+      this.straightenAngle = this.applied.straightenAngle
+    },
+
+    /** Remember the furthest step reached (by index in `order`). */
+    reach(key, order) {
+      const at = order.indexOf(key)
+      if (at < 0) return
+      if (key === 'refine') this.visitedRefine = true
+      if (this.furthest === null || order.indexOf(this.furthest) < at) this.furthest = key
+    },
+
     noteReview() {
       this.reviewed = true
     },

@@ -1,5 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+import { STEPS, stepForRoute } from '@/lib/steps'
+import { useStripStore } from '@/stores/strip'
+
 /* Hash history: the build is a plain static site with no server, and must also
    run from a service-worker cache with no network at all. Hash routing needs no
    rewrite rule anywhere it is hosted. */
@@ -40,7 +43,21 @@ const routes = [
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes,
 })
+
+/* Remember the furthest step this strip has reached, so the step list can
+   offer a way back to it after the person goes back to look at an earlier one
+   (lib/steps.js). */
+const ORDER = STEPS.map((s) => s.key)
+router.afterEach((to) => {
+  const step = stepForRoute(to.name)
+  if (!step) return
+  const strip = useStripStore()
+  if (step.key !== 'photo' && !strip.sourceUrl) return
+  strip.reach(step.key, ORDER)
+})
+
+export default router

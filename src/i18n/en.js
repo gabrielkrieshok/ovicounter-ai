@@ -237,6 +237,28 @@ export default {
     backHome: 'Back to home',
   },
 
+  /* DRAFT (Sep 30, 2026) — the step list and step strip (lib/steps.js), and
+     the two confirmations asked before finding the marks again on a strip the
+     person has worked on. The bodies name what is lost rather than counting it:
+     "your 1 fixes" is wrong in English and worse in translation. */
+  steps: {
+    photo: 'Photograph',
+    crop: 'Crop',
+    measure: 'Measure',
+    refine: 'Refine',
+    check: 'Check the marks',
+    count: 'Count',
+    position: 'Step {n} of {total}',
+    redoTitle: 'Find the marks again?',
+    redoBody: 'This finds the marks on this strip again from the start. The marks you removed, added or split will be lost.',
+    redoStay: 'Keep my fixes',
+    redoGo: 'Find them again',
+    retakeTitle: 'Take a new photo?',
+    retakeBody: 'A new photo starts this strip again. The marks you removed, added or split on it will be lost.',
+    retakeStay: 'Keep this strip',
+    retakeGo: 'Take a new photo',
+  },
+
   /* DRAFT (Field Manual brief, Sep 30, 2026) — the mark language in one
      wording everywhere (components/MarkKey.vue). Replaces Welcome's four lines
      and Your fixes' "machine, kept" / "✕ removed" / "+ added" legend; "found by

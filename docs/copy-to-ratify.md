@@ -35,6 +35,9 @@ attention. All of it must survive translation to Spanish.
 | Your fixes | "Zoom out" / "Zoom in" | Accessible names for the ZoomRail buttons; not visible. |
 | Strip result | "Not looked at close up: {n} of {total} parts" | Open question 1 (Sep 30): Done counts every mark not removed, including machine marks in parts nobody looked at close up. They stay blue on the thumbnail and `proposed` in the record, and this line says how many parts that was. |
 | Welcome | "{n} not checked" | Dashed badge on a previous session with strips nobody checked. Session records now carry `unchecked`; older ones show nothing. |
+| Everywhere (steps) | "Photograph" · "Crop" · "Measure" · "Refine" · "Check the marks" · "Count", and "Step {n} of {total}" | Sep 30: the step list (laptop) and step strip (phone). Short names for the steps; each screen keeps its ratified title. |
+| Crop, Refine, Mark one egg | "Find the marks again?" / "This finds the marks on this strip again from the start. The marks you removed, added or split will be lost." / "Keep my fixes" / "Find them again" | Asked before anything finds the marks again on a strip the person has worked on. Names what is lost instead of counting it ("your 1 fixes"). |
+| Capture | "Take a new photo?" / "A new photo starts this strip again. The marks you removed, added or split on it will be lost." / "Keep this strip" / "Take a new photo" | The same, for a new photo taken after going back to Photograph. |
 
 ## Also unresolved
 

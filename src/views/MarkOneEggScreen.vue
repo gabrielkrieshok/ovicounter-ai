@@ -1,11 +1,12 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import ImageStage from '@/components/ImageStage.vue'
 import StripHeader from '@/components/StripHeader.vue'
 import { judgeTapAgainstProbe } from '@/cv/probe'
+import StepList from '@/components/StepList.vue'
 import { t, tParts } from '@/i18n'
 import { useStripStore } from '@/stores/strip'
 
@@ -36,6 +37,7 @@ import { useStripStore } from '@/stores/strip'
  */
 
 const router = useRouter()
+const wide = inject('wideLayout', ref(false))
 const strip = useStripStore()
 
 /* Reached from Refine as a correction, the strip already has marks. Until a
@@ -122,6 +124,9 @@ function go() {
 
 <template>
   <div class="calibrate">
+    <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
+    <StepList v-if="wide" class="steps-before" part="before" />
+
     <StripHeader class="head" :title="t('calibrate.title')">
       <p class="sub t-body">{{ t('calibrate.sub') }}</p>
     </StripHeader>
@@ -185,6 +190,9 @@ function go() {
         {{ t('calibrate.go') }}
       </AppButton>
     </div>
+
+    <!-- Laptop: the steps still to come, below this one's actions. -->
+    <StepList v-if="wide" class="steps-after" part="after" />
   </div>
 </template>
 
@@ -275,13 +283,15 @@ function go() {
 .wide .calibrate {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto auto;
 }
-.wide .calibrate > .head { grid-column: 1; grid-row: 1; }
-.wide .calibrate > .footer { grid-column: 1; grid-row: 3; }
+.wide .calibrate > .head { grid-column: 1; grid-row: 2; }
+.wide .calibrate > .footer { grid-column: 1; grid-row: 4; }
 .wide .calibrate > .stage-wrap {
   grid-column: 2;
   grid-row: 1 / -1;
   border-left: var(--bd) solid var(--ink);
 }
+.wide .calibrate > .steps-before { grid-column: 1; grid-row: 1; }
+.wide .calibrate > .steps-after { grid-column: 1; grid-row: -2; }
 </style>
