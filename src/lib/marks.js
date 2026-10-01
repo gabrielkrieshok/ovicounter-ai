@@ -175,6 +175,11 @@ export function drawMark(ctx, mark, rect) {
  * screen for it to be anything but clutter.
  */
 export function drawClump(ctx, clump, rect, { count, checked = false, focus = false } = {}) {
+  /* Where the clump's size and the app's count disagree by two or more, the
+     tag says so: a range, "~2–5", rather than one number the app cannot stand
+     behind. The person's number is always one number. */
+  const byArea = clump.byArea ?? count
+  const doubtful = !checked && Math.abs(byArea - count) >= 2
   const x = rect.left + clump.cx * rect.width
   const y = rect.top + clump.cy * rect.height
   const rx = Math.max(6, clump.rx * rect.width)
@@ -204,7 +209,11 @@ export function drawClump(ctx, clump, rect, { count, checked = false, focus = fa
   ctx.setLineDash([])
 
   if (Math.max(rx, ry) >= 12) {
-    const text = checked ? String(count) : `~${count}`
+    const text = checked
+      ? String(count)
+      : doubtful
+        ? `~${Math.min(count, byArea)}–${Math.max(count, byArea)}`
+        : `~${count}`
     ctx.font = `700 11px "JetBrains Mono", ui-monospace, monospace`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'

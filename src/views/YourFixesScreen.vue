@@ -122,7 +122,14 @@ function onPaintEnd() {
    open, so looking around a clump never removes anything. */
 const clumpMode = ref(false)
 const clumpIndex = ref(0)
-const queue = computed(() => strip.clumps)
+/* Most doubtful first: where the watershed and the clump's size disagree
+   most, the app's number is least to be trusted. Ties go to the bigger clump,
+   which moves the count more. The order uses only the app's two counts, so it
+   stays put while the person changes numbers. */
+const doubt = (c) => Math.abs(c.byArea - c.watershed)
+const queue = computed(() =>
+  [...strip.clumps].sort((a, b) => doubt(b) - doubt(a) || b.area - a.area),
+)
 const current = computed(() => (clumpMode.value ? queue.value[clumpIndex.value] : null))
 const counts = computed(() => clumpCounts(strip.marks))
 const currentCount = computed(() => (current.value ? counts.value.get(current.value.id) ?? 0 : 0))
@@ -330,7 +337,7 @@ function done() {
 
     <JudgmentTally class="tally" :cells="tally" />
 
-    <div class="adjust">
+    <div v-if="!clumpMode" class="adjust">
       <!-- After a run of fixes, the way to Measure says why it might help. -->
       <div v-if="nudge" class="nudge" role="status">
         <p class="t-body">{{ t('fixes.nudgeBody', { n: fixes }) }}</p>
@@ -416,8 +423,8 @@ function done() {
   margin: 0;
   color: var(--muted);
 }
-/* The number and Next side by side on a phone, so the clump keeps the
-   stage; stacked in the laptop's wider column. */
+/* The number and Next side by side, so the clump keeps the stage on a
+   phone and Done stays on screen on a laptop. */
 .clump-row {
   display: flex;
   gap: var(--sp-8);
@@ -431,9 +438,6 @@ function done() {
 }
 .clump-prev {
   align-self: flex-start;
-}
-.wide .clump-row {
-  flex-direction: column;
 }
 /* Checking clumps on a phone: the stage takes the room the tally and the
    way to Measure had. */

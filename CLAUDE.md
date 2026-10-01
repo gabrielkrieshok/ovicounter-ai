@@ -202,7 +202,9 @@ the app's number, what the clump's size suggests, and − / + for the person's.
 Changing it replaces that clump's marks with that many, placed by
 `cv/place.js` and kept (`strip.setClumpCount`); Next accepts what is shown
 (`confirmClump`). One step of undo each. One finger pans while the pass is
-open. The record carries each clump's two counts and the person's.
+open. Most doubtful first — the biggest gap between the watershed's count and
+the clump's size, ties to the bigger clump — and a clump whose two counts
+differ by 2 or more is tagged with the range, "~3–5", not one number. The record carries each clump's two counts and the person's.
 
 **A fix changes the marks it touches and nothing else** (Gabriel, Oct 2026).
 Nothing on Your fixes finds the marks again or adjusts how they are found — an
