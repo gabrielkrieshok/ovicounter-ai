@@ -1,5 +1,5 @@
 <script setup>
-import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
@@ -8,6 +8,7 @@ import StatusBadge from '@/components/StatusBadge.vue'
 import StripHeader from '@/components/StripHeader.vue'
 import StepList from '@/components/StepList.vue'
 import { t } from '@/i18n'
+import { boxFromTurned, boxToTurned, cropPreview } from '@/lib/image'
 import { STEPS } from '@/lib/steps'
 import { confirmRedo } from '@/lib/use-steps'
 import { useSessionStore } from '@/stores/session'
@@ -55,7 +56,22 @@ onBeforeUnmount(() => {
   if (!committing) strip.restoreAppliedCrop()
 })
 
-const box = computed(() => strip.cropBox)
+/* What the stage shows: the photograph straightened and turned exactly as it
+   will be cropped (lib/image.js cropPreview), rebuilt when either changes. The
+   box is stored before the turn and drawn after it. */
+const preview = ref(null)
+let building = 0
+async function rebuildPreview() {
+  if (!strip.sourceUrl) return
+  const mine = ++building
+  const canvas = await cropPreview(strip.sourceUrl, strip.straightenAngle, strip.quarterTurns)
+  if (mine === building) preview.value = canvas
+}
+watch(() => [strip.sourceUrl, strip.straightenAngle, strip.quarterTurns], rebuildPreview, {
+  immediate: true,
+})
+
+const box = computed(() => boxToTurned(strip.cropBox, strip.quarterTurns))
 
 /* The crop box in stage pixels, from the photograph's own fitted rectangle. */
 function boxRect(rect) {
@@ -85,7 +101,7 @@ function onMove(event) {
   const p = stage.value.toImage(event.clientX, event.clientY)
   if (!p) return
 
-  const b = { ...strip.cropBox }
+  const b = { ...box.value }
   const id = dragging.value
   const x = Math.min(1, Math.max(0, p.x))
   const y = Math.min(1, Math.max(0, p.y))
@@ -95,7 +111,7 @@ function onMove(event) {
   if (id === 'tl' || id === 'tr') b.t = Math.min(y, b.b - MIN_SPAN)
   else b.b = Math.max(y, b.t + MIN_SPAN)
 
-  strip.cropBox = b
+  strip.cropBox = boxFromTurned(b, strip.quarterTurns)
 }
 
 function onUp(event) {
@@ -170,7 +186,7 @@ async function useThisPhoto() {
     </StripHeader>
 
     <div class="body">
-      <ImageStage ref="stage" :src="strip.sourceUrl" fit="contain" v-slot="{ rect }">
+      <ImageStage ref="stage" :src="preview ?? strip.sourceUrl" fit="contain" v-slot="{ rect }">
         <!-- Everything outside the box is dimmed, so the box reads as the
              subject rather than as a decoration laid over the photograph. -->
         <div class="scrim top" :style="{ height: `${boxRect(rect).top}px` }" />
@@ -326,14 +342,18 @@ async function useThisPhoto() {
   color: var(--ink);
 }
 
+/* On ink, not on the photograph: a strip turned upright runs under it, and
+   paper-white text on paper-white paper disappears. */
 .caption {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: var(--sp-16);
+  right: var(--sp-16);
   bottom: var(--sp-16);
-  margin: 0;
-  padding: 0 var(--sp-16);
+  width: fit-content;
+  margin: 0 auto;
+  padding: 4px var(--sp-10);
   text-align: center;
+  background: var(--ink);
   color: var(--paper);
 }
 

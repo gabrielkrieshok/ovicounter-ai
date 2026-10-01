@@ -79,6 +79,61 @@ export function rotatedCanvas(img, angleDeg) {
 }
 
 /**
+ * The whole photograph as Crop shows it: straightened by `angleDeg`, then
+ * turned by `quarterTurns` × 90° — the same two operations, in the same order,
+ * that renderWorkingImage applies, so what the box is drawn over is what the
+ * box will cut. Downscaled for the screen; never used for measuring.
+ *
+ * Before this, Crop showed the original photograph whatever the rotation, so
+ * the rotate buttons appeared to do nothing until the marks came back sideways.
+ */
+export async function cropPreview(srcUrl, angleDeg = 0, quarterTurns = 0, longEdge = 1400) {
+  const loaded = await loadImage(srcUrl)
+  const { canvas: img, width: W, height: H } = rotatedCanvas(loaded, angleDeg)
+  const turns = ((quarterTurns % 4) + 4) % 4
+  const swapped = turns === 1 || turns === 3
+  const scale = Math.min(1, longEdge / Math.max(W, H))
+  const dw = Math.round(W * scale)
+  const dh = Math.round(H * scale)
+  const canvas = document.createElement('canvas')
+  canvas.width = swapped ? dh : dw
+  canvas.height = swapped ? dw : dh
+  const ctx = canvas.getContext('2d')
+  ctx.imageSmoothingQuality = 'high'
+  if (turns === 1) {
+    ctx.translate(canvas.width, 0)
+    ctx.rotate(Math.PI / 2)
+  } else if (turns === 2) {
+    ctx.translate(canvas.width, canvas.height)
+    ctx.rotate(Math.PI)
+  } else if (turns === 3) {
+    ctx.translate(0, canvas.height)
+    ctx.rotate(-Math.PI / 2)
+  }
+  ctx.drawImage(img, 0, 0, dw, dh)
+  return canvas
+}
+
+/* The crop box is stored on the straightened photograph, before any quarter
+   turn (renderWorkingImage crops first, then turns). Crop draws and drags it on
+   the turned preview, so it is carried between the two frames. A clockwise
+   quarter turn sends a point (x, y) to (1 − y, x). */
+export function boxToTurned(box, quarterTurns) {
+  const { l, t, r, b } = box
+  switch (((quarterTurns % 4) + 4) % 4) {
+    case 1: return { l: 1 - b, t: l, r: 1 - t, b: r }
+    case 2: return { l: 1 - r, t: 1 - b, r: 1 - l, b: 1 - t }
+    case 3: return { l: t, t: 1 - r, r: b, b: 1 - l }
+    default: return { l, t, r, b }
+  }
+}
+
+export function boxFromTurned(box, quarterTurns) {
+  // Turning back is turning forward the rest of the way round.
+  return boxToTurned(box, 4 - (((quarterTurns % 4) + 4) % 4))
+}
+
+/**
  * Crop to `box` (normalised 0–1 of the straightened source), apply
  * `quarterTurns` × 90°, and scale so the long edge is at most
  * WORKING_LONG_EDGE.
