@@ -419,6 +419,16 @@ async function main() {
       send('pointerup', m.x + 120, m.y, 2);
       await settle();
       log.push('pinch → dispatched');
+
+      // 6. Middle-click drag pans, and paints nothing.
+      await clear();
+      const box = () => document.querySelector('.band .viewport, .minimap .viewport, .viewport')?.getAttribute('style') ?? '';
+      const was = box();
+      send('pointerdown', cx, cy, 1, { button: 1, buttons: 4, pointerType: 'mouse' });
+      for (let i = 1; i <= 6; i++) { send('pointermove', cx + i * 15, cy, 1, { buttons: 4, pointerType: 'mouse' }); await frame(); }
+      send('pointerup', cx + 90, cy, 1, { button: 1, pointerType: 'mouse' });
+      await settle();
+      log.push('middle drag → ' + (undoEnabled() ? 'PAINTED' : 'painted nothing') + ', view ' + (box() !== was ? 'moved' : 'unchanged'));
       return log;
     })()`)
     for (const line of gestures) console.log(`  ${line}`)

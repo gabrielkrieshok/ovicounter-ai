@@ -23,7 +23,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
  * to judge, so one finger moves the picture as on a map.
  *
  * On a desktop there is no second finger, so the wheel zooms about the cursor
- * and Shift-drag pans. That is for checking work on a laptop, not a field
+ * and Shift-drag or a middle-click drag pans. That is for checking work on a laptop, not a field
  * gesture.
  *
  * The image's box is published as `rect`, the same shape ImageStage publishes,
@@ -47,7 +47,8 @@ const props = defineProps({
        add           place one egg — the magnifier follows, `add` on lift
        split         draw across a clump — `stroke` on lift
        pan           move the picture — for Measure, where nothing is judged
-     Two fingers, the wheel and Shift-drag move the strip whatever the tool. */
+     Two fingers, the wheel, Shift-drag and a middle-click drag move the strip
+     whatever the tool. */
   tool: { type: String, default: 'remove' },
 })
 
@@ -182,7 +183,10 @@ function onPointerDown(event) {
   if (pointers.size > 2) return
 
   const point = localPoint(event)
-  if (event.shiftKey || props.tool === 'pan') {
+  /* Middle-click drags the picture too (Oct 2026), as in many image viewers;
+     without preventDefault some browsers start their own autoscroll. */
+  if (event.button === 1) event.preventDefault()
+  if (event.shiftKey || event.button === 1 || props.tool === 'pan') {
     gesture = { kind: 'pan', start: point, pan: { ...pan.value } }
     return
   }
@@ -464,6 +468,7 @@ defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, centerOn, viewpo
     @pointercancel="onPointerUp"
     @pointerleave="onPointerLeave"
     @wheel="onWheel"
+    @mousedown.middle.prevent
   >
     <canvas ref="canvas" class="photo" />
     <slot

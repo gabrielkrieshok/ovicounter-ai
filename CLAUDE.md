@@ -191,7 +191,8 @@ culling is the job, so it stays the cheapest thing on the screen), **Keep**,
 zoom in; one stroke is one undo step (`strip.beginStroke` / `paint` /
 `endStroke`, a `batch` in the history). Add places one egg per touch, with the
 close-up shown from the first touch. Split paints a line across a clump. Pinch
-zooms, two-finger drag pans; on a desktop the wheel zooms and Shift-drag pans.
+zooms, two-finger drag pans; on a desktop the wheel zooms and Shift-drag or a
+middle-click drag pans (Measure too).
 The minimap (`Overview`, `@move`) is touchable — touch or drag it to move the
 view there.
 
