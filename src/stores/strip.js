@@ -97,6 +97,9 @@ export const useStripStore = defineStore('strip', {
        return to Crop can tell "looked again" from "changed it". */
     applied: null,
 
+    /* The box and angle the app proposed, for Crop's Reset. */
+    proposedCrop: null,
+
     /* The furthest step reached (lib/steps.js key), which the step list lets
        the person return to; and whether Refine was part of this strip's path
        on a quick count, which normally skips it. */
@@ -156,6 +159,7 @@ export const useStripStore = defineStore('strip', {
       const proposal = await cv.proposeCrop(frame)
       this.cropBox = proposal.box
       this.straightenAngle = proposal.angle
+      this.proposedCrop = { cropBox: { ...proposal.box }, straightenAngle: proposal.angle }
       this.cropProposed = proposal.found
       return proposal
     },

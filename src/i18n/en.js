@@ -132,9 +132,16 @@ export default {
     // RATIFIED
     title: 'Crop to the strip',
     stripBadge: 'STRIP {n}',
-    rotateLeft: '⟲ rotate',
     straighten: 'straighten',
-    rotateRight: '⟳',
+    /* DRAFT (Oct 2026) — the rotate and straighten pairs, undo and reset.
+       Retires the RATIFIED "⟲ rotate" and the lone "⟳", which read as undo. */
+    rotate: 'Rotate',
+    rotateLeftName: 'Rotate left',
+    rotateRightName: 'Rotate right',
+    straightenLeftName: 'Straighten left',
+    straightenRightName: 'Straighten right',
+    undo: '↩ Undo',
+    reset: 'Reset',
     caption: 'Box proposed automatically — drag the corners if it missed.',
     useThisPhoto: 'Use this photo',
   },

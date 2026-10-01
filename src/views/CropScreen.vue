@@ -91,7 +91,34 @@ function handlePosition(id, rect) {
   }
 }
 
+/* Undo: every change to the crop — a corner dragged, a turn, a nudge, a
+   reset — can be taken back, one at a time. */
+const past = ref([])
+function remember() {
+  past.value.push({
+    cropBox: { ...strip.cropBox },
+    quarterTurns: strip.quarterTurns,
+    straightenAngle: strip.straightenAngle,
+  })
+}
+function undo() {
+  const last = past.value.pop()
+  if (!last) return
+  strip.cropBox = last.cropBox
+  strip.quarterTurns = last.quarterTurns
+  strip.straightenAngle = last.straightenAngle
+}
+
+/* Back to what the app proposed, the right way up. */
+function reset() {
+  remember()
+  strip.cropBox = strip.proposedCrop ? { ...strip.proposedCrop.cropBox } : { l: 0, t: 0, r: 1, b: 1 }
+  strip.straightenAngle = strip.proposedCrop?.straightenAngle ?? 0
+  strip.quarterTurns = 0
+}
+
 function onDown(id, event) {
+  remember()
   dragging.value = id
   event.currentTarget.setPointerCapture(event.pointerId)
 }
@@ -120,10 +147,12 @@ function onUp(event) {
 }
 
 function rotate(turns) {
+  remember()
   strip.quarterTurns = (((strip.quarterTurns + turns) % 4) + 4) % 4
 }
 
 function straighten(delta) {
+  remember()
   strip.straightenAngle = Math.max(-15, Math.min(15, strip.straightenAngle + delta))
 }
 
@@ -237,15 +266,27 @@ async function useThisPhoto() {
         </button>
       </ImageStage>
 
-      <div class="tools">
-        <button class="chip t-title" type="button" @click="rotate(-1)">{{ t('crop.rotateLeft') }}</button>
-        <button class="chip t-title" type="button" @click="straighten(-STRAIGHTEN_STEP)">
-          {{ t('crop.straighten') }}
-        </button>
-        <button class="chip t-title" type="button" @click="rotate(1)">{{ t('crop.rotateRight') }}</button>
-      </div>
 
       <p class="caption t-body">{{ t('crop.caption') }}</p>
+    </div>
+
+    <!-- One row under the photograph, not over it: ⟲ ⟳ turn a quarter left
+         and right, ‹ › straighten half a degree, then Undo and Reset. Each
+         pair is drawn the same way round; a lone ⟳ beside a worded button had
+         read as undo. Named for screen readers, and on hover. -->
+    <div class="tools">
+      <div class="pair">
+        <button class="chip t-title" type="button" :aria-label="t('crop.rotateLeftName')" :title="t('crop.rotateLeftName')" @click="rotate(-1)">⟲</button>
+        <button class="chip t-title" type="button" :aria-label="t('crop.rotateRightName')" :title="t('crop.rotateRightName')" @click="rotate(1)">⟳</button>
+      </div>
+      <div class="pair">
+        <button class="chip t-title" type="button" :aria-label="t('crop.straightenLeftName')" :title="t('crop.straightenLeftName')" @click="straighten(-STRAIGHTEN_STEP)">‹</button>
+        <button class="chip t-title" type="button" :aria-label="t('crop.straightenRightName')" :title="t('crop.straightenRightName')" @click="straighten(STRAIGHTEN_STEP)">›</button>
+      </div>
+      <div class="pair">
+        <button class="chip t-title" type="button" :disabled="!past.length" @click="undo">{{ t('crop.undo') }}</button>
+        <button class="chip t-title" type="button" @click="reset">{{ t('crop.reset') }}</button>
+      </div>
     </div>
 
     <div class="footer">
@@ -323,19 +364,29 @@ async function useThisPhoto() {
 }
 
 .tools {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 72px;
+  flex: none;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: var(--sp-10);
+  gap: var(--sp-8);
+  padding: var(--sp-10) var(--sp-12);
+  background: var(--stage-bg);
+}
+.pair {
+  display: flex;
+  gap: 4px;
+}
+.pair + .pair {
+  padding-left: var(--sp-8);
+  border-left: var(--bd-inner) solid var(--rule-idle);
 }
 .chip {
+  min-width: var(--hit-min);
   min-height: var(--hit-min);
-  padding: 0 var(--sp-14);
+  padding: 0 var(--sp-10);
   display: flex;
   align-items: center;
+  justify-content: center;
   background: var(--paper);
   border: var(--bd) solid var(--ink);
   border-radius: var(--r-small);
@@ -344,6 +395,11 @@ async function useThisPhoto() {
 
 /* On ink, not on the photograph: a strip turned upright runs under it, and
    paper-white text on paper-white paper disappears. */
+.chip:disabled {
+  color: var(--disabled);
+  cursor: default;
+}
+
 .caption {
   position: absolute;
   left: var(--sp-16);
@@ -366,11 +422,12 @@ async function useThisPhoto() {
 .wide .crop {
   display: grid;
   grid-template-columns: minmax(var(--device-w), var(--pane-share)) 1fr;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto auto 1fr auto auto auto;
   background: var(--paper);
 }
 .wide .crop > .head { grid-column: 1; grid-row: 2; }
-.wide .crop > .footer { grid-column: 1; grid-row: 4; }
+.wide .crop > .tools { grid-column: 1; grid-row: 4; background: var(--paper); padding: var(--sp-10) var(--sp-16); justify-content: flex-start; }
+.wide .crop > .footer { grid-column: 1; grid-row: 5; }
 .wide .crop > .body {
   grid-column: 2;
   grid-row: 1 / -1;
