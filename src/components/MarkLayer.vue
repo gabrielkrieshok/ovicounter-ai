@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import { drawMark } from '@/lib/marks'
+import { clumpCounts, drawClump, drawMark } from '@/lib/marks'
 
 /* The mark language, drawn once for every screen that shows marks.
  *
@@ -29,6 +29,9 @@ const props = defineProps({
   marks: { type: Array, default: () => [] },
   /** Marks lost since the operator started moving a slider, drawn faint. */
   ghosts: { type: Array, default: () => [] },
+  /** Clumps of touching eggs (cv/pipeline.js describeClumps), each drawn as
+      one outline with its count. `checked` on a clump: the person answered it. */
+  clumps: { type: Array, default: () => [] },
   /** Bounding boxes, for the step of the scan that draws them. */
   boxes: { type: Array, default: () => [] },
   /** The image's box in stage coordinates. May be larger than the stage. */
@@ -96,11 +99,20 @@ function paint() {
   ctx.globalAlpha = 1
 
   for (const mark of props.marks) if (visible(mark)) drawMark(ctx, mark, rect)
+
+  /* Clumps over their dots, so the outline and its number are never hidden. */
+  if (props.clumps.length) {
+    const counts = clumpCounts(props.marks)
+    for (const c of props.clumps) {
+      if (!visible({ x: c.cx, y: c.cy })) continue
+      drawClump(ctx, c, rect, { count: counts.get(c.id) ?? 0, checked: !!c.checked })
+    }
+  }
 }
 
 onMounted(paint)
 watch(
-  () => [props.marks, props.ghosts, props.boxes, props.rect, props.stage],
+  () => [props.marks, props.ghosts, props.clumps, props.boxes, props.rect, props.stage],
   paint,
   { deep: false },
 )

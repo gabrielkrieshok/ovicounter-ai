@@ -78,6 +78,18 @@ export function markAt(marks, point, rect, slack = 8) {
 
 /* Drawing the mark language. */
 
+function drawDot(ctx, x, y, r, colour) {
+  const d = Math.max(2, Math.min(4.5, r * 0.4))
+  ctx.beginPath()
+  ctx.arc(x, y, d + 1.25, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(255,255,255,.75)'
+  ctx.fill()
+  ctx.beginPath()
+  ctx.arc(x, y, d, 0, Math.PI * 2)
+  ctx.fillStyle = colour
+  ctx.fill()
+}
+
 function drawRing(ctx, x, y, r, colour, dashed) {
   const width = ringWidth(r)
   ctx.setLineDash(dashed ? [3.5, 2.5] : [])
@@ -123,6 +135,15 @@ export function drawMark(ctx, mark, rect) {
   const y = rect.top + mark.y * rect.height
   const r = markRadius(mark, rect)
 
+  /* An egg inside a clump is a dot, not a ring (Oct 2026): a ring says "this
+     is one egg, found", and inside a clump the app is guessing where the eggs
+     are. The clump's outline (drawClump) carries the dashed/solid meaning and
+     the number; the dots only say where. */
+  if (mark.clump !== undefined && (mark.status === 'proposed' || mark.status === 'kept')) {
+    drawDot(ctx, x, y, r, MARK_COLOUR[mark.status])
+    return
+  }
+
   switch (mark.status) {
     case 'kept':
       drawRing(ctx, x, y, r, MARK_COLOUR.kept, false)
@@ -139,4 +160,67 @@ export function drawMark(ctx, mark, rect) {
     default:
       drawRing(ctx, x, y, r, MARK_COLOUR.proposed, true)
   }
+}
+
+/**
+ * Draw a clump: an ellipse round the touching eggs, dashed blue while it is the
+ * app's guess and solid green once the person has given its number, with that
+ * number on a tag — "~4" for the app's, "4" for the person's, the same
+ * grey-`~` / black rule as every other count (Oct 2026, non-negotiable 6:
+ * clump-inferred counts are visible as inferred).
+ *
+ * `clump` carries cx, cy (normalised), rx, ry (fractions of the image WIDTH)
+ * and angle; `count` is how many of its marks stand; `checked` whether the
+ * person has answered it. The tag is left off while the clump is too small on
+ * screen for it to be anything but clutter.
+ */
+export function drawClump(ctx, clump, rect, { count, checked = false } = {}) {
+  const x = rect.left + clump.cx * rect.width
+  const y = rect.top + clump.cy * rect.height
+  const rx = Math.max(6, clump.rx * rect.width)
+  const ry = Math.max(5, clump.ry * rect.width)
+  const colour = checked ? MARK_COLOUR.kept : MARK_COLOUR.proposed
+
+  ctx.save()
+  ctx.setLineDash(checked ? [] : [5, 3])
+  ctx.lineWidth = 3.5
+  ctx.strokeStyle = 'rgba(255,255,255,.6)'
+  ctx.beginPath()
+  ctx.ellipse(x, y, rx, ry, clump.angle, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.lineWidth = 2
+  ctx.strokeStyle = colour
+  ctx.beginPath()
+  ctx.ellipse(x, y, rx, ry, clump.angle, 0, Math.PI * 2)
+  ctx.stroke()
+  ctx.setLineDash([])
+
+  if (Math.max(rx, ry) >= 12) {
+    const text = checked ? String(count) : `~${count}`
+    ctx.font = `700 11px "JetBrains Mono", ui-monospace, monospace`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    const w = ctx.measureText(text).width + 8
+    // Above the ellipse's top, whatever its tilt.
+    const top = y - Math.sqrt((rx * Math.sin(clump.angle)) ** 2 + (ry * Math.cos(clump.angle)) ** 2)
+    const ty = top - 9
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(x - w / 2, ty - 8, w, 16)
+    ctx.lineWidth = 1.5
+    ctx.strokeStyle = colour
+    ctx.strokeRect(x - w / 2, ty - 8, w, 16)
+    ctx.fillStyle = checked ? '#000000' : '#4a4a4a'
+    ctx.fillText(text, x, ty + 0.5)
+  }
+  ctx.restore()
+}
+
+/** How many marks in each clump still stand: Map clump id → count. */
+export function clumpCounts(marks) {
+  const counts = new Map()
+  for (const m of marks) {
+    if (m.clump === undefined || m.status === 'removed') continue
+    counts.set(m.clump, (counts.get(m.clump) ?? 0) + 1)
+  }
+  return counts
 }

@@ -195,6 +195,7 @@ class Scope {
   }
 }
 
+import { placeInClump } from './place.js'
 import { DEFAULT_PARAMS } from './params.js'
 
 export { DEFAULT_PARAMS }
@@ -377,19 +378,66 @@ export function createPipeline(cv) {
         singles.push({ x, y, w, h, area, fromClump: false })
       }
 
-      // 4. Split the clumps.
+      // 4. Split the clumps, and describe each one: where it is, its shape,
+      //    and two independent counts — the watershed's and its area's.
+      const clumpIndex = new Map(clumpLabels.map((label, i) => [label, i]))
+      /* An egg's footprint at THIS cutoff, measured on the eggs that stand
+         alone — the same pixels a clump is made of. The calibration's area was
+         measured at the tap or probe and can sit well off it (Portugal: 14
+         calibrated, 8 alone). Too few singles to trust: the calibration. */
+      const singleMedianArea = singles.length >= 20 ? median(singles.map((d) => d.area)) : p.medianEggArea
+      const clumps = describeClumps(labels, clumpIndex, statsData, S, { ...p, medianEggArea: singleMedianArea }, width, height)
       const split = clumpLabels.length
         ? splitClumps(cv, opened, labels, clumpLabels, statsData, S, p)
-        : { eggs: [], inferred: 0, clumps: 0 }
+        : { eggs: [] }
+      for (const egg of split.eggs) {
+        egg.clump = clumpIndex.get(egg.comp)
+        clumps[egg.clump].watershed++
+      }
 
-      const detections = [...singles, ...split.eggs].map((d) => ({
+      /* A clump the watershed could not cut at all — a dense mat with no
+         separable centres — gets as many eggs as its area holds, placed over
+         its pixels. Before Oct 2026 these were counted in `inferred` and never
+         reached the screen, so the eggs in them were silently lost. */
+      const eggR = Math.sqrt(p.medianEggArea / Math.PI)
+      const placed = []
+      for (const c of clumps) {
+        if (c.watershed > 0) continue
+        for (const at of placeInClump(c.points, c.byArea, width / height)) {
+          placed.push({
+            x: at.x * width - eggR,
+            y: at.y * height - eggR,
+            w: eggR * 2,
+            h: eggR * 2,
+            area: p.medianEggArea,
+            fromClump: true,
+            clump: c.id,
+            placed: true,
+          })
+        }
+      }
+
+      const detections = [...singles, ...split.eggs, ...placed].map((d) => ({
         x: (d.x + d.w / 2) / width,
         y: (d.y + d.h / 2) / height,
         w: d.w / width,
         h: d.h / height,
         area: d.area,
         fromClump: d.fromClump,
+        ...(d.fromClump ? { clump: d.clump } : {}),
+        ...(d.placed ? { placed: true } : {}),
       }))
+
+      /* How far the two counts of each clump agree — the measure that decides
+         which clumps the person is asked to look at first. */
+      const agreement = { same: 0, offByOne: 0, offByTwoPlus: 0, watershedLower: 0 }
+      for (const c of clumps) {
+        const d = Math.abs(c.byArea - c.watershed)
+        if (d === 0) agreement.same++
+        else if (d === 1) agreement.offByOne++
+        else agreement.offByTwoPlus++
+        if (c.watershed < c.byArea) agreement.watershedLower++
+      }
 
       return {
         detections,
@@ -398,10 +446,14 @@ export function createPipeline(cv) {
              total was measured and how much was inferred from clump area. */
           singles: singles.length,
           fromClumps: split.eggs.length,
-          clumps: split.clumps,
-          inferred: split.inferred,
-          total: detections.length + split.inferred,
+          clumps: clumps.length,
+          inferred: placed.length,
+          total: detections.length,
+          agreement,
+          singleMedianArea,
+          totalByArea: singles.length + clumps.reduce((sum, c) => sum + c.byArea, 0),
         },
+        clumps,
         params: { ...p, backgroundKernel: kernelWidth },
       }
     } finally {
@@ -600,7 +652,7 @@ function splitClumps(cv, opened, labels, clumpLabels, statsData, S, p) {
       cv.CV_32S,
     )
 
-    if (nSeeds <= 1) return areaFallback(clumpLabels, statsData, S, p)
+    if (nSeeds <= 1) return { eggs: [] }
 
     /* Watershed wants seeds numbered from 2, background 1, unknown 0. */
     const markers = scope.mat()
@@ -627,7 +679,7 @@ function splitClumps(cv, opened, labels, clumpLabels, statsData, S, p) {
       const py = (i - px) / cols
       let r = acc.get(label)
       if (!r) {
-        r = { area: 0, minX: px, maxX: px, minY: py, maxY: py }
+        r = { area: 0, minX: px, maxX: px, minY: py, maxY: py, comp: labelData[i] }
         acc.set(label, r)
       }
       r.area++
@@ -647,27 +699,95 @@ function splitClumps(cv, opened, labels, clumpLabels, statsData, S, p) {
          around it. */
       const aspect = Math.max(w, h) / Math.max(1, Math.min(w, h))
       if (aspect > p.maxAspect * 1.6) continue
-      eggs.push({ x: r.minX, y: r.minY, w, h, area: r.area, fromClump: true })
+      eggs.push({ x: r.minX, y: r.minY, w, h, area: r.area, fromClump: true, comp: r.comp })
     }
 
-    return { eggs, inferred: 0, clumps: clumpLabels.length }
+    return { eggs }
   } finally {
     scope.dispose()
   }
 }
 
 /**
- * When a clump yields no usable seeds — a dense mat of overlapping eggs that no
- * watershed variant will separate — estimate from area and mark the result as
- * inferred. A known limit, not a silent approximation: the number it produces
- * is reported separately so the operator can see it is a division rather than a
- * measurement, and it carries no marks, because there is nothing to point at.
+ * Each clump as the screens need it: its box, an ellipse round it for drawing,
+ * its area, how many eggs that area holds, and a sample of its pixels for
+ * placing marks in it. One pass over the label image. Positions are normalised
+ * to 0–1; the ellipse's axes are fractions of the image WIDTH, because the
+ * image is always scaled uniformly and one unit is enough.
  */
-function areaFallback(clumpLabels, statsData, S, p) {
-  let inferred = 0
-  for (const i of clumpLabels) {
-    const area = statsData[i * S + 4]
-    inferred += Math.max(2, Math.round(area / Math.max(1, p.medianEggArea)))
+const CLUMP_POINTS = 240
+
+function describeClumps(labels, clumpIndex, statsData, S, p, width, height) {
+  const clumps = []
+  for (const [label, id] of clumpIndex) {
+    const area = statsData[label * S + 4]
+    clumps[id] = {
+      id,
+      x: statsData[label * S + 0] / width,
+      y: statsData[label * S + 1] / height,
+      w: statsData[label * S + 2] / width,
+      h: statsData[label * S + 3] / height,
+      area,
+      byArea: Math.max(2, Math.round(area / Math.max(1, p.medianEggArea))),
+      watershed: 0,
+      // moments, filled below
+      sx: 0, sy: 0, sxx: 0, syy: 0, sxy: 0, n: 0,
+      stride: Math.max(1, Math.ceil(area / CLUMP_POINTS)),
+      points: [],
+    }
   }
-  return { eggs: [], inferred, clumps: clumpLabels.length }
+  if (!clumps.length) return clumps
+
+  const labelData = labels.data32S
+  for (let i = 0; i < labelData.length; i++) {
+    const id = clumpIndex.get(labelData[i])
+    if (id === undefined) continue
+    const c = clumps[id]
+    const px = i % width
+    const py = (i - px) / width
+    c.sx += px
+    c.sy += py
+    c.sxx += px * px
+    c.syy += py * py
+    c.sxy += px * py
+    if (c.n % c.stride === 0) c.points.push((px + 0.5) / width, (py + 0.5) / height)
+    c.n++
+  }
+
+  const pad = Math.sqrt(p.medianEggArea / Math.PI) * 0.6 + 2
+  return clumps.map((c) => {
+    const mx = c.sx / c.n
+    const my = c.sy / c.n
+    const vxx = c.sxx / c.n - mx * mx
+    const vyy = c.syy / c.n - my * my
+    const vxy = c.sxy / c.n - mx * my
+    const mid = (vxx + vyy) / 2
+    const spread = Math.sqrt(((vxx - vyy) / 2) ** 2 + vxy ** 2)
+    // A filled ellipse has variance a²/4 along its axis, so the semi-axis is
+    // twice the standard deviation; padded so the outline clears the eggs.
+    const a = 2 * Math.sqrt(Math.max(0, mid + spread)) + pad
+    const b = 2 * Math.sqrt(Math.max(0, mid - spread)) + pad
+    return {
+      id: c.id,
+      x: c.x,
+      y: c.y,
+      w: c.w,
+      h: c.h,
+      area: c.area,
+      byArea: c.byArea,
+      watershed: c.watershed,
+      cx: mx / width,
+      cy: my / height,
+      rx: a / width,
+      ry: b / width,
+      angle: 0.5 * Math.atan2(2 * vxy, vxx - vyy),
+      points: c.points,
+    }
+  })
+}
+
+function median(values) {
+  if (!values.length) return 0
+  const v = [...values].sort((a, b) => a - b)
+  return v[Math.floor(v.length / 2)]
 }

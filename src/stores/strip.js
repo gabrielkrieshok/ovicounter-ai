@@ -65,6 +65,9 @@ export const useStripStore = defineStore('strip', {
     /* Each: { id, x, y, w, h, source: 'machine' | 'hand', status: 'proposed' |
        'kept' | 'removed' | 'added', fromClump }. Positions normalised 0–1. */
     marks: [],
+    /* Clumps of touching eggs from the last scan (cv/pipeline.js
+       describeClumps); `checked` once the person has given a clump's number. */
+    clumps: [],
 
     stats: null,
     scanning: false,
@@ -328,9 +331,14 @@ export const useStripStore = defineStore('strip', {
           h: d.h,
           area: d.area,
           fromClump: d.fromClump,
+          ...(d.clump !== undefined ? { clump: d.clump } : {}),
+          ...(d.placed ? { placed: true } : {}),
           source: 'machine',
           status: 'proposed',
         }))
+        /* Each clump of touching eggs, with the app's two counts for it and,
+           once the person has answered it, theirs (Oct 2026). */
+        this.clumps = (result.clumps ?? []).map((c) => ({ ...c, checked: false }))
         /* New marks: whatever the person did to the old ones described marks
            that no longer exist. Undo must not reach back to them, nor a strip
            count as reviewed or looked at because the previous marks were.

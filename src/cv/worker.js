@@ -119,7 +119,7 @@ self.onmessage = async (event) => {
           ? (stage, mat) => captured.push({ stage, imageData: matToImageData(mat) })
           : undefined
 
-        const { detections, stats, params } = pipeline.run(event.data.params, { onStage })
+        const { detections, stats, params, clumps } = pipeline.run(event.data.params, { onStage })
 
         for (const { stage, imageData } of captured) {
           const bitmap = await createImageBitmap(imageData)
@@ -132,6 +132,7 @@ self.onmessage = async (event) => {
           detections,
           stats,
           params,
+          clumps,
           ms: Math.round(performance.now() - started),
         })
         break

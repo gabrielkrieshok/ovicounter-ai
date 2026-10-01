@@ -293,6 +293,22 @@ the sweep's "first cutoff above the step" sits on the edge of the grain regime
 (97 → 364; 60 → 376, 75 → 358). Measured Sep 2026; the first walk with the
 sweep still applied to the probe came back at 562.
 
+**Clumps are shown as clumps** (Oct 2026). A dark island larger than
+`splitFactor` × an egg is a clump; the watershed splits it, and
+`describeClumps` keeps a record of each one: an ellipse to draw, its area, and
+two counts — the watershed's and its area divided by the median single egg AT
+THIS CUTOFF (`singleMedianArea`; the calibration's area can sit well off it —
+Portugal 14 vs 8). Clumps the watershed cannot cut get their area's count,
+placed by k-means over their pixels (`cv/place.js`); before this they were
+counted in `inferred` and never reached the screen. On screen a clump is one
+outline with its count — dashed blue "~n" while it is the app's, solid green
+"n" once the person has answered it — and its eggs are dots, not rings
+(`lib/marks.js` `drawClump`, `drawMark`). Measured Oct 2026: the two counts
+disagree on almost every clump and the watershed is lower on 345 of 351 on
+Portugal-2 (1,211 vs 3,336 by area on Portugal-1); on the demo strip, whose
+truth is ~364, the watershed total is 368 and area's 409. Neither is truth on
+a dense mat, which is why the person gives the number.
+
 **A tap that lands on a CLUMP** inflates the measured area, the size filter
 scales with it, and every single egg is then rejected as too small. Nothing in
 the pipeline can see this — a clump is a well-formed dark blob. The probe

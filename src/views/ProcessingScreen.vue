@@ -86,7 +86,7 @@ function picture(index) {
   const photo = strip.working?.canvas ?? null
   if (key === 'lightDark' || key === 'darkSpecks') return { src: buffers[key] ?? photo, boxes: [], marks: [] }
   if (key === 'boxes') return { src: buffers.lightDark ?? photo, boxes: detections, marks: [] }
-  if (key === 'marks') return { src: photo, boxes: [], marks: strip.marks }
+  if (key === 'marks') return { src: photo, boxes: [], marks: strip.marks, clumps: strip.clumps }
   return { src: photo, boxes: [], marks: [] }
 }
 const view = computed(() => picture(peeking.value ? 0 : stepIndex.value))
@@ -297,6 +297,7 @@ onMounted(async () => {
       >
         <MarkLayer
           :marks="view.marks"
+          :clumps="view.clumps ?? []"
           :ghosts="view.marks.length ? lostGhosts : []"
           :boxes="view.boxes"
           :rect="rect"

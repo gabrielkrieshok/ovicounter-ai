@@ -205,6 +205,7 @@ async function buildCard() {
       ]
     : null
   const blob = await storyImage({
+    clumps: strip.clumps,
     photoUrl: strip.sourceUrl,
     working: strip.working.canvas,
     marks: strip.marks,
@@ -316,7 +317,7 @@ function backHome() {
         background="var(--stage-bg)"
         v-slot="{ rect, stage }"
       >
-        <MarkLayer :marks="strip.marks" :rect="rect" :stage="stage" />
+        <MarkLayer :marks="strip.marks" :clumps="strip.clumps" :rect="rect" :stage="stage" />
       </ImageStage>
       <!-- Only claims a record was saved when one actually was. -->
       <div class="badges">

@@ -1,5 +1,5 @@
 import { loadImage } from '@/lib/image'
-import { MARK_COLOUR, drawMark } from '@/lib/marks'
+import { MARK_COLOUR, clumpCounts, drawClump, drawMark } from '@/lib/marks'
 
 /* Share (Oct 2026): one picture that tells what happened to a strip, sent
  * wherever the person chooses — and only then. Nothing leaves the phone until
@@ -88,7 +88,7 @@ function framed(ctx, source, sw, sh, top, slotH, drawOver) {
  * `text` carries every word already translated: { photo, marks, sentence,
  * judged, date, footer, bands: [{ key, label, weight }] }.
  */
-export async function storyImage({ photoUrl, working, marks, checked, count, bandKey, text }) {
+export async function storyImage({ photoUrl, working, marks, clumps = [], checked, count, bandKey, text }) {
   const photo = await loadImage(photoUrl)
   const pw = photo.naturalWidth ?? photo.width
   const ph = photo.naturalHeight ?? photo.height
@@ -144,6 +144,8 @@ export async function storyImage({ photoUrl, working, marks, checked, count, ban
   y += 48
   framed(ctx, working, working.width, working.height, y, 400, (rect) => {
     for (const mark of marks) drawMark(ctx, mark, rect)
+    const counts = clumpCounts(marks)
+    for (const c of clumps) drawClump(ctx, c, rect, { count: counts.get(c.id) ?? 0, checked: !!c.checked })
   })
   y += 400 + 44
 

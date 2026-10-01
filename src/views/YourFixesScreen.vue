@@ -198,7 +198,7 @@ function done() {
         @navigate="strip.noteReview()"
         v-slot="{ rect, stage: size, hold, stroke, brush }"
       >
-        <MarkLayer :marks="strip.marks" :rect="rect" :stage="size" />
+        <MarkLayer :marks="strip.marks" :clumps="strip.clumps" :rect="rect" :stage="size" />
 
         <!-- The stroke, while it is being drawn. It is not a mark and never
              becomes one, so it is drawn as plain ink rather than in any of the

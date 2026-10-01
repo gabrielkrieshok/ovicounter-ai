@@ -166,6 +166,9 @@ async function runOne(image) {
     fromClumps: second.stats.fromClumps,
     clumps: second.stats.clumps,
     inferred: second.stats.inferred,
+    agreement: second.stats.agreement,
+    singleMedianArea: second.stats.singleMedianArea,
+    totalByArea: second.stats.totalByArea,
     ms: second.ms,
     ...(stress ?? {}),
   }
