@@ -337,6 +337,22 @@ async function main() {
   /* Exercise the gestures rather than just photographing the screen. Each one
      reports what the operator can see change: the undo button's state. */
   const exerciseGestures = async () => {
+    /* The nudge toward Measure after a run of fixes, pictured, then undone. */
+    await evaluate(`(async () => {
+      const stage = document.querySelector('.stage-wrap .stage');
+      const r = stage.getBoundingClientRect();
+      const send = (type, x) => stage.dispatchEvent(new PointerEvent(type, {
+        clientX: x, clientY: r.top + r.height * 0.5, bubbles: true, pointerId: 1, isPrimary: true }));
+      send('pointerdown', r.left + r.width * 0.3);
+      for (let i = 1; i <= 6; i++) send('pointermove', r.left + r.width * (0.3 + i * 0.05));
+      send('pointerup', r.left + r.width * 0.6);
+      await new Promise(res => setTimeout(res, 300));
+    })()`)
+    await shot('flow-7b-fixes-nudge')
+    await evaluate(`(async () => {
+      const undo = document.querySelector('.undo');
+      let g = 0; while (!undo.disabled && g++ < 50) { undo.click(); await new Promise(res => setTimeout(res, 30)); }
+    })()`)
     const gestures = await evaluate(`(async () => {
       const stage = document.querySelector('.stage-wrap .stage');
       const r = stage.getBoundingClientRect();
@@ -364,9 +380,12 @@ async function main() {
       const tools = [...document.querySelectorAll('.tool')].map(b => b.getAttribute('aria-checked') === 'true' ? '[' + b.innerText.trim() + ']' : b.innerText.trim());
       log.push('tools ' + tools.join(' · ').replace(/\\n/g, ' '));
 
-      // 2. Remove: paint across the middle — one stroke, one undo.
-      await sweep(r.left + r.width * 0.3, cy, r.width * 0.4);
-      log.push('remove sweep → undo ' + (undoEnabled() ? 'enabled' : 'still disabled (no mark under it)'));
+      // 2. Remove: paint across the middle — one stroke, one undo. A wide
+      //    sweep removes enough marks for the nudge toward Measure.
+      await sweep(r.left + r.width * 0.1, cy, r.width * 0.8);
+      log.push('remove sweep → undo ' + (undoEnabled() ? 'enabled' : 'still disabled (no mark under it)') +
+        ', nudge ' + (document.querySelector('.nudge') ? 'shown' : 'not shown') +
+        ' (' + document.querySelector('.nudge p')?.textContent.trim().split('.')[0] + ')');
       document.querySelector('.undo').click(); await settle(2);
       log.push('one undo → ' + (undoEnabled() ? 'STILL ENABLED (stroke was not one step)' : 'history empty'));
 
@@ -385,7 +404,7 @@ async function main() {
       send('pointerup', hx, hy);
       await settle();
       log.push('add → loupe ' + (loupe ? 'shown' : 'MISSING') + ', undo ' + (undoEnabled() ? 'enabled' : 'disabled') +
-        ', re-measure ' + ([...document.querySelectorAll('button')].some(b => /from my eggs/.test(b.innerText)) ? 'offered' : 'MISSING'));
+        '');
       await pick('remove');
 
       // 4. Pinch to zoom with two fingers.

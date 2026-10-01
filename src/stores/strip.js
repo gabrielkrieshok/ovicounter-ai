@@ -475,35 +475,6 @@ export const useStripStore = defineStore('strip', {
       if (batch?.type === 'batch' && !batch.changes.length && !batch.unadded.length) this.history.pop()
     },
 
-    /**
-     * A measurement taken from the eggs the person added — each measured the
-     * way a tapped egg is (measureBlobAt), and the medians taken, as the probe
-     * does across a strip. Null when none of them measures as an egg. Used to
-     * find the marks again from the person's own eggs: a calibration, as Mark
-     * one egg is, not something learned.
-     */
-    measureFromAdded() {
-      const found = this.marks
-        .filter((m) => m.status === 'added')
-        .map((m) => this.measureEggAt(m.x, m.y))
-        .filter(Boolean)
-      if (!found.length) return null
-      const median = (pick) => {
-        const v = found.map(pick).sort((a, b) => a - b)
-        return v[Math.floor(v.length / 2)]
-      }
-      return {
-        ...found[0],
-        areaPx: median((m) => m.areaPx),
-        rPx: median((m) => m.rPx),
-        contrast: median((m) => m.contrast),
-        wPx: median((m) => m.wPx),
-        hPx: median((m) => m.hPx),
-        longEdgePx: median((m) => Math.max(m.wPx, m.hPx)),
-        samples: found.length,
-      }
-    },
-
     /** Place an egg the scan missed. */
     addMark(point) {
       this.reviewed = true

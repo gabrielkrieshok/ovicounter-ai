@@ -218,9 +218,7 @@ export default {
     adjust: 'Marks look wrong? Adjust them',
     /* DRAFT (Oct 2026) — the tools on Manually refine: one finger paints with
        the chosen tool, two fingers move the strip. They replace the instruction
-       row "Tap = remove · Hold = add · Line = split". Uppercase is CSS only.
-       `remeasure` finds the marks again across the strip, measured from the eggs
-       the person added — a calibration from their examples, like Mark one egg. */
+       row "Tap = remove · Hold = add · Line = split". Uppercase is CSS only.  */
     toolsLabel: 'What one finger does',
     toolRemove: 'Remove',
     toolKeep: 'Keep',
@@ -231,7 +229,10 @@ export default {
     hintAdd: 'Touch an egg nobody marked; a close-up shows where it lands.',
     hintSplit: 'Paint across a clump to split it.',
     twoFingers: 'Two fingers move the strip.',
-    remeasure: 'Find the marks again from my eggs',
+    /* DRAFT (Oct 2026) — after five fixes, the way to Measure says why. */
+    nudgeBody: '{n} fixes so far. If the marks are off the same way across the strip, adjusting Measure may fit it better than fixing them one by one.',
+    nudgeGo: 'Adjust Measure',
+    nudgeDismiss: 'Keep fixing',
     /* DRAFT — coverage: parts of the strip wholly on screen at zoom ≥ 2. The
        person's effort, never the machine's count. */
     lookedAt: 'Looked at close up · {n} of {total} parts',

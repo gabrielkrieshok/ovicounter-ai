@@ -14,7 +14,6 @@ import ZoomPanStage from '@/components/ZoomPanStage.vue'
 import ZoomRail from '@/components/ZoomRail.vue'
 import StepList from '@/components/StepList.vue'
 import { t, weekday } from '@/i18n'
-import { confirmRedo } from '@/lib/use-steps'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -123,17 +122,14 @@ function moveTo(point) {
   stage.value?.centerOn(point.x, point.y)
 }
 
-/* Find the marks again across the whole strip, measured from the eggs the
-   person added — a calibration from their own examples, as Mark one egg is,
-   not something learned. It finds the marks again, so it asks first. */
-const remeasuring = ref(false)
-async function remeasure() {
-  const measurement = strip.measureFromAdded()
-  if (!measurement || !(await confirmRedo('redo'))) return
-  remeasuring.value = true
-  await strip.adoptCalibration(measurement, measurement.samples >= 3 ? 'probe' : 'tap')
-  router.push({ name: 'processing' })
-}
+/* A fix changes the marks it touches and nothing else (Gabriel, Oct 2026):
+   nothing here finds marks again or adjusts how they are found. After a run
+   of fixes the page says that Measure might fit the strip better — the
+   person's call, made on Measure's own sliders. */
+const NUDGE_AT = 5
+const fixes = computed(() => strip.removedCount + strip.addedCount + strip.splitCount)
+const nudgeDismissed = ref(false)
+const nudge = computed(() => !nudgeDismissed.value && fixes.value >= NUDGE_AT)
 
 function onAdd(point) {
   if (!point) return
@@ -172,9 +168,6 @@ function done() {
         {{ t(`fixes.hint${tool.charAt(0).toUpperCase()}${tool.slice(1)}`) }}
         <span class="two-fingers">{{ t('fixes.twoFingers') }}</span>
       </p>
-      <AppButton v-if="strip.addedCount" variant="quiet" :disabled="remeasuring" @click="remeasure">
-        {{ t('fixes.remeasure') }}
-      </AppButton>
     </StripHeader>
 
     <!-- Phone: zoomed past 1, a band above the stage shows the whole strip with
@@ -274,7 +267,15 @@ function done() {
     </JudgmentTally>
 
     <div class="adjust">
-      <AppButton variant="quiet" @click="adjust">{{ t('fixes.adjust') }}</AppButton>
+      <!-- After a run of fixes, the way to Measure says why it might help. -->
+      <div v-if="nudge" class="nudge" role="status">
+        <p class="t-body">{{ t('fixes.nudgeBody', { n: fixes }) }}</p>
+        <div class="nudge-actions">
+          <AppButton variant="secondary" @click="adjust">{{ t('fixes.nudgeGo') }}</AppButton>
+          <AppButton variant="quiet" @click="nudgeDismissed = true">{{ t('fixes.nudgeDismiss') }}</AppButton>
+        </div>
+      </div>
+      <AppButton v-else variant="quiet" @click="adjust">{{ t('fixes.adjust') }}</AppButton>
     </div>
 
     <div class="done-row">
@@ -378,6 +379,26 @@ function done() {
   border-bottom: 0;
 }
 
+.nudge {
+  border: var(--bd) solid var(--ink);
+  background: var(--action);
+  padding: var(--sp-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+}
+.nudge p {
+  margin: 0;
+}
+.nudge-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-16);
+}
+.nudge-actions > :last-child {
+  flex: none;
+  white-space: nowrap;
+}
 .adjust {
   padding: 0 var(--sp-16);
 }

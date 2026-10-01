@@ -195,12 +195,13 @@ zooms, two-finger drag pans; on a desktop the wheel zooms and Shift-drag pans.
 The minimap (`Overview`, `@move`) is touchable — touch or drag it to move the
 view there.
 
-Once the person has added eggs, **"Find the marks again from my eggs"** measures
-the added eggs (`strip.measureFromAdded`, medians), adopts that as the
-calibration — 3+ eggs as a population like the probe, fewer as a tap — and runs
-Measure again, asking first (`confirmRedo`). It is a calibration from the
-person's examples, like Mark one egg, and happens only when pressed: thresholds
-are never adjusted from fixes behind the person's back (non-negotiable 4).
+**A fix changes the marks it touches and nothing else** (Gabriel, Oct 2026).
+Nothing on Your fixes finds the marks again or adjusts how they are found — an
+earlier "Find the marks again from my eggs" did, and it was taken out because
+the screen then behaved unpredictably. After 5 fixes (removed + added + split,
+`NUDGE_AT`) a yellow panel in the body suggests adjusting Measure instead of
+fixing one by one; it links to Measure's look mode, where a slider asks before
+throwing fixes away, and "Keep fixing" dismisses it.
 
 `lib/marks.js` owns the 7–26px diameter clamp and hit-testing together, because
 drawing and hit-testing have to agree about how big a mark is.
