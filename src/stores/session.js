@@ -97,6 +97,14 @@ export const useSessionStore = defineStore('session', {
       this.resumable = await storage.findUnfinishedSession()
     },
 
+    /** Delete a finished session — its record, its strips and their photos —
+     *  from this phone. Asked for from Welcome, and confirmed there first. */
+    async deleteSession(id) {
+      await storage.deleteSession(id)
+      this.previous = this.previous.filter((s) => s.id !== id)
+      if (this.resumable?.id === id) this.resumable = null
+    },
+
     async start({ demo = false, quick = false, demoKind = null } = {}) {
       this.id = `s${Date.now().toString(36)}`
       this.startedAt = new Date().toISOString()

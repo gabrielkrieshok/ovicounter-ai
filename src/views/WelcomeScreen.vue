@@ -9,6 +9,7 @@ import WelcomeDoors from '@/components/WelcomeDoors.vue'
 import { bandFor } from '@/lib/bands'
 import { SESSION_HISTORY } from '@/lib/dev-fixtures'
 import { t, weekday } from '@/i18n'
+import { confirm } from '@/lib/confirm'
 import { useSessionStore } from '@/stores/session'
 
 /* Welcome: what this is, and the ways in.
@@ -50,6 +51,19 @@ onMounted(async () => {
   if (session.isQuick) session.end()
   await session.openStorage()
 })
+
+/* Deleting a session removes its strips and their photos from the phone, so it
+   asks first, and says how many strips that is. Fixtures (`#/?history`) are
+   not stored and cannot be deleted. */
+async function remove(s) {
+  const go = await confirm({
+    title: t('welcome.deleteTitle', { day: s.day }),
+    body: t('welcome.deleteBody', { n: s.counts.length }),
+    stay: t('welcome.deleteStay'),
+    go: t('welcome.deleteGo'),
+  })
+  if (go) await session.deleteSession(s.id)
+}
 
 /* Each session shows its first few bands as badges, loud bands filled. */
 const BADGES_SHOWN = 6
@@ -110,6 +124,14 @@ function overflow(counts) {
               >{{ band.letter }}</StatusBadge>
               <span v-if="overflow(s.counts)" class="t-label more">+{{ overflow(s.counts) }}</span>
             </div>
+            <button
+              class="delete t-label"
+              type="button"
+              :aria-label="t('welcome.deleteTitle', { day: s.day })"
+              @click="remove(s)"
+            >
+              {{ t('welcome.delete') }}
+            </button>
           </li>
         </ul>
       </template>
@@ -185,6 +207,15 @@ function overflow(counts) {
 .more {
   color: var(--muted);
 }
+.delete {
+  flex: none;
+  min-height: var(--hit-min);
+  padding: 0 var(--sp-10);
+  border: var(--bd-inner) solid var(--ink);
+  color: var(--ink);
+  background: var(--paper);
+}
+
 .badges {
   flex: none;
   display: flex;

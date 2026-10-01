@@ -84,6 +84,12 @@ export default {
     choosePhotoNote: 'A photo of a strip already on this phone.',
     orDemo: 'Or try a demo photo',
     sessionLink: 'Counting several strips? Start a session',
+    // DRAFT (Oct 2026) — deleting a previous session, confirmed first.
+    delete: 'Delete',
+    deleteTitle: 'Delete {day}’s session?',
+    deleteBody: 'Its {n} strips, with their photos and marks, will be removed from this phone. This cannot be undone.',
+    deleteStay: 'Keep it',
+    deleteGo: 'Delete',
   },
 
   capture: {

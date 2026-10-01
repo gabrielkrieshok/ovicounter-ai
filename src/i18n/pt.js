@@ -76,6 +76,11 @@ export default {
     choosePhotoNote: 'Uma foto de uma tira que já está neste telemóvel.',
     orDemo: 'Ou experimente com uma foto de exemplo',
     sessionLink: 'Vai contar várias tiras? Comece uma sessão',
+    delete: 'Apagar',
+    deleteTitle: 'Apagar a sessão de {day}?',
+    deleteBody: 'As suas {n} tiras, com as fotos e as marcas, vão ser apagadas deste telemóvel. Não é possível desfazer.',
+    deleteStay: 'Mantê-la',
+    deleteGo: 'Apagar',
   },
 
   capture: {

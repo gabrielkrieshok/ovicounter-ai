@@ -49,6 +49,7 @@ attention. All of it must survive translation to Spanish.
 | Strip result | "Share" · "One picture: your photo, the marks and the count." · "Saved the picture and copied the summary." · on the card: "Your photo", "The marks, checked by you" / "The marks the app found", "The count", "Counted on this phone with Ovicounter AI" | Oct 1: Share sends one story-shaped card, previewed beside the button. |
 | Menu | "Everything runs on this phone. Nothing is sent anywhere unless you share it." | Replaces "… Nothing is sent anywhere.", which stopped being true without the qualifier once Share existed. |
 | Processing | "PHOTO" / "THE PHOTO" · "Tap a step to see that picture. Press and hold the picture to see the photo under it." · "Continue to {step}" | Oct 1: Measure stops on the marks and waits; the photograph is a fifth picture to compare against, and holding any picture shows it. |
+| Welcome | "Delete" · "Delete {day}’s session?" / "Its {n} strips, with their photos and marks, will be removed from this phone. This cannot be undone." / "Keep it" / "Delete" | Oct 1: deleting a previous session, confirmed first. |
 
 ## Also unresolved
 

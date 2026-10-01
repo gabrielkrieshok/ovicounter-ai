@@ -70,6 +70,11 @@ export default {
     choosePhotoNote: 'Una foto de una tira que ya está en este teléfono.',
     orDemo: 'O pruebe con una foto de ejemplo',
     sessionLink: '¿Va a contar varias tiras? Empiece una sesión',
+    delete: 'Borrar',
+    deleteTitle: '¿Borrar la sesión del {day}?',
+    deleteBody: 'Sus {n} tiras, con sus fotos y marcas, se borrarán de este teléfono. No se puede deshacer.',
+    deleteStay: 'Conservarla',
+    deleteGo: 'Borrar',
   },
 
   capture: {
