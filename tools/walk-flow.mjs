@@ -462,6 +462,37 @@ async function main() {
     })()`)
     console.log(`  ${split}`)
     await shot('flow-9-fixes-split')
+
+    /* The clump pass: open it, give one clump a number, accept the next. */
+    const clumps = await evaluate(`(async () => {
+      const settle = async (n = 8) => { for (let i = 0; i < n; i++) await new Promise(r => requestAnimationFrame(r)); };
+      const open = document.querySelector('.clumps-open');
+      if (!open) return { error: 'no "Check the clumps" button' };
+      const before = open.textContent.trim();
+      open.click(); await settle();
+      const head = () => document.querySelector('.clump-head .t-label')?.textContent.trim();
+      const count = () => document.querySelector('.clump-count')?.textContent.trim();
+      const first = { head: head(), count: count() };
+      const plus = [...document.querySelectorAll('.stepper .step')].pop();
+      plus.click(); await settle(); plus.click(); await settle();
+      const set = count();
+      return { before, first, set };
+    })()`)
+    console.log(`  clumps: ${clumps.error ?? `${clumps.before} → ${clumps.first.head}, app ${clumps.first.count} → set ${clumps.set}`}`)
+    check('the clump pass opens on a clump with the app\'s number', !clumps.error && /^~\d+$/.test(clumps.first.count))
+    check('+ twice gives the person\'s number, without ~', !clumps.error && /^\d+$/.test(clumps.set) && Number(clumps.set) === Number(clumps.first.count.slice(1)) + 2)
+    await shot('flow-9b-fixes-clump')
+    const clumpsAfter = await evaluate(`(async () => {
+      const settle = async (n = 8) => { for (let i = 0; i < n; i++) await new Promise(r => requestAnimationFrame(r)); };
+      document.querySelector('.clump-next').click(); await settle();
+      const head = document.querySelector('.clump-head .t-label')?.textContent.trim();
+      document.querySelector('.clump-exit').click(); await settle();
+      const open = document.querySelector('.clumps-open')?.textContent.trim();
+      document.querySelector('.undo').click(); await settle();
+      const undone = document.querySelector('.clumps-open')?.textContent.trim();
+      return { head, open, undone };
+    })()`)
+    console.log(`  next → ${clumpsAfter.head}; back to tools → ${clumpsAfter.open}; undo → ${clumpsAfter.undone}`)
   }
 
   /* ------------------------------------------------------------------ */

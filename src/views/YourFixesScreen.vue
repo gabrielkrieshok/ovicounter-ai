@@ -1,5 +1,5 @@
 <script setup>
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
@@ -14,6 +14,7 @@ import ZoomPanStage from '@/components/ZoomPanStage.vue'
 import ZoomRail from '@/components/ZoomRail.vue'
 import StepList from '@/components/StepList.vue'
 import { t, weekday } from '@/i18n'
+import { clumpCounts } from '@/lib/marks'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
 
@@ -24,10 +25,10 @@ import { useStripStore } from '@/stores/strip'
  * the photograph, the settings, and these positions — is the product. The count
  * is only a projection of it.
  *
- * Rejecting has to be the cheapest gesture on the screen (§6.3), so it is a
- * bare tap with no modifier, no mode and no confirmation. Everything else costs
- * more: adding needs a deliberate hold, splitting needs a drawn stroke, and
- * navigating needs a second finger. See ZoomPanStage for why the one-finger
+ * Rejecting has to be the cheapest gesture on the screen (§6.3), so Remove is
+ * the tool chosen on arrival and one finger paints with it; navigating needs a
+ * second finger. Clumps have a pass of their own: one at a time, zoomed in,
+ * the person gives the number. See ZoomPanStage for why the one-finger
  * gesture belongs to culling rather than to panning.
  */
 
@@ -114,6 +115,52 @@ function onPaintEnd() {
   lastPaint = null
 }
 
+/* THE CLUMPS (Oct 2026). Touching eggs are where the app guesses most, so
+   they get their own pass: one clump at a time, zoomed in, with the app's
+   number and what the clump's size suggests, and the person's own number set
+   with − and +. Next accepts what is shown. One finger pans while this is
+   open, so looking around a clump never removes anything. */
+const clumpMode = ref(false)
+const clumpIndex = ref(0)
+const queue = computed(() => strip.clumps)
+const current = computed(() => (clumpMode.value ? queue.value[clumpIndex.value] : null))
+const counts = computed(() => clumpCounts(strip.marks))
+const currentCount = computed(() => (current.value ? counts.value.get(current.value.id) ?? 0 : 0))
+const clumpsChecked = computed(() => strip.clumps.filter((c) => c.checked).length)
+
+/* After the layout settles: on a phone, opening the pass hides the band and
+   the tally, and the stage grows to take their place. */
+async function focusClump() {
+  await nextTick()
+  requestAnimationFrame(() => {
+    const c = current.value
+    if (!c) return
+    stage.value?.focusOn({ x0: c.x, y0: c.y, x1: c.x + c.w, y1: c.y + c.h }, 0.4)
+  })
+}
+function openClumps() {
+  const first = queue.value.findIndex((c) => !c.checked)
+  clumpIndex.value = first >= 0 ? first : 0
+  clumpMode.value = true
+  focusClump()
+}
+function closeClumps() {
+  clumpMode.value = false
+}
+function setClump(n) {
+  if (current.value && n >= 0) strip.setClumpCount(current.value.id, n)
+}
+function stepClump(by) {
+  if (by > 0 && current.value) strip.confirmClump(current.value.id)
+  const next = clumpIndex.value + by
+  if (next >= queue.value.length) {
+    closeClumps()
+    return
+  }
+  clumpIndex.value = Math.max(0, next)
+  focusClump()
+}
+
 /* The minimap: centre the view where it was touched. */
 function moveTo(point) {
   stage.value?.centerOn(point.x, point.y)
@@ -153,18 +200,51 @@ function done() {
 </script>
 
 <template>
-  <div class="fixes" :class="{ zoomed: zoom > 1.001 }">
+  <div class="fixes" :class="{ zoomed: zoom > 1.001, clumping: clumpMode && !wide }">
     <!-- Laptop: the finished steps, collapsed, above this one (StepList). -->
     <StepList v-if="wide" class="steps-before" part="before" />
 
     <StripHeader class="head" :title="t('fixes.title')" :eyebrow="wide ? eyebrow : ''">
-      <!-- Pick what one finger does; the line under says how, and that two
-           fingers move the strip. -->
-      <ToolPicker v-model="tool" :can-undo="!!strip.history.length" @undo="strip.undo()" />
-      <p class="tool-hint t-body">
-        {{ t(`fixes.hint${tool.charAt(0).toUpperCase()}${tool.slice(1)}`) }}
-        <span class="two-fingers">{{ t('fixes.twoFingers') }}</span>
-      </p>
+      <!-- The clump pass: one clump at a time, the person's number. -->
+      <div v-if="current" class="clump-panel">
+        <div class="clump-head">
+          <span class="t-label">{{ t('fixes.clumpOf', { n: clumpIndex + 1, total: queue.length }) }}</span>
+          <button class="clump-exit t-label" type="button" @click="closeClumps">{{ t('fixes.clumpsDone') }}</button>
+        </div>
+        <div class="clump-row">
+        <div class="stepper">
+          <button
+            class="step t-title"
+            type="button"
+            :aria-label="t('fixes.clumpFewer')"
+            :disabled="currentCount <= 0"
+            @click="setClump(currentCount - 1)"
+          >−</button>
+          <span class="clump-count t-tally" :class="{ machine: !current.checked }" aria-live="polite">
+            {{ current.checked ? currentCount : `~${currentCount}` }}
+          </span>
+          <button class="step t-title" type="button" :aria-label="t('fixes.clumpMore')" @click="setClump(currentCount + 1)">+</button>
+        </div>
+        <AppButton variant="secondary" class="clump-next" @click="stepClump(1)">
+          {{ t(clumpIndex + 1 >= queue.length ? 'fixes.clumpLast' : 'fixes.clumpNext') }}
+        </AppButton>
+        </div>
+        <p class="clump-note t-body">{{ t('fixes.clumpHint', { app: current.watershed, size: current.byArea }) }}</p>
+        <AppButton variant="quiet" class="clump-prev" :disabled="clumpIndex === 0" @click="stepClump(-1)">{{ t('fixes.clumpPrev') }}</AppButton>
+      </div>
+
+      <template v-else>
+        <!-- Pick what one finger does; the line under says how, and that two
+             fingers move the strip. -->
+        <ToolPicker v-model="tool" :can-undo="!!strip.history.length" @undo="strip.undo()" />
+        <p class="tool-hint t-body">
+          {{ t(`fixes.hint${tool.charAt(0).toUpperCase()}${tool.slice(1)}`) }}
+          <span class="two-fingers">{{ t('fixes.twoFingers') }}</span>
+        </p>
+        <AppButton v-if="strip.clumps.length" variant="secondary" class="clumps-open" @click="openClumps">
+          {{ t('fixes.clumpsOpen', { done: clumpsChecked, total: strip.clumps.length }) }}
+        </AppButton>
+      </template>
     </StripHeader>
 
     <!-- Phone: zoomed past 1, a band above the stage shows the whole strip with
@@ -172,7 +252,7 @@ function done() {
          collapses (Gabriel, Sep 30): the stage already shows the whole strip,
          and showing it twice costs the stage 132px. The stage keeps the photo
          still on screen as the band arrives (ZoomPanStage `measure`). -->
-    <div v-if="!wide && zoom > 1.001" class="band">
+    <div v-if="!wide && zoom > 1.001 && !clumpMode" class="band">
       <Overview
         class="overview"
         :source="strip.working?.canvas ?? null"
@@ -189,7 +269,7 @@ function done() {
         ref="stage"
         :src="strip.working?.canvas ?? null"
         background="var(--stage-bg)"
-        :tool="tool"
+        :tool="clumpMode ? 'pan' : tool"
         @paintstart="onPaintStart"
         @paint="onPaint"
         @paintend="onPaintEnd"
@@ -198,7 +278,7 @@ function done() {
         @navigate="strip.noteReview()"
         v-slot="{ rect, stage: size, hold, stroke, brush }"
       >
-        <MarkLayer :marks="strip.marks" :clumps="strip.clumps" :rect="rect" :stage="size" />
+        <MarkLayer :marks="strip.marks" :clumps="strip.clumps" :focus-clump="current?.id ?? null" :rect="rect" :stage="size" />
 
         <!-- The stroke, while it is being drawn. It is not a mark and never
              becomes one, so it is drawn as plain ink rather than in any of the
@@ -281,6 +361,86 @@ function done() {
   flex-direction: column;
 }
 
+.clumps-open {
+  margin-top: var(--sp-12);
+}
+.clump-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  border: var(--bd) solid var(--ink);
+  padding: var(--sp-12);
+}
+.clump-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-12);
+}
+.clump-exit {
+  min-height: var(--hit-min);
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  border: var(--bd) solid var(--ink);
+}
+.stepper .step {
+  flex: none;
+  width: var(--hit-secondary);
+  height: var(--hit-secondary);
+  font-size: 28px;
+  color: var(--ink);
+  background: var(--paper);
+}
+.stepper .step:first-child {
+  border-right: var(--bd) solid var(--ink);
+}
+.stepper .step:last-child {
+  border-left: var(--bd) solid var(--ink);
+}
+.stepper .step:disabled {
+  color: var(--disabled);
+}
+.clump-count {
+  flex: 1;
+  text-align: center;
+}
+.clump-count.machine {
+  color: var(--muted);
+}
+.clump-note {
+  margin: 0;
+  color: var(--muted);
+}
+/* The number and Next side by side on a phone, so the clump keeps the
+   stage; stacked in the laptop's wider column. */
+.clump-row {
+  display: flex;
+  gap: var(--sp-8);
+}
+.clump-row .stepper {
+  flex: 1;
+}
+.clump-next {
+  flex: 1;
+  width: auto;
+}
+.clump-prev {
+  align-self: flex-start;
+}
+.wide .clump-row {
+  flex-direction: column;
+}
+/* Checking clumps on a phone: the stage takes the room the tally and the
+   way to Measure had. */
+.fixes.clumping .tally,
+.fixes.clumping .adjust {
+  display: none;
+}
 .tool-hint {
   margin: var(--sp-8) 0 0;
 }

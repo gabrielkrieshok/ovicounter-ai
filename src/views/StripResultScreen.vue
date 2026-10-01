@@ -103,6 +103,9 @@ onMounted(() => {
       gate: strip.gate ? toRaw(strip.gate) : null,
       params: { ...strip.params },
         marks: strip.marks.map((m) => ({ ...m })),
+        /* Each clump with the app's two counts and, where the person gave
+           one, theirs — without the pixel sample used to place its marks. */
+        clumps: strip.clumps.map(({ points, ...c }) => ({ ...c })),
         machineTotal: strip.machineTotal,
         /* Whether a person reviewed the marks. When false, `count` is the
            machine's total and the marks are still `proposed` — the record

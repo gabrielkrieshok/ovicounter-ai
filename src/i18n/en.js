@@ -230,6 +230,16 @@ export default {
     hintSplit: 'Paint across a clump to split it.',
     twoFingers: 'Two fingers move the strip.',
     /* DRAFT (Oct 2026) — after five fixes, the way to Measure says why. */
+    /* DRAFT (Oct 2026) — the clump pass on Manually refine. */
+    clumpsOpen: 'Check the clumps · {done} of {total}',
+    clumpOf: 'Clump {n} of {total}',
+    clumpHint: 'The app split it into ~{app}; its size fits about {size}. Set how many eggs you see.',
+    clumpFewer: 'One fewer egg',
+    clumpMore: 'One more egg',
+    clumpPrev: 'Previous',
+    clumpNext: 'Next clump',
+    clumpLast: 'Finish the clumps',
+    clumpsDone: 'Back to the tools',
     nudgeBody: '{n} fixes so far. If the marks are off the same way across the strip, adjusting Measure may fit it better than fixing them one by one.',
     nudgeGo: 'Adjust Measure',
     nudgeDismiss: 'Keep fixing',

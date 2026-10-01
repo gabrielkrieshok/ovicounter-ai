@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 
 import { useCv } from '@/cv/use-cv'
 import { DEFAULT_PARAMS, seedParamsFromEgg } from '@/cv/params'
+import { placeInClump } from '@/cv/place'
 import { probeForEgg } from '@/cv/probe'
 import { downscaledImageData, measureBlobAt, renderWorkingImage } from '@/lib/image'
 import { useSessionStore } from './session'
@@ -552,6 +553,56 @@ export const useStripStore = defineStore('strip', {
       return fresh.length
     },
 
+    /**
+     * The person's number for a clump (Oct 2026): its marks are replaced by
+     * that many, placed over the clump's pixels (cv/place.js), kept — the
+     * person has answered for them. Everything else on the strip stays as it
+     * is. One step of undo.
+     */
+    setClumpCount(id, count) {
+      const clump = this.clumps.find((c) => c.id === id)
+      if (!clump || count < 0) return
+      const before = this.marks.filter((m) => m.clump === id).map((m) => ({ ...m }))
+      const aspect = this.working ? this.working.width / this.working.height : 1
+      const r = Math.sqrt((this.params.medianEggArea ?? 20) / Math.PI)
+      const w = (2 * r) / (this.working?.width ?? 1)
+      const h = (2 * r) / (this.working?.height ?? 1)
+      const fresh = placeInClump(clump.points, count, aspect).map((at) => ({
+        id: nextMarkId++,
+        x: at.x,
+        y: at.y,
+        w,
+        h,
+        area: this.params.medianEggArea,
+        fromClump: true,
+        clump: id,
+        placed: true,
+        source: 'machine',
+        status: 'kept',
+      }))
+      this.marks = [...this.marks.filter((m) => m.clump !== id), ...fresh]
+      this.history.push({ type: 'clump', id, before, wasChecked: clump.checked, wasCount: clump.count })
+      clump.checked = true
+      clump.count = count
+      this.clumps = [...this.clumps]
+      this.reviewed = true
+    },
+
+    /** The app's number for a clump is right: its marks stand, kept. */
+    confirmClump(id) {
+      const clump = this.clumps.find((c) => c.id === id)
+      if (!clump || clump.checked) return
+      const before = this.marks.filter((m) => m.clump === id).map((m) => ({ ...m }))
+      for (const m of this.marks) if (m.clump === id && m.status === 'proposed') m.status = 'kept'
+      this.history.push({ type: 'clump', id, before, wasChecked: false, wasCount: clump.count })
+      clump.checked = true
+      clump.count = before.filter((m) => m.status !== 'removed').length
+      /* New arrays, so the layers that draw them repaint. */
+      this.marks = [...this.marks]
+      this.clumps = [...this.clumps]
+      this.reviewed = true
+    },
+
     undo() {
       const last = this.history.pop()
       if (!last) return false
@@ -574,6 +625,16 @@ export const useStripStore = defineStore('strip', {
             if (mark) mark.status = change.was
           }
           this.marks.push(...last.unadded)
+          break
+        }
+        case 'clump': {
+          this.marks = [...this.marks.filter((m) => m.clump !== last.id), ...last.before]
+          const clump = this.clumps.find((c) => c.id === last.id)
+          if (clump) {
+            clump.checked = last.wasChecked
+            clump.count = last.wasCount
+          }
+          this.clumps = [...this.clumps]
           break
         }
         case 'split': {

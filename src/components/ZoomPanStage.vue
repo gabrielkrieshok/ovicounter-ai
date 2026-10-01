@@ -294,6 +294,18 @@ function centerOn(nx, ny) {
   emit('navigate')
 }
 
+/* For the clump queue: zoom until a box (normalised) fills about `fill` of
+   the stage, and centre it. */
+function focusOn(box, fill = 0.5) {
+  const s = stageSize.value
+  const n = natural.value
+  if (!s.width || !s.height || !n.width) return
+  const bw = Math.max(1e-4, box.x1 - box.x0) * n.width * fitScale.value
+  const bh = Math.max(1e-4, box.y1 - box.y0) * n.height * fitScale.value
+  zoom.value = Math.min(props.maxZoom, Math.max(1, Math.min((s.width * fill) / bw, (s.height * fill) / bh)))
+  centerOn((box.x0 + box.x1) / 2, (box.y0 + box.y1) / 2)
+}
+
 /* For the zoom buttons (ZoomRail): the same zoom the wheel does, about the
    middle of the stage, for people who do not know they can pinch. */
 function zoomBy(factor) {
@@ -454,7 +466,7 @@ onBeforeUnmount(() => {
 watch(() => props.src, load)
 watch(rect, paint)
 
-defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, centerOn, viewport, natural })
+defineExpose({ toImage, toStage, rect, resetView, zoom, zoomBy, centerOn, focusOn, viewport, natural })
 </script>
 
 <template>

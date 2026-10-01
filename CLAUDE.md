@@ -196,6 +196,14 @@ middle-click drag pans (Measure too).
 The minimap (`Overview`, `@move`) is touchable — touch or drag it to move the
 view there.
 
+**Clumps get their own pass** (Oct 2026): "Check the clumps · n of N" on
+Manually refine steps through them one at a time, zoomed in (`focusOn`), with
+the app's number, what the clump's size suggests, and − / + for the person's.
+Changing it replaces that clump's marks with that many, placed by
+`cv/place.js` and kept (`strip.setClumpCount`); Next accepts what is shown
+(`confirmClump`). One step of undo each. One finger pans while the pass is
+open. The record carries each clump's two counts and the person's.
+
 **A fix changes the marks it touches and nothing else** (Gabriel, Oct 2026).
 Nothing on Your fixes finds the marks again or adjusts how they are found — an
 earlier "Find the marks again from my eggs" did, and it was taken out because

@@ -32,6 +32,8 @@ const props = defineProps({
   /** Clumps of touching eggs (cv/pipeline.js describeClumps), each drawn as
       one outline with its count. `checked` on a clump: the person answered it. */
   clumps: { type: Array, default: () => [] },
+  /** The clump being checked on Manually refine, drawn with a yellow halo. */
+  focusClump: { type: Number, default: null },
   /** Bounding boxes, for the step of the scan that draws them. */
   boxes: { type: Array, default: () => [] },
   /** The image's box in stage coordinates. May be larger than the stage. */
@@ -105,14 +107,18 @@ function paint() {
     const counts = clumpCounts(props.marks)
     for (const c of props.clumps) {
       if (!visible({ x: c.cx, y: c.cy })) continue
-      drawClump(ctx, c, rect, { count: counts.get(c.id) ?? 0, checked: !!c.checked })
+      drawClump(ctx, c, rect, {
+        count: counts.get(c.id) ?? 0,
+        checked: !!c.checked,
+        focus: c.id === props.focusClump,
+      })
     }
   }
 }
 
 onMounted(paint)
 watch(
-  () => [props.marks, props.ghosts, props.clumps, props.boxes, props.rect, props.stage],
+  () => [props.marks, props.ghosts, props.clumps, props.focusClump, props.boxes, props.rect, props.stage],
   paint,
   { deep: false },
 )

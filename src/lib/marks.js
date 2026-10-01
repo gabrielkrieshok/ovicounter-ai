@@ -174,7 +174,7 @@ export function drawMark(ctx, mark, rect) {
  * person has answered it. The tag is left off while the clump is too small on
  * screen for it to be anything but clutter.
  */
-export function drawClump(ctx, clump, rect, { count, checked = false } = {}) {
+export function drawClump(ctx, clump, rect, { count, checked = false, focus = false } = {}) {
   const x = rect.left + clump.cx * rect.width
   const y = rect.top + clump.cy * rect.height
   const rx = Math.max(6, clump.rx * rect.width)
@@ -182,6 +182,14 @@ export function drawClump(ctx, clump, rect, { count, checked = false } = {}) {
   const colour = checked ? MARK_COLOUR.kept : MARK_COLOUR.proposed
 
   ctx.save()
+  if (focus) {
+    // The one being checked: a wide safety-yellow band under the outline.
+    ctx.lineWidth = 8
+    ctx.strokeStyle = 'rgba(255,210,63,.85)'
+    ctx.beginPath()
+    ctx.ellipse(x, y, rx + 3, ry + 3, clump.angle, 0, Math.PI * 2)
+    ctx.stroke()
+  }
   ctx.setLineDash(checked ? [] : [5, 3])
   ctx.lineWidth = 3.5
   ctx.strokeStyle = 'rgba(255,255,255,.6)'
