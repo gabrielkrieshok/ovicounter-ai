@@ -102,6 +102,10 @@ export const useStripStore = defineStore('strip', {
        on a quick count, which normally skips it. */
     furthest: null,
     visitedRefine: false,
+
+    /* How many ovoids the test-pattern demo drew, or null for a photograph.
+       Strip result shows it beside the count — it is a test. */
+    drawn: null,
   }),
 
   getters: {
@@ -138,9 +142,10 @@ export const useStripStore = defineStore('strip', {
   },
 
   actions: {
-    beginFromPhoto(sourceUrl) {
+    beginFromPhoto(sourceUrl, { drawn = null } = {}) {
       this.$reset()
       this.sourceUrl = sourceUrl
+      this.drawn = drawn
     },
 
     /** Find the paper in the photograph. A proposal — the operator can drag it. */

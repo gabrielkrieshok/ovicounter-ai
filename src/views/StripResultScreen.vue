@@ -9,7 +9,7 @@ import JudgmentTally from '@/components/JudgmentTally.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import { bandFor } from '@/lib/bands'
-import { DEMO_PHOTO } from '@/lib/samples'
+import { demoPhoto } from '@/lib/samples'
 import StepList from '@/components/StepList.vue'
 import { t, tParts } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
@@ -126,14 +126,15 @@ onMounted(() => {
 
 /* Calibration is carried forward, so the next strip skips Mark one egg. That
    is the loop getting lighter, which is the product. */
-function nextStrip() {
+async function nextStrip() {
   const wasDemo = session.isDemo
   strip.$reset()
   if (wasDemo) {
-    /* The demo has one bundled photograph, so a second strip is the same one
-       again. It is honest about what it demonstrates — the loop, and
-       calibration carrying forward — rather than pretending to a new strip. */
-    strip.beginFromPhoto(DEMO_PHOTO)
+    /* The demo's photograph again (or a fresh test pattern). It is honest
+       about what it demonstrates — the loop, and calibration carrying forward
+       — rather than pretending to a new strip. */
+    const { url, drawn } = await demoPhoto(session.demoKind)
+    strip.beginFromPhoto(url, { drawn })
     router.push({ name: 'crop' })
   } else {
     router.push({ name: 'capture' })
@@ -146,12 +147,13 @@ function endSession() {
 
 /* Quick count: the next strip stands alone — the probe measures it afresh and
    this one is dropped, as the badge above promised. */
-function countAnother() {
+async function countAnother() {
   const wasDemo = session.isDemo
   session.countAnother()
   strip.$reset()
   if (wasDemo) {
-    strip.beginFromPhoto(DEMO_PHOTO)
+    const { url, drawn } = await demoPhoto(session.demoKind)
+    strip.beginFromPhoto(url, { drawn })
     router.push({ name: 'crop' })
   } else {
     router.push({ name: 'capture' })
@@ -208,6 +210,10 @@ function backHome() {
       />
       <!-- Said, not hidden: the count includes marks in parts nobody looked at
            close up. They are still blue on the thumbnail below. -->
+      <!-- The test-pattern demo knows its answer, and says it: a test. -->
+      <p v-if="strip.drawn !== null" class="drawn t-label">
+        {{ t('result.testDrawn', { n: strip.drawn }) }}
+      </p>
       <p v-if="checked && strip.partsNotLooked" class="unlooked t-label">
         {{ t('result.partsNotLooked', { n: strip.partsNotLooked, total: strip.looked.length }) }}
       </p>
@@ -298,6 +304,10 @@ function backHome() {
 .sentence.unchecked {
   color: var(--muted);
   margin-bottom: 0;
+}
+.drawn {
+  margin: var(--sp-10) 0 0;
+  color: var(--ink);
 }
 .unlooked {
   margin: var(--sp-10) 0 0;

@@ -41,7 +41,11 @@ Capture → Crop → Processing → Refine → Your fixes → Strip result → N
 **quick count** ("Count one strip", and the demo): Capture → Crop → Processing
 → Your fixes → Strip result, three decisions from Welcome, no session, nothing
 saved unless "Start a session with these settings" is pressed — which makes
-that strip 1 of a real session. `session.isQuick` is the switch; Refine is one
+that strip 1 of a real session. The demo is a quick count on one of three
+photographs (Sep 30, 2026, `lib/samples.js` DEMOS): the clean bundled strip
+(the yellow button), a stained field strip on a table, or a test pattern drawn
+on the phone with a known number of ovoids (`lib/test-pattern.js`), which Strip
+result states beside the count. `session.isQuick` is the switch; Refine is one
 link away on Your fixes.
 
 ## Stack — decided, don't relitigate

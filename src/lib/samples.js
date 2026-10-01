@@ -12,6 +12,23 @@
    — several hundred eggs — which is the honest case, not the flattering one. */
 export const DEMO_PHOTO = '/samples/test-strip.png'
 
+/* The three demos (Sep 30, 2026). `clean` is the strip above — the one the
+   yellow button starts. `field` is a whole strip lying on a table: stained,
+   creased, with the table around it to crop away. `pattern` is drawn on this
+   phone with a known number of ovoids (lib/test-pattern.js). */
+export const DEMOS = ['clean', 'field', 'pattern']
+export const FIELD_DEMO_PHOTO = '/samples/whole-strip-on-table.jpg'
+
+/** The photograph for a demo: { url, drawn } — `drawn` only for the pattern. */
+export async function demoPhoto(kind) {
+  if (kind === 'field') return { url: FIELD_DEMO_PHOTO, drawn: null }
+  if (kind === 'pattern') {
+    const { drawTestPattern } = await import('@/lib/test-pattern')
+    return drawTestPattern()
+  }
+  return { url: DEMO_PHOTO, drawn: null }
+}
+
 /* Field photographs, for testing the pipeline against real variation. Not
    reachable from the flow; used by the dev harness. */
 export const FIELD_SAMPLES = [

@@ -8,7 +8,7 @@ import MarkIntro from '@/components/MarkIntro.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import { bandFor } from '@/lib/bands'
 import { SESSION_HISTORY } from '@/lib/dev-fixtures'
-import { DEMO_PHOTO } from '@/lib/samples'
+import { demoPhoto } from '@/lib/samples'
 import { t, weekday } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -24,6 +24,12 @@ import { useStripStore } from '@/stores/strip'
 const route = useRoute()
 const router = useRouter()
 const wide = inject('wideLayout', ref(false))
+
+/* The two other demos open under the yellow button; previous sessions open
+   behind their own button — neither is common yet, and both cost the doors
+   their place at the top of a phone. */
+const demosOpen = ref(false)
+const historyOpen = ref(false)
 const session = useSessionStore()
 const strip = useStripStore()
 
@@ -89,9 +95,10 @@ async function countOne() {
 /* The demo is a quick count on a bundled strip, and saves nothing. It skips
    Capture, because there is no photograph to take — the strip is already in the
    build — and lands on Crop with it in hand. */
-async function startDemo() {
-  await session.start({ demo: true, quick: true })
-  strip.beginFromPhoto(DEMO_PHOTO)
+async function startDemo(kind = 'clean') {
+  await session.start({ demo: true, quick: true, demoKind: kind })
+  const { url, drawn } = await demoPhoto(kind)
+  strip.beginFromPhoto(url, { drawn })
   router.push({ name: 'crop' })
 }
 </script>
@@ -101,30 +108,57 @@ async function startDemo() {
     <section class="doors">
       <p class="intro" :class="wide ? 't-display' : 't-body'">{{ t('app.intro') }}</p>
 
-      <!-- The mark language is the one thing here that has to be learned, so
-           it is shown rather than listed: a strip with the four marks on it,
-           each labelled — a picture of the job about to be done. -->
-      <MarkIntro class="picture" />
+      <!-- On the phone the picture of the job sits under the intro; on the
+           laptop it heads the right-hand column. -->
+      <MarkIntro v-if="!wide" class="picture" />
+
+      <!-- On the phone, above the doors: an interrupted session is unfinished
+           work, and starting a new one on top of it loses the thread. -->
+      <button v-if="session.resumable && !wide" class="resume" type="button" @click="resume">
+        <span class="t-label">{{ t('welcome.resumeNext', { n: resumeNext }) }}</span>
+        <span class="t-title">{{ t('welcome.resumeDay', { day: resumeDay }) }}</span>
+      </button>
 
       <div class="actions">
-        <!-- On the phone, above the doors: an interrupted session is unfinished
-             work, and starting a new one on top of it loses the thread. On the
-             laptop it heads the history column instead. -->
-        <button v-if="session.resumable && !wide" class="resume" type="button" @click="resume">
-          <span class="t-label">{{ t('welcome.resumeNext', { n: resumeNext }) }}</span>
-          <span class="t-title">{{ t('welcome.resumeDay', { day: resumeDay }) }}</span>
-        </button>
+        <!-- The demo first, in yellow: for now most people opening this are
+             seeing what it does, not counting a strip. One tap starts the clean
+             strip — the demo still reaches a number in three decisions — and
+             the other two are one more tap away. -->
+        <div class="demo">
+          <AppButton variant="primary" @click="startDemo('clean')">
+            {{ t('welcome.tryDemo') }}
+          </AppButton>
+          <button
+            class="disclose t-label"
+            type="button"
+            :aria-expanded="demosOpen"
+            @click="demosOpen = !demosOpen"
+          >
+            {{ t('welcome.otherDemos') }} <span aria-hidden="true">{{ demosOpen ? '▾' : '▸' }}</span>
+          </button>
+          <div v-if="demosOpen" class="choices">
+            <button class="choice" type="button" @click="startDemo('field')">
+              <span class="t-title">{{ t('welcome.demoField') }}</span>
+              <span class="t-body note-line">{{ t('welcome.demoFieldNote') }}</span>
+            </button>
+            <button class="choice" type="button" @click="startDemo('pattern')">
+              <span class="t-title">{{ t('welcome.demoPattern') }}</span>
+              <span class="t-body note-line">{{ t('welcome.demoPatternNote') }}</span>
+            </button>
+          </div>
+        </div>
 
-        <AppButton variant="primary" @click="startSession">
-          {{ t('welcome.startSession') }}
-        </AppButton>
-        <div class="minor">
+        <div class="door">
           <AppButton variant="secondary" @click="countOne">
             {{ t('welcome.countOne') }}
           </AppButton>
-          <AppButton variant="secondary" @click="startDemo">
-            {{ t('welcome.tryDemo') }}
+          <p class="t-body note-line">{{ t('welcome.countOneNote') }}</p>
+        </div>
+        <div class="door">
+          <AppButton variant="secondary" @click="startSession">
+            {{ t('welcome.startSession') }}
           </AppButton>
+          <p class="t-body note-line">{{ t('welcome.startSessionNote') }}</p>
         </div>
       </div>
 
@@ -136,34 +170,46 @@ async function startDemo() {
     </section>
 
     <section v-if="wide || sessions.length || session.resumable" class="history">
-      <h2 class="section t-label">{{ t('welcome.previousSessions') }}</h2>
+      <MarkIntro v-if="wide" class="picture" />
 
       <button v-if="session.resumable && wide" class="resume" type="button" @click="resume">
         <span class="t-label">{{ t('welcome.resumeNext', { n: resumeNext }) }}</span>
         <span class="t-title">{{ t('welcome.resumeDay', { day: resumeDay }) }}</span>
       </button>
 
-      <ul class="rows">
-        <li v-for="s in sessions" :key="s.id" class="row">
-          <div class="what">
-            <span class="day t-title">{{ s.day }}</span>
-            <span class="meta">
-              <span class="t-label strips">{{ t('welcome.stripCount', { n: s.counts.length }) }}</span>
-              <StatusBadge v-if="s.unchecked" tone="dashed">
-                {{ t('badge.notCheckedCount', { n: s.unchecked }) }}
-              </StatusBadge>
-            </span>
-          </div>
-          <div class="badges">
-            <StatusBadge
-              v-for="(band, j) in badges(s.counts)"
-              :key="j"
-              :tone="band.heavyweight ? 'filled' : 'muted'"
-            >{{ band.letter }}</StatusBadge>
-            <span v-if="overflow(s.counts)" class="t-label more">+{{ overflow(s.counts) }}</span>
-          </div>
-        </li>
-      </ul>
+      <template v-if="sessions.length">
+        <button
+          class="disclose history-toggle t-title"
+          type="button"
+          :aria-expanded="historyOpen"
+          @click="historyOpen = !historyOpen"
+        >
+          <span>{{ t('welcome.previousSessions') }} · {{ sessions.length }}</span>
+          <span aria-hidden="true">{{ historyOpen ? '▾' : '▸' }}</span>
+        </button>
+
+        <ul v-if="historyOpen" class="rows">
+          <li v-for="s in sessions" :key="s.id" class="row">
+            <div class="what">
+              <span class="day t-title">{{ s.day }}</span>
+              <span class="meta">
+                <span class="t-label strips">{{ t('welcome.stripCount', { n: s.counts.length }) }}</span>
+                <StatusBadge v-if="s.unchecked" tone="dashed">
+                  {{ t('badge.notCheckedCount', { n: s.unchecked }) }}
+                </StatusBadge>
+              </span>
+            </div>
+            <div class="badges">
+              <StatusBadge
+                v-for="(band, j) in badges(s.counts)"
+                :key="j"
+                :tone="band.heavyweight ? 'filled' : 'muted'"
+              >{{ band.letter }}</StatusBadge>
+              <span v-if="overflow(s.counts)" class="t-label more">+{{ overflow(s.counts) }}</span>
+            </div>
+          </li>
+        </ul>
+      </template>
     </section>
   </div>
 </template>
@@ -190,12 +236,55 @@ async function startDemo() {
 .actions {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-10);
+  gap: var(--sp-14);
 }
-.minor {
+
+.demo {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-10);
+}
+/* A disclosure, not a button that does something: ink text in a 44px row. */
+.disclose {
+  min-height: var(--hit-min);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  color: var(--ink);
+  text-align: left;
+}
+.choices {
+  display: flex;
+  flex-direction: column;
+  border: var(--bd) solid var(--ink);
+}
+.choice {
+  min-height: var(--hit-secondary);
+  padding: var(--sp-10) var(--sp-14);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  background: var(--paper);
+  color: var(--ink);
+}
+.choice + .choice {
+  border-top: var(--bd-inner) solid var(--ink);
+}
+.choice:active {
+  background: var(--panel);
+}
+
+/* Each door with one line under it, so Count one strip and Start a new
+   session read as two different things rather than two of the same button. */
+.door {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+.note-line {
+  margin: 0;
+  color: var(--muted);
 }
 
 .resume {
@@ -213,11 +302,6 @@ async function startDemo() {
   color: var(--ink);
 }
 
-.section {
-  margin: 0 0 var(--sp-10);
-  color: var(--ink);
-}
-
 .note {
   margin: 0;
   color: var(--muted);
@@ -225,12 +309,19 @@ async function startDemo() {
 
 .history {
   padding: 0 var(--sp-16) var(--sp-22);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+.history-toggle {
+  justify-content: space-between;
+  border-top: var(--bd) solid var(--ink);
+  border-bottom: var(--bd) solid var(--ink);
 }
 .rows {
   list-style: none;
-  margin: 0;
+  margin: calc(-1 * var(--sp-12)) 0 0;
   padding: 0;
-  border-top: var(--bd) solid var(--ink);
 }
 .row {
   display: flex;
@@ -264,21 +355,18 @@ async function startDemo() {
   gap: 4px;
 }
 
-/* Laptop (brief §4): two columns — the doors on the left with the intro at
-   display size and the mark key inline; previous sessions on the right, on
-   panel, with the unfinished session first. */
+/* Laptop: two columns — the intro at display size and the doors on the left;
+   on the right, on panel, the picture of the job, any unfinished session, and
+   previous sessions behind their button. */
 .wide .welcome {
   display: grid;
   grid-template-columns: 1fr 1fr;
   overflow: hidden;
 }
 .wide .doors {
-  padding: 56px 56px var(--sp-22);
-  gap: var(--sp-22);
+  padding: 40px 56px var(--sp-22);
+  gap: var(--sp-16);
   overflow-y: auto;
-}
-.wide .minor {
-  flex-direction: row;
 }
 .wide .note {
   margin-top: auto;
@@ -287,10 +375,8 @@ async function startDemo() {
   background: var(--panel);
   border-left: var(--bd) solid var(--ink);
   padding: 56px;
+  gap: var(--sp-22);
   overflow-y: auto;
-}
-.wide .history .resume {
-  margin-bottom: var(--sp-16);
 }
 .wide .picture {
   max-width: 560px;

@@ -69,6 +69,13 @@ export default {
     resumeDay: 'Retomar {day}',
     resumeNext: 'Por terminar · segue a tira {n}',
     countOne: 'Contar uma tira',
+    otherDemos: 'Outras fotos de exemplo',
+    demoField: 'Uma tira de campo, vista de longe',
+    demoFieldNote: 'Manchada e amarrotada, com a mesa à volta para recortar.',
+    demoPattern: 'Um padrão de teste',
+    demoPatternNote: 'Ovais desenhadas neste telemóvel. O resultado diz quantas.',
+    countOneNote: 'De uma foto a um número. Nada é guardado a não ser que peça.',
+    startSessionNote: 'Tira após tira, com as definições mantidas e cada tira guardada neste telemóvel.',
   },
 
   capture: {
@@ -171,6 +178,7 @@ export default {
     sentence: '{n} ovos, verificados por si — nível desta tira: {band}',
     unchecked: '~{n} encontrados pela aplicação. Não fez alterações.',
     partsNotLooked: 'Não vistas de perto: {n} de {total} partes',
+    testDrawn: 'Padrão de teste: {n} desenhados',
     saved: 'GUARDADO NESTE TELEMÓVEL ✓',
     notSavedDemo: 'EXEMPLO — NÃO GUARDADO',
     notSavedYet: 'AINDA NÃO GUARDADO',

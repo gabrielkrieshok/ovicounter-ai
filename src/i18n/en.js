@@ -72,6 +72,15 @@ export default {
     /* DRAFT — the third door (Sep 2026, brief §4): photo → crop → marks → fix
        if wanted → number. No session, nothing saved unless the person asks. */
     countOne: 'Count one strip',
+    /* DRAFT (Sep 30, 2026) — Welcome's doors: one line under each so they read
+       as different things, and the two other demos behind "Other demo photos". */
+    otherDemos: 'Other demo photos',
+    demoField: 'A field strip, zoomed out',
+    demoFieldNote: 'Stained and creased, with the table around it to crop away.',
+    demoPattern: 'A test pattern',
+    demoPatternNote: 'Ovoids drawn on this phone. The result says how many.',
+    countOneNote: 'One photo to a number. Nothing is saved unless you ask.',
+    startSessionNote: 'Strip after strip, settings carried forward, every strip saved on this phone.',
   },
 
   capture: {
@@ -209,6 +218,8 @@ export default {
     /* DRAFT — open question 1 (Sep 30): the count includes machine marks in
        parts never looked at close up; they stay blue, and this says so. */
     partsNotLooked: 'Not looked at close up: {n} of {total} parts',
+    // DRAFT — the test-pattern demo knows how many it drew.
+    testDrawn: 'Test pattern: {n} drawn',
     saved: 'SAVED ON THIS PHONE ✓',
     /* DRAFT — the handoff draws only the saved state, because it assumes a
        record was written. These cover the two cases where none was. */
