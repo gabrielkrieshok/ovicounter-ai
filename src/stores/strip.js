@@ -127,8 +127,8 @@ export const useStripStore = defineStore('strip', {
 
     /* The count the person signs off on Done: every mark they did not remove.
        Machine marks in parts they never looked at close up are in it — Done
-       accepts them — but they stay `proposed` in the record, and Strip result
-       says how many parts that was (`partsNotLooked`). */
+       accepts them — but they stay `proposed` in the record, which carries
+       `looked`. */
     humanCount: (s) => s.marks.filter((m) => m.status !== 'removed').length,
 
     /* The person's own judgments on this strip — what finding the marks
@@ -142,8 +142,6 @@ export const useStripStore = defineStore('strip', {
         s.applied.straightenAngle !== s.straightenAngle ||
         ['l', 't', 'r', 'b'].some((k) => Math.abs(s.applied.cropBox[k] - s.cropBox[k]) > 1e-6)),
 
-    /* Parts of the strip never wholly on screen at zoom ≥ 2. */
-    partsNotLooked: (s) => s.looked.filter((done) => !done).length,
 
     removedCount: (s) => s.marks.filter((m) => m.status === 'removed').length,
     addedCount: (s) => s.marks.filter((m) => m.status === 'added').length,

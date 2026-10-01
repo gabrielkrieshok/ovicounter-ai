@@ -27,6 +27,7 @@ attention. All of it must survive translation to Spanish.
 | Strip result | "DEMO — NOT SAVED" / "NOT SAVED YET" | The handoff draws only "SAVED ON THIS PHONE ✓", which assumes a record was written. A demo writes none by promise, and nothing writes any until persistence exists, so the badge would otherwise be false in both cases. |
 | Session summary | The entire screen | Wireframe 2j only; it has never had a hi-fi pass. Strings are the wireframe's own words, which is the best source available but not a ratified one. The wireframe's "Route 3 — Tuesday · 47 min" implies a route naming scheme the app does not have, so it renders as weekday and elapsed minutes. |
 | Everywhere (MarkKey) | "found by the app" / "you kept it" / "you removed it" / "you added one" | Field Manual brief §2: one wording for the mark language on every screen. "found by the app" is new; the other three were Welcome's. Replaces Welcome's "the app found something" and Your fixes' "machine, kept" / "✕ removed" / "+ added" (the last two were RATIFIED and are retired by the brief). |
+| Welcome picture | "a clump: you give the number" | Oct 2026: the fifth mark in the picture — four touching eggs in one solid green outline tagged "4". |
 | Your fixes, Strip result (JudgmentTally) | "kept" / "removed" / "added" / "split" | Labels under the tally numerals. Replace Strip result's RATIFIED "{n} machine" / "✕ {n} removed" / "+ {n} added", retired by the brief. |
 | Welcome, Strip result (StatusBadge) | "Not checked" | Dashed badge for a strip whose marks nobody checked (`checked: false`). |
 | Your fixes | Tools "Remove" · "Keep" · "Add" · "Split" (group name "What one finger does") | Oct 2026 (Gabriel): one finger paints with the chosen tool, two fingers move the strip. Replaces "Tap = remove · Hold = add · Line = split" and the laptop's three numbered steps. |
@@ -47,7 +48,7 @@ attention. All of it must survive translation to Spanish.
 | Processing (look mode) | "How the marks were found" / "Tap a step to see that picture." / "Back to {step}" | Oct 1: Measure reopened from the step list shows the same four pictures, chosen by the person; nothing is measured again for the count. |
 | Welcome | "Count a single paper strip" · "Use the camera" / "Photograph the strip now. The app will ask to use the camera." · "Choose a photo" / "A photo of a strip already on this phone." · "Or try a demo photo" · "Counting several strips? Start a session" | Oct 1: one way in, then the photo's source. Retires the RATIFIED "Start a new session" and "Try it with a demo photo" on Welcome, the draft door notes and the demo note, and "WORKS OFFLINE ✓". "Choose a photo", never "upload". |
 | About | The whole screen: "What it does", "Why it marks too much", "What is kept", "On this phone", "Open source", "Version {version}" | Oct 1: from the menu. Names no partner or funder — add them if they should be named. |
-| Strip result | "Share" · "One picture: your photo, the marks and the count." · "Saved the picture and copied the summary." · on the card: "Your photo", "The marks, checked by you" / "The marks the app found", "The count", "Counted on this phone with Ovicounter AI" | Oct 1: Share sends one story-shaped card, previewed beside the button. |
+| Strip result | "Share" · "One picture: your photo, the marks and the count." · "Saved the picture and copied the summary." · on the card: "Your photo", "The marks, checked by you" / "The marks the app found", "The count", "Counted on this phone with OvicounterAI" | Oct 1: Share sends one story-shaped card, previewed beside the button. |
 | Strip result | "app found ~{n}" | Oct 2026 (Gabriel): the app's total in the header beside the person's count, labelled instead of struck through (the strike read as an error). |
 | Menu | "Everything runs on this phone. Nothing is sent anywhere unless you share it." | Replaces "… Nothing is sent anywhere.", which stopped being true without the qualifier once Share existed. |
 | Processing | "PHOTO" / "THE PHOTO" · "Tap a step to see that picture. Press and hold the picture to see the photo under it." · "Continue to {step}" | Oct 1: Measure stops on the marks and waits; the photograph is a fifth picture to compare against, and holding any picture shows it. |
@@ -58,7 +59,7 @@ attention. All of it must survive translation to Spanish.
 ## Also unresolved
 
 - **The wordmark — decided (Aug 2026).** Design Brief v2 says the product is
-  "Ovicounter AI" everywhere; the hi-fi Welcome header drew only "Ovicounter".
+  "OvicounterAI" everywhere; the hi-fi Welcome header drew only "Ovicounter".
   Resolved in favour of the brief: the header now carries the v1 lockup — the
   bot, then OVICOUNTER at 800 beside AI at 400, the weight contrast v1 got from
   black against thin. It lives in `components/AppWordmark.vue` and deliberately

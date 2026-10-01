@@ -188,7 +188,7 @@ per-screen equivalents. Look at `field-manual-phone-fixes.png`.
 2. **AppBar** — black; `OVICOUNTER` in Barlow Condensed 800, then the strip
    counter in yellow `label` (`STRIP 2/8`, or nothing on a quick count); menu
    right. The wordmark decision from Aug 2026 stands: the product name may
-   read "Ovicounter AI" wherever the full name is wanted.
+   read "OvicounterAI" wherever the full name is wanted.
 3. **StripHeader** — `display` title, then the instruction row. On Your fixes
    the instruction row is a 3-cell boxed grid: `TAP = REMOVE · HOLD = ADD ·
    LINE = SPLIT` (DRAFT copy).

@@ -261,9 +261,6 @@ export default {
     /* DRAFT (Oct 2026, Gabriel) — the app's own total beside the person's
        count, labelled rather than struck through, which read as an error. */
     appFound: 'app found ~{n}',
-    /* DRAFT — open question 1 (Sep 30): the count includes machine marks in
-       parts never looked at close up; they stay blue, and this says so. */
-    partsNotLooked: 'Not looked at close up: {n} of {total} parts',
     // DRAFT — the test-pattern demo knows how many it drew.
     testDrawn: 'Test pattern: {n} drawn',
     saved: 'SAVED ON THIS PHONE ✓',
@@ -305,7 +302,7 @@ export default {
     marksChecked: 'The marks, checked by you',
     marksFound: 'The marks the app found',
     countLabel: 'The count',
-    footer: 'Counted on this phone with Ovicounter AI',
+    footer: 'Counted on this phone with OvicounterAI',
   },
 
   /* DRAFT (Oct 2026) — the About page (views/AboutScreen.vue), from the menu.
@@ -314,7 +311,7 @@ export default {
     link: 'About',
     version: 'Version {version}',
     whatTitle: 'What it does',
-    what: 'Ovicounter AI helps count mosquito eggs on ovitrap paper. You photograph a strip; the app marks what it finds; you check every mark. The count is yours.',
+    what: 'OvicounterAI helps count mosquito eggs on ovitrap paper. You photograph a strip; the app marks what it finds; you check every mark. The count is yours.',
     whyTitle: 'Why it marks too much',
     why: 'The app marks more than it should on purpose. Removing a wrong mark takes one tap; finding an egg that was missed means searching the whole strip. So the app proposes, and you decide.',
     recordTitle: 'What is kept',
@@ -322,7 +319,7 @@ export default {
     phoneTitle: 'On this phone',
     phone: 'Everything runs on this phone. Nothing is sent anywhere unless you choose to share it, and once the app has opened it works without a connection.',
     openSourceTitle: 'Open source',
-    openSource: 'Ovicounter AI is open source, under the Apache 2.0 licence.',
+    openSource: 'OvicounterAI is open source, under the Apache 2.0 licence.',
   },
 
   /* DRAFT (Sep 30, 2026) — the Guide (views/GuideScreen.vue): one section per
@@ -370,6 +367,8 @@ export default {
      and Your fixes' "machine, kept" / "✕ removed" / "+ added" legend; "found by
      the app" is new, the other three were Welcome's. */
   markKey: {
+    /* DRAFT (Oct 2026) — the clump in Welcome's picture. */
+    clump: 'a clump: you give the number',
     found: 'found by the app',
     kept: 'you kept it',
     removed: 'you removed it',

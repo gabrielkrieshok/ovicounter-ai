@@ -1,5 +1,5 @@
 <script setup>
-/* The Ovicounter AI mark (Oct 2026): a dashed ring round an egg — the app's
+/* The OvicounterAI mark (Oct 2026): a dashed ring round an egg — the app's
  * own "found by the app" mark, which is what the tool does. Ten segments in
  * the brand blue (--brand), gaps at twelve and six o'clock.
  *

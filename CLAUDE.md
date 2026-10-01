@@ -1,4 +1,4 @@
-# Ovicounter AI — project instructions
+# OvicounterAI — project instructions
 
 Assisted mosquito-egg counting for ovitrap surveillance. A technician
 photographs a strip; the app deliberately **over-proposes** candidate eggs; the
@@ -116,8 +116,9 @@ Ask before adding any dependency beyond vue, vue-router, pinia, vite and
    dashed blue on Your fixes until the part of the strip they sit in (one of 8)
    has been wholly on screen at zoom ≥ 2 (`strip.looked`, `applyLooked`). Done
    counts every mark not removed; marks in parts never looked at stay
-   `proposed` in the record, which carries `looked`, and Strip result says how
-   many parts that was.
+   `proposed` in the record, which carries `looked`. (Strip result said how
+   many parts that was until Oct 2026; Gabriel took the line out — the record
+   still carries it.)
 4. **Nothing learns at runtime**, and no copy implies learning, teaching or
    recounting.
 5. **Nothing implies upload.** "Measuring on this phone", never "loading".
@@ -246,7 +247,9 @@ and dark separated", never "thresholding").
 **"AI" is not banned** (decided Aug 2026). Both source documents list it — the
 handoff's copy rules and Design Brief v2 §8 — and that is why the hi-fi wordmark
 reads only "Ovicounter". It was a mistake in those documents: every other word
-on that list is mechanism vocabulary, and the product is called Ovicounter AI.
+on that list is mechanism vocabulary, and the product is called OvicounterAI
+(one word since Oct 2026, Gabriel — in copy, titles, the share card and the
+wordmark, which sets AI tight against OVICOUNTER).
 Use it as the name freely. The rest of the list still stands, so the tool still
 never *describes itself* as doing anything with AI — not because the word is
 forbidden but because "the AI found 12 eggs" would break the rules that actually

@@ -1,4 +1,4 @@
-# Ovicounter AI
+# OvicounterAI
 
 Assisted mosquito-egg counting for ovitrap surveillance.
 

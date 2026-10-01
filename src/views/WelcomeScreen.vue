@@ -255,11 +255,11 @@ function overflow(counts) {
   padding: 40px var(--sp-16) var(--sp-22);
   gap: var(--sp-22);
 }
-/* Wide enough that the intro sets in four lines and the picture under it
-   leaves the demo button on the first screen of a 900px-tall laptop. */
+/* Larger on a laptop (Oct 2026, Gabriel): the picture is the first thing
+   that says what the job looks like. */
 .wide .picture {
   width: 100%;
-  max-width: 480px;
+  max-width: 720px;
   align-self: center;
 }
 .wide .history {

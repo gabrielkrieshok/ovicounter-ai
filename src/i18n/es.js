@@ -7,7 +7,7 @@
  * "Cargando" — the whole point of that line is that nothing leaves the device.
  *
  * "IA" is not banned, following the same decision as en.js, but it also never
- * appears — the product name stays "Ovicounter AI" untranslated, as names do.
+ * appears — the product name stays "OvicounterAI" untranslated, as names do.
  *
  * Register: `usted` throughout. These are instructions to a technician at work,
  * and the refusals in particular have to stay courteous while blaming the
@@ -202,7 +202,6 @@ export default {
     sentence: '{n} huevos, revisados por usted — esta tira es {band}',
     unchecked: '~{n} encontrados por la aplicación. Usted no hizo cambios.',
     appFound: 'la app encontró ~{n}',
-    partsNotLooked: 'Sin revisar de cerca: {n} de {total} partes',
     testDrawn: 'Patrón de prueba: {n} dibujados',
     saved: 'GUARDADO EN ESTE TELÉFONO ✓',
     notSavedDemo: 'EJEMPLO — NO SE GUARDÓ',
@@ -235,14 +234,14 @@ export default {
     marksChecked: 'Las marcas, revisadas por usted',
     marksFound: 'Las marcas que encontró la aplicación',
     countLabel: 'El conteo',
-    footer: 'Contado en este teléfono con Ovicounter AI',
+    footer: 'Contado en este teléfono con OvicounterAI',
   },
 
   about: {
     link: 'Acerca de',
     version: 'Versión {version}',
     whatTitle: 'Qué hace',
-    what: 'Ovicounter AI ayuda a contar huevos de mosquito en el papel de ovitrampa. Usted fotografía una tira; la aplicación marca lo que encuentra; usted revisa cada marca. El conteo es suyo.',
+    what: 'OvicounterAI ayuda a contar huevos de mosquito en el papel de ovitrampa. Usted fotografía una tira; la aplicación marca lo que encuentra; usted revisa cada marca. El conteo es suyo.',
     whyTitle: 'Por qué marca de más',
     why: 'La aplicación marca más de lo debido a propósito. Quitar una marca equivocada es un toque; encontrar un huevo que se pasó por alto obliga a revisar toda la tira. Por eso la aplicación propone y usted decide.',
     recordTitle: 'Qué se guarda',
@@ -250,7 +249,7 @@ export default {
     phoneTitle: 'En este teléfono',
     phone: 'Todo funciona en este teléfono. No se envía nada a ninguna parte a menos que usted decida compartirlo, y una vez abierta la aplicación funciona sin conexión.',
     openSourceTitle: 'Código abierto',
-    openSource: 'Ovicounter AI es de código abierto, con licencia Apache 2.0.',
+    openSource: 'OvicounterAI es de código abierto, con licencia Apache 2.0.',
   },
 
   guide: {
@@ -286,6 +285,7 @@ export default {
   },
 
   markKey: {
+    clump: 'un grupo: usted da el número',
     found: 'encontrada por la aplicación',
     kept: 'usted la conservó',
     removed: 'usted la quitó',

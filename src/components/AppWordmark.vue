@@ -12,7 +12,8 @@ import AppLogo from '@/components/AppLogo.vue'
  *
  * Not translated, and deliberately not in the i18n bundles. A product name is
  * not copy; it reads the same in every locale, and putting it in `en.js` would
- * invite someone to translate it. "Ovicounter AI" is the name (Aug 2026) — the
+ * invite someone to translate it. "OvicounterAI" is the name (Aug 2026; one word
+ * since Oct 2026, so AI sits tight against OVICOUNTER) — the
  * hi-fi's "Ovicounter" alone followed a banned-word list that has since been
  * corrected.
  */
@@ -46,6 +47,5 @@ defineProps({
 .wordmark i {
   font-weight: 600;
   font-style: normal;
-  margin-left: 0.08em;
 }
 </style>

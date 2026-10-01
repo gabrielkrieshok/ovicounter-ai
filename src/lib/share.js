@@ -125,7 +125,7 @@ export async function storyImage({ photoUrl, working, marks, clumps = [], checke
   ctx.fillText('OVICOUNTER', nameX, 40)
   const nameW = ctx.measureText('OVICOUNTER').width
   ctx.font = display(72, 600)
-  ctx.fillText('AI', nameX + nameW + 8, 40)
+  ctx.fillText('AI', nameX + nameW, 40)
   ctx.textAlign = 'right'
   ctx.font = mono(28, 500)
   ctx.fillStyle = C.action

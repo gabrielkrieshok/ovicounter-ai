@@ -241,9 +241,9 @@ async function share() {
     const { said, date } = summaryLines()
     const stem = `ovicounter-${new Date().toISOString().slice(0, 10)}`
     const files = [new File([blob], `${stem}.jpg`, { type: 'image/jpeg' })]
-    const lines = ['Ovicounter AI', said, date]
+    const lines = ['OvicounterAI', said, date]
     if (strip.drawn !== null) lines.push(t('result.testDrawn', { n: strip.drawn }))
-    const outcome = await shareOrSave({ files, text: lines.join('\n'), title: 'Ovicounter AI' })
+    const outcome = await shareOrSave({ files, text: lines.join('\n'), title: 'OvicounterAI' })
     if (outcome === 'saved') shareNote.value = t('share.saved')
   } finally {
     sharing.value = false
@@ -295,9 +295,6 @@ function backHome() {
       <!-- The test-pattern demo knows its answer, and says it: a test. -->
       <p v-if="strip.drawn !== null" class="drawn t-label">
         {{ t('result.testDrawn', { n: strip.drawn }) }}
-      </p>
-      <p v-if="checked && strip.partsNotLooked" class="unlooked t-label">
-        {{ t('result.partsNotLooked', { n: strip.partsNotLooked, total: strip.looked.length }) }}
       </p>
     </div>
 
@@ -411,11 +408,6 @@ function backHome() {
   margin: var(--sp-10) 0 0;
   color: var(--ink);
 }
-.unlooked {
-  margin: var(--sp-10) 0 0;
-  color: var(--muted);
-}
-
 .legend {
   flex: none;
 }

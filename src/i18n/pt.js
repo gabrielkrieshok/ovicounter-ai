@@ -7,7 +7,7 @@
  * of them appear here. "A medir neste telemóvel", never "A carregar".
  *
  * "IA" is not banned, following en.js, but it never appears — the product name
- * stays "Ovicounter AI" untranslated, as names do.
+ * stays "OvicounterAI" untranslated, as names do.
  *
  * Register: formal, third-person imperative with no pronoun ("Toque", "Tire-a
  * de novo"), and "por si" where a subject is needed. That is the courteous
@@ -208,7 +208,6 @@ export default {
     sentence: '{n} ovos, verificados por si — nível desta tira: {band}',
     unchecked: '~{n} encontrados pela aplicação. Não fez alterações.',
     appFound: 'a app encontrou ~{n}',
-    partsNotLooked: 'Não vistas de perto: {n} de {total} partes',
     testDrawn: 'Padrão de teste: {n} desenhados',
     saved: 'GUARDADO NESTE TELEMÓVEL ✓',
     notSavedDemo: 'EXEMPLO — NÃO GUARDADO',
@@ -241,14 +240,14 @@ export default {
     marksChecked: 'As marcas, verificadas por si',
     marksFound: 'As marcas que a aplicação encontrou',
     countLabel: 'A contagem',
-    footer: 'Contado neste telemóvel com Ovicounter AI',
+    footer: 'Contado neste telemóvel com OvicounterAI',
   },
 
   about: {
     link: 'Sobre',
     version: 'Versão {version}',
     whatTitle: 'O que faz',
-    what: 'O Ovicounter AI ajuda a contar ovos de mosquito no papel da ovitrampa. Fotografa uma tira; a aplicação marca o que encontra; verifica cada marca. A contagem é sua.',
+    what: 'O OvicounterAI ajuda a contar ovos de mosquito no papel da ovitrampa. Fotografa uma tira; a aplicação marca o que encontra; verifica cada marca. A contagem é sua.',
     whyTitle: 'Porque marca a mais',
     why: 'A aplicação marca mais do que devia de propósito. Retirar uma marca errada é um toque; encontrar um ovo que escapou obriga a percorrer a tira toda. Por isso a aplicação propõe e decide quem verifica.',
     recordTitle: 'O que fica guardado',
@@ -256,7 +255,7 @@ export default {
     phoneTitle: 'Neste telemóvel',
     phone: 'Tudo funciona neste telemóvel. Nada é enviado para lado nenhum a não ser que decida partilhar, e depois de aberta a aplicação funciona sem ligação.',
     openSourceTitle: 'Código aberto',
-    openSource: 'O Ovicounter AI é de código aberto, com licença Apache 2.0.',
+    openSource: 'O OvicounterAI é de código aberto, com licença Apache 2.0.',
   },
 
   guide: {
@@ -292,6 +291,7 @@ export default {
   },
 
   markKey: {
+    clump: 'um aglomerado: indique o número',
     found: 'encontrada pela aplicação',
     kept: 'mantida por si',
     removed: 'retirada por si',
