@@ -4,6 +4,9 @@ import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import { t, weekday } from '@/i18n'
+import cleanThumb from '@/assets/demo-thumbs/clean.jpg'
+import fieldThumb from '@/assets/demo-thumbs/field.jpg'
+import patternThumb from '@/assets/demo-thumbs/pattern.jpg'
 import { demoPhoto } from '@/lib/samples'
 import { useSessionStore } from '@/stores/session'
 import { useStripStore } from '@/stores/strip'
@@ -23,6 +26,16 @@ const session = useSessionStore()
 const strip = useStripStore()
 
 const demosOpen = ref(false)
+
+/* A small picture of each demo strip, so the choice is between strips and not
+   between descriptions. Bundled with the app (and so precached) rather than
+   cut from the full photographs, which are megabytes and fetched on demand. */
+const DEMO_CHOICES = [
+  { kind: 'clean', thumb: cleanThumb },
+  { kind: 'field', thumb: fieldThumb },
+  { kind: 'pattern', thumb: patternThumb },
+]
+const cap = (k) => k.charAt(0).toUpperCase() + k.slice(1)
 
 /* An interrupted session — the app closed, the phone died, the technician was
    called away. The strips already in it are real work, so it is offered rather
@@ -73,17 +86,18 @@ async function startDemo(kind) {
           {{ t('welcome.tryDemo') }}
         </AppButton>
         <div v-if="demosOpen" class="choices">
-          <button class="choice" type="button" @click="startDemo('clean')">
-            <span class="t-title">{{ t('welcome.demoClean') }}</span>
-            <span class="t-body note-line">{{ t('welcome.demoCleanNote') }}</span>
-          </button>
-          <button class="choice" type="button" @click="startDemo('field')">
-            <span class="t-title">{{ t('welcome.demoField') }}</span>
-            <span class="t-body note-line">{{ t('welcome.demoFieldNote') }}</span>
-          </button>
-          <button class="choice" type="button" @click="startDemo('pattern')">
-            <span class="t-title">{{ t('welcome.demoPattern') }}</span>
-            <span class="t-body note-line">{{ t('welcome.demoPatternNote') }}</span>
+          <button
+            v-for="c in DEMO_CHOICES"
+            :key="c.kind"
+            class="choice"
+            type="button"
+            @click="startDemo(c.kind)"
+          >
+            <img class="thumb" :src="c.thumb" alt="" />
+            <span class="words">
+              <span class="t-title">{{ t(`welcome.demo${cap(c.kind)}`) }}</span>
+              <span class="t-body note-line">{{ t(`welcome.demo${cap(c.kind)}Note`) }}</span>
+            </span>
           </button>
         </div>
       </div>
@@ -135,14 +149,26 @@ async function startDemo(kind) {
 }
 .choice {
   min-height: var(--hit-secondary);
-  padding: var(--sp-10) var(--sp-14);
+  padding: var(--sp-10) var(--sp-14) var(--sp-10) var(--sp-10);
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  align-items: center;
+  gap: var(--sp-12);
   text-align: left;
   background: var(--paper);
   color: var(--ink);
+}
+.thumb {
+  flex: none;
+  width: 96px;
+  height: 54px;
+  object-fit: cover;
+  border: var(--bd-inner) solid var(--ink);
+}
+.words {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 .choice + .choice {
   border-top: var(--bd-inner) solid var(--ink);

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { preloadCv } from '@/cv/use-cv'
@@ -19,7 +19,6 @@ import { useSessionStore } from '@/stores/session'
    behind their own button. */
 
 const route = useRoute()
-const wide = inject('wideLayout', ref(false))
 
 /* Previous sessions open behind their own button: not common yet, and the
    list would cost the doors their place. */
@@ -74,13 +73,12 @@ function overflow(counts) {
       <!-- The picture of the job, right under the words it illustrates. -->
       <MarkIntro class="picture" />
 
-      <!-- Phone: the doors under the picture. Laptop: they head the right-hand
-           column (below). -->
-      <WelcomeDoors v-if="!wide" />
+      <!-- The doors under the picture, on every width: one column to read down,
+           so opening the demo never sends the eye to the other side. -->
+      <WelcomeDoors />
     </section>
 
-    <section v-if="wide || sessions.length" class="history">
-      <WelcomeDoors v-if="wide" />
+    <section v-if="sessions.length" class="history">
 
       <template v-if="sessions.length">
         <button
@@ -194,27 +192,28 @@ function overflow(counts) {
   gap: 4px;
 }
 
-/* Laptop: two columns — the intro at display size, the picture of the job
-   and the doors on the left; on the right, on panel, any unfinished session
-   and previous sessions behind their button. */
+/* Laptop: the same single column, centred and wider, so it reads top to
+   bottom as it does on a phone (Oct 2026 — two columns sent the eye across
+   the screen as soon as the demo was opened). */
 .wide .welcome {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  overflow: hidden;
+  align-items: center;
+}
+.wide .doors,
+.wide .history {
+  width: 100%;
+  max-width: 800px;
 }
 .wide .doors {
-  padding: 40px 56px var(--sp-22);
-  gap: var(--sp-16);
-  overflow-y: auto;
+  padding: 40px var(--sp-16) var(--sp-22);
+  gap: var(--sp-22);
+}
+/* Wide enough that the intro sets in four lines and the picture under it
+   leaves the demo button on the first screen of a 900px-tall laptop. */
+.wide .picture {
+  width: 100%;
+  max-width: 480px;
 }
 .wide .history {
-  background: var(--panel);
-  border-left: var(--bd) solid var(--ink);
-  padding: 56px;
-  gap: var(--sp-22);
-  overflow-y: auto;
-}
-.wide .picture {
-  max-width: 560px;
+  padding-bottom: 48px;
 }
 </style>
