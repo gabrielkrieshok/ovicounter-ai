@@ -151,7 +151,7 @@ export default {
     badgeDarkSpecks: 'PONTOS ESCUROS MANTIDOS',
     badgeMarks: 'MARCAS COLOCADAS',
     lookTitle: 'Como foram encontradas as marcas',
-    lookHint: 'Toque num passo para ver essa imagem. Mantenha premida a imagem para ver a foto por baixo.',
+    lookHint: 'Toque num passo para ver essa imagem. Aproxime para ver de perto; mantenha premido para ver a foto.',
     stepPhoto: 'FOTO',
     badgePhoto: 'A FOTO',
   },

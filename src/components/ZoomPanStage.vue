@@ -19,6 +19,9 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
  * default, so culling stays the cheapest thing on the screen. Navigation keeps
  * the second finger, as in a drawing app.
  *
+ * Measure uses the same stage with the `pan` tool (Oct 2026): it has nothing
+ * to judge, so one finger moves the picture as on a map.
+ *
  * On a desktop there is no second finger, so the wheel zooms about the cursor
  * and Shift-drag pans. That is for checking work on a laptop, not a field
  * gesture.
@@ -43,6 +46,7 @@ const props = defineProps({
        remove, keep  paint — `paintstart`, `paint` (stage point), `paintend`
        add           place one egg — the magnifier follows, `add` on lift
        split         draw across a clump — `stroke` on lift
+       pan           move the picture — for Measure, where nothing is judged
      Two fingers, the wheel and Shift-drag move the strip whatever the tool. */
   tool: { type: String, default: 'remove' },
 })
@@ -178,7 +182,7 @@ function onPointerDown(event) {
   if (pointers.size > 2) return
 
   const point = localPoint(event)
-  if (event.shiftKey) {
+  if (event.shiftKey || props.tool === 'pan') {
     gesture = { kind: 'pan', start: point, pan: { ...pan.value } }
     return
   }

@@ -458,6 +458,39 @@ async function main() {
   console.log(`Measure, looking back (${await route()})`)
   await shot('flow-6-refine')
   await photoShare('.processing .stage-wrap canvas.photo')
+  /* Zoom on Measure: the + button zooms, the view holds across pictures, and
+     a one-finger drag pans without flashing the photograph. */
+  const measureZoom = await evaluate(`(async () => {
+    const frame = () => new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
+    const settle = async (n = 6) => { for (let i = 0; i < n; i++) await frame(); };
+    const plus = [...document.querySelectorAll('.processing .stage-rail button')].pop();
+    plus.click(); plus.click(); await settle();
+    const canvas = document.querySelector('.processing canvas.photo');
+    const badge = () => document.querySelector('.processing .buffer-badge')?.textContent.trim();
+    const steps = [...document.querySelectorAll('.processing .rail-step')];
+    const marksBefore = badge();
+    steps[1].click(); await settle();
+    const other = badge();
+    steps[steps.length - 1].click(); await settle();
+    const stage = document.querySelector('.processing .stage-wrap .stage');
+    const r = stage.getBoundingClientRect();
+    const send = (type, x, y) => stage.dispatchEvent(new PointerEvent(type, {
+      clientX: x, clientY: y, bubbles: true, pointerId: 1, isPrimary: true }));
+    const before = badge();
+    send('pointerdown', r.left + r.width / 2, r.top + r.height / 2);
+    let flashed = false;
+    for (let i = 1; i <= 8; i++) {
+      send('pointermove', r.left + r.width / 2 - i * 10, r.top + r.height / 2);
+      await frame();
+      if (badge() !== before) flashed = true;
+    }
+    send('pointerup', r.left + r.width / 2 - 80, r.top + r.height / 2);
+    await settle();
+    return { pictures: marksBefore + ' → ' + other, flashed };
+  })()`)
+  console.log(`  zoom in, change picture: ${measureZoom.pictures}`)
+  check('a drag on Measure pans without showing the photograph', !measureZoom.flashed)
+  await shot('flow-6b-measure-zoomed')
   console.log(`  click "Continue to …" → ${await clickText('Continue to')}`)
   await sleep(1200)
   console.log(`Your fixes again (${await route()})`)

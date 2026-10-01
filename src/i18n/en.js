@@ -180,7 +180,7 @@ export default {
     /* DRAFT (Oct 2026) — Measure reopened from the step list: the same four
        pictures, chosen by the person, nothing measured again for the count. */
     lookTitle: 'How the marks were found',
-    lookHint: 'Tap a step to see that picture. Press and hold the picture to see the photo under it.',
+    lookHint: 'Tap a step to see that picture. Zoom in to look closer; hold to see the photo.',
     stepPhoto: 'PHOTO',
     badgePhoto: 'THE PHOTO',
   },

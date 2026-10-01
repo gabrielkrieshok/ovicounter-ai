@@ -17,7 +17,7 @@ const emit = defineEmits(['zoom'])
 </script>
 
 <template>
-  <div class="rail">
+  <div class="zoom-rail">
     <button
       class="step t-title"
       type="button"
@@ -41,7 +41,7 @@ const emit = defineEmits(['zoom'])
 </template>
 
 <style scoped>
-.rail {
+.zoom-rail {
   display: inline-flex;
   background: var(--paper);
   border: var(--bd) solid var(--ink);

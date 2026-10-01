@@ -3,10 +3,11 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
-import ImageStage from '@/components/ImageStage.vue'
 import MarkLayer from '@/components/MarkLayer.vue'
 import StepList from '@/components/StepList.vue'
 import StepNumber from '@/components/StepNumber.vue'
+import ZoomPanStage from '@/components/ZoomPanStage.vue'
+import ZoomRail from '@/components/ZoomRail.vue'
 import { t } from '@/i18n'
 import { STEPS as STRIP_STEPS } from '@/lib/steps'
 import { confirmRedo } from '@/lib/use-steps'
@@ -94,8 +95,24 @@ function show(index) {
   if (settled.value) stepIndex.value = index
 }
 
+/* Zoom and pan (Oct 2026): the pictures are the strip at full detail, and on a
+   phone the whole strip is a band. One finger moves it, as on a map; the same
+   view is kept from picture to picture, so a spot can be compared through all
+   of them.
+
+   Press and hold still shows the photograph — after a moment, and not if the
+   finger goes on to move the picture. */
+const stage = ref(null)
+const zoom = computed(() => stage.value?.zoom ?? 1)
+const PEEK_MS = 180
+let peekTimer = null
 function peek(on) {
-  if (settled.value) peeking.value = on
+  clearTimeout(peekTimer)
+  if (!on) {
+    peeking.value = false
+    return
+  }
+  if (settled.value) peekTimer = setTimeout(() => (peeking.value = true), PEEK_MS)
 }
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -270,15 +287,23 @@ onMounted(async () => {
       @pointerleave="peek(false)"
       @pointercancel="peek(false)"
     >
-      <ImageStage :src="view.src" fit="contain" background="var(--ink)" v-slot="{ rect, stage }">
+      <ZoomPanStage
+        ref="stage"
+        :src="view.src"
+        tool="pan"
+        background="var(--ink)"
+        @navigate="peek(false)"
+        v-slot="{ rect, stage: size }"
+      >
         <MarkLayer
           :marks="view.marks"
           :ghosts="view.marks.length ? lostGhosts : []"
           :boxes="view.boxes"
           :rect="rect"
-          :stage="stage"
+          :stage="size"
         />
-      </ImageStage>
+      </ZoomPanStage>
+      <ZoomRail class="stage-rail" :zoom="zoom" :show-level="wide" @zoom="(f) => stage?.zoomBy(f)" />
       <p v-if="lostGhosts.length && view.marks.length" class="ghost-caption t-label">
         {{ t('refine.ghostCaption') }}
       </p>
@@ -399,6 +424,12 @@ onMounted(async () => {
   flex: 1;
   position: relative;
   min-height: 0;
+  cursor: grab;
+}
+.stage-rail {
+  position: absolute;
+  right: 0;
+  bottom: 0;
 }
 .buffer-badge {
   position: absolute;
@@ -605,6 +636,15 @@ onMounted(async () => {
   grid-column: 2;
   grid-row: 1 / -1;
   border-left: var(--bd) solid var(--paper);
+}
+/* The stage runs the full height of the column, which can be taller than the
+   window; the zoom buttons go top-left, opposite the picture's name, where
+   they are always in view. */
+.wide .processing .stage-rail {
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
 }
 .wide .processing > .steps-before { grid-column: 1; grid-row: 1; }
 .wide .processing > .steps-after { grid-column: 1; grid-row: -2; }

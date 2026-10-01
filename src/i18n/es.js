@@ -145,7 +145,7 @@ export default {
     badgeDarkSpecks: 'MOTAS OSCURAS CONSERVADAS',
     badgeMarks: 'MARCAS COLOCADAS',
     lookTitle: 'Cómo se encontraron las marcas',
-    lookHint: 'Toque un paso para ver esa imagen. Mantenga pulsada la imagen para ver la foto debajo.',
+    lookHint: 'Toque un paso para ver esa imagen. Acerque para mirar de cerca; mantenga pulsado para ver la foto.',
     stepPhoto: 'FOTO',
     badgePhoto: 'LA FOTO',
   },

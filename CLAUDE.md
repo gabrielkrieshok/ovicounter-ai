@@ -214,7 +214,9 @@ every width (Gabriel, Sep 30, 2026). Your fixes opened at cover for eleven days
 (brief §3) and Refine did in the phone frame (the hi-fi): on a 2.18:1 strip in a
 0.8:1 stage cover shows about a third of the width, and the operator could not
 tell what was left unseen. On a phone the whole strip is a band and the eggs are
-small; that is what zoom is for. Mark one egg keeps cover — it is a single tap
+small; that is what zoom is for. Measure zooms too (Oct 2026): the same stage with a `pan` tool — one finger
+moves the picture, the view holds from picture to picture, and press-and-hold
+still shows the photograph unless the finger moves. Mark one egg keeps cover — it is a single tap
 on a single egg, with no zoom.
 
 **Rings thin as marks shrink** (`lib/marks.js` `ringWidth`): 2.5px from an
