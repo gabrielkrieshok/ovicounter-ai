@@ -182,6 +182,13 @@ watch(
 <!-- Not scoped: these classes land on the screens' root elements, and on the
      laptop on their children. -->
 <style>
+/* Laptop: a stage screen whose left column — every step row, the open step,
+   its actions — is taller than the window scrolls as a whole rather than
+   cutting the column off. On a 900px-tall laptop nothing needs to. */
+.wide .screen > * {
+  overflow-y: auto;
+}
+
 /* While two screens overlap, the leaving one is lifted out of the flow. */
 .screen > .step-fwd-leave-active,
 .screen > .step-back-leave-active {

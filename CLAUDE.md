@@ -132,8 +132,8 @@ marks · 6 Count** (Oct 2026). A path that does not need one keeps it in place,
 marked — the demo's Photograph is *skipped*, a quick count's Refine *optional*
 (openable once there are marks). Mark one egg belongs to Measure, Refusal to
 Photograph. On the laptop each stage screen's left column is the list
-(`StepList` before and after the screen's own header and actions; finished
-steps fold into one row); on the phone a 44px `StepStrip` of six numbered
+(`StepList` before and after the screen's own header and actions; every step
+keeps its own row, and a screen taller than the window scrolls); on the phone a 44px `StepStrip` of six numbered
 squares under the app bar opens it as a sheet. **Moving between steps moves**
 (App.vue): on the phone the next step slides in from the right (back: from the
 left); on the laptop each step-tagged row and header (`[data-step]`) slides

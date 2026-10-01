@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { t } from '@/i18n'
 import { useSteps } from '@/lib/use-steps'
@@ -17,18 +17,16 @@ import { useSteps } from '@/lib/use-steps'
  * its own; nothing reopens once the strip is counted) is plain text. The
  * current step is marked with a yellow edge — "you are here".
  *
- * More than one finished step folds into a single row — "✓ Photograph · Crop ·
- * Measure" — which opens into the separate steps when tapped. That is the
- * accordion: what is done stays out of the way, at one row however far along
- * the strip is, and the steps are there the moment someone wants one back. A
- * 768px-tall laptop had no room for four finished rows above Check the marks. */
+ * Every step keeps its own row, finished ones included (Oct 2026 — they were
+ * folded into one row for a while; seeing all six, every time, orients better
+ * than saving 130px). Where that makes a laptop screen taller than the window,
+ * the screen scrolls (App.vue) rather than cutting anything off. */
 const props = defineProps({
   part: { type: String, default: 'all' }, // before | after | all
 })
 const emit = defineEmits(['went'])
 
 const { steps, current, furthest, canGo, go, label } = useSteps()
-const expanded = ref(false)
 
 const rows = computed(() =>
   steps.value
@@ -51,14 +49,6 @@ const rows = computed(() =>
     ),
 )
 
-const folded = computed(() => props.part === 'before' && rows.value.length > 1 && !expanded.value)
-const summary = computed(() =>
-  rows.value
-    .filter((row) => !row.step.skipped && !row.step.optional)
-    .map((row) => label(row.step))
-    .join(' · '),
-)
-
 function choose(row) {
   if (!row.open) return
   go(row.index)
@@ -67,20 +57,7 @@ function choose(row) {
 </script>
 
 <template>
-  <div v-if="folded" class="step-list before">
-    <button
-      class="row done open"
-      type="button"
-      :aria-expanded="false"
-      :data-step="rows[rows.length - 1].step.key"
-      @click="expanded = true"
-    >
-      <span class="num t-title" aria-hidden="true">✓</span>
-      <span class="name t-title">{{ summary }}</span>
-      <span class="state t-title" aria-hidden="true">▸</span>
-    </button>
-  </div>
-  <ol v-else-if="current >= 0 && rows.length" class="step-list" :class="part">
+  <ol v-if="current >= 0 && rows.length" class="step-list" :class="part">
     <li v-for="row in rows" :key="row.step.key">
       <component
         :is="row.open ? 'button' : 'div'"
