@@ -1,21 +1,21 @@
 /* English copy.
  *
- * Copy rules (design brief §8, enforced): plain language, low-literacy
- * tolerant, must survive translation to Spanish. Banned words: model,
- * algorithm, inference, confidence, machine learning, learn, teach, train,
- * upload, loading. The machine "finds" and "marks"; the person "checks",
- * "confirms", "removes", "adds". Mechanism copy stays physical ("light and
- * dark separated", never "thresholding").
+ * Copy rules (AGENTS.md "Copy", Oct 2026): plain language, low-literacy
+ * tolerant, must survive translation. One rule above the rest: the copy never
+ * credits the machine with a judgment it did not make. The machine "finds" and
+ * "marks" and its numbers are guesses; the person "checks", "confirms",
+ * "removes", "adds", and the count is theirs. There is no banned-words list any
+ * more — "trained", "detector", "upload" are fine where accurate — but nothing
+ * says the app learns from use, because it does not.
  *
- * "AI" was on that list in both source documents and has been taken off it
- * (Aug 2026) — it is the product's name, and every other word on the list is
- * mechanism vocabulary. Nothing here describes the tool as doing something with
- * AI, but that falls out of the other rules rather than from banning the word.
+ * Say a fact once, where it is the information. No reassurance refrains ("on
+ * this phone", "nothing leaves").
  *
  * Strings marked RATIFIED come verbatim from the hi-fi handoff and must not be
  * reworded. Strings marked DRAFT were written here because the handoff has no
- * copy for that state; they are listed in docs/copy-to-ratify.md and need a
- * decision before this ships to a technician.
+ * copy for that state and need a decision before
+ * this ships to a technician. These markers are the only record: the separate
+ * list of draft strings was retired in Oct 2026.
  */
 
 export default {
@@ -39,12 +39,13 @@ export default {
     home: 'Home',
     language: 'Language',
     endSession: 'End this session',
-    about: 'Everything runs on this phone. Nothing is sent anywhere unless you share it.',
+    // DRAFT (Oct 1, 2026) — under About in the menu and in Welcome's footer.
+    about: 'A working proof of concept, shared with partners to try on real strips.',
     /* Leaving mid-strip. Accurate rather than alarming: finished strips are
        written to the device as they are counted, so the only thing at risk is
        the one in hand. */
     /* DRAFT (Oct 2026) — settings as files: the measured egg, the slider
-       values and the band scale. "Open", never "upload". */
+       values and the band scale. */
     settings: 'Settings',
     exportSettings: 'Save settings',
     importSettings: 'Open settings',
@@ -86,9 +87,9 @@ export default {
     demoField: 'A field strip, zoomed out',
     demoFieldNote: 'Stained and creased, with the table around it to crop away.',
     demoPattern: 'A test pattern',
-    demoPatternNote: 'Ovoids drawn on this phone. The result says how many.',
+    demoPatternNote: 'Ovoids drawn by the app. The result says how many.',
     /* DRAFT (Oct 2026) — one way in, then where the photograph comes from.
-       "Choose a photo", never "upload": nothing leaves the phone. */
+       */
     countSingle: 'Count a single paper strip',
     /* DRAFT (Oct 2026) — the line under each of Welcome's two buttons, and the
        footer's heading. */
@@ -183,8 +184,9 @@ export default {
   },
 
   processing: {
-    // RATIFIED
-    title: 'Measuring on this phone…',
+    /* DRAFT (Oct 1, 2026, Gabriel) — was the RATIFIED "Measuring on this
+       phone…"; the place is no longer the point. */
+    title: 'Measuring…',
     stepLightDark: 'LIGHT / DARK',
     stepDarkSpecks: 'DARK SPECKS',
     stepBoxes: 'BOXES',
@@ -317,7 +319,7 @@ export default {
     stripsCounted: 'strips counted',
     retakesAsked: 'retakes asked',
     bands: 'bands',
-    saved: 'Record saved on this phone — photos, settings, and every mark you checked.',
+    saved: 'Record saved — photos, settings, and every mark you checked.',
     demoNotSaved: 'This was the demo. Nothing was saved.',
     backHome: 'Back to home',
   },
@@ -333,59 +335,46 @@ export default {
     marksChecked: 'The marks, checked by you',
     marksFound: 'The marks the app found',
     countLabel: 'The count',
-    footer: 'Counted on this phone with OvicounterAI',
+    footer: 'Counted with OvicounterAI',
   },
 
-  /* DRAFT (Oct 2026, Gabriel) — the About page (views/AboutScreen.vue), for
-     partners and anyone curious: a proof of concept, where AI sits today and
-     next, and why the person stays in charge. It is the one place that talks
-     about trained detectors and neural networks, because it explains the
-     roadmap; it still never says the app learns, and says plainly that it
-     does not. Names no partner or funder. `origin` is Gabriel's history:
-     confirm before sharing. Paragraphs are split on blank lines. */
+  /* DRAFT (Oct 2026; Gabriel's text, Oct 2) — the About page
+     (views/AboutScreen.vue), for partners and anyone curious: a proof of
+     concept, why count eggs, what it does, how it finds eggs today, where it
+     is going (the shared repository being built, and a detector trained on
+     it), and the team. The team is named without affiliations. Paragraphs are
+     split on blank lines. */
   about: {
     link: "About",
     version: "Version {version}",
-    lede: "A free, open-source app that helps health workers count mosquito eggs on ovitrap paper — offline, on an ordinary phone.",
+    lede: "An open-source app that helps health workers and researchers count mosquito eggs on ovitrap strips, using an ordinary phone, with or without an internet connection.",
     pocTitle: "A proof of concept",
-    poc: "OvicounterAI is a working proof of concept, shared with partners so it can be tried on real strips and improved. No surveillance programme uses it yet, and its counts have not yet been scored against careful hand counts. Treat its numbers as a test of the approach, not as data to act on.",
+    poc: "OvicounterAI (“ovi” from the Latin for “egg”) is a working proof of concept, shared with partners so it can be tried on real strips and improved. No surveillance program uses it yet, and its counts have not yet been checked against careful hand counts, so treat its numbers as a test of the approach rather than data to act on. The team is working on the next phases of development: image data collection, presets for different programs and environments, and more advanced AI computer vision assistance.",
     problemTitle: "Why count mosquito eggs",
-    problem: "An ovitrap is a cup of water with a strip of paper in it. Aedes mosquitoes — the ones that spread dengue, Zika and chikungunya — lay their eggs on the paper. Traps cost pennies and go out by the hundreds, and the eggs are the earliest sign that mosquito numbers are changing, weeks before biting adults appear.\n\nThe weak link is the counting. A technician counts specks the size of poppy seeds, often hundreds on one strip, by eye. It is slow and tiring, and two people rarely reach the same number.",
-    whatTitle: "What it does",
-    what: "You photograph a strip; the app marks what it finds; you check every mark — removing, keeping and adding — and the count is yours.",
-    whyTitle: "Why it marks too much",
-    why: "The app marks more than it should on purpose. Removing a wrong mark takes one tap; finding an egg that was missed means searching the whole strip. So the app proposes, and you decide.",
-    aiNowTitle: "Where the AI is today",
-    aiNow: "Today there is no neural network in the loop, on purpose. The app finds eggs with classical computer vision (OpenCV): it removes the paper’s own shading (a black-hat transform), keeps what is clearly darker than the paper (a threshold), separates the dark specks (connected components), and pulls touching eggs apart (a watershed). Measure shows each of these pictures, so you can see how every mark was found.\n\nThe setting made that choice. The app has to work offline, on a mid-range phone, without a large download, at sites whose paper and light differ — so its settings come from an egg measured on each strip, and the sliders can move them. And every step has to be open to the person who signs the count.\n\nIt has a cost. Classical vision is less accurate than a well-trained detector, most of all where eggs pile on one another. That is why clumps are shown as clumps, with the app’s number marked as a guess for you to confirm.",
-    authorityTitle: "Why the person stays in charge",
-    authority: "The app proposes; you decide, and a few rules follow. No total is shown while you move the sliders, because a visible number invites tuning until it matches what you expected. The app’s guesses and your judgments never look alike: its count is grey with a ~, yours is black. A strip nobody checked says so, on screen and in the record.\n\nAnd nothing learns on the phone. The same photograph with the same settings gives the same marks every time, so any count can be checked again.",
-    aiNextTitle: "Where AI fits next",
-    aiNext: "The real output is not the number. It is the record: the photograph, the settings, and the egg positions a person checked. Each checked strip is a labelled example of what an egg looks like on that paper, in that light.\n\nA few hundred of them, from several sites, could train a detector to take the place of today’s classical steps. It would sit behind the same review — it would still only propose, and you would still confirm. It would be trained beforehand, fixed and versioned, and shipped with the app, never changing quietly on the phone; and it would be released under an open licence like the rest.\n\nThe classical version comes first because it earns trust and gathers the records a trained one needs. It is a question of order, not of belief. Records can already be saved as files (JSON and CSV) for this.",
-    unknownsTitle: "What is not known yet",
-    unknowns: "How close the counts are to careful hand counts. The next step is to run the app over about a thousand public strip photos that already carry technicians’ counts, and later over strips marked egg by egg.\n\nHow small an egg can be and still be counted. Below about six pixels across its shape is gone, and the app asks for another photo. The blur check has not yet been set against a truly blurred field photo.\n\nWhether a tired person on their eighteenth strip really checks the marks or simply accepts them. The design rests on the first, and it has not been tested.\n\nThe Spanish and Portuguese have not yet been reviewed in the field.",
-    recordTitle: "What is kept",
-    record: "In a session, each strip is saved on this phone with its photo, its settings and every mark you kept, removed or added, so a count can always be checked again. Counting a single strip saves nothing unless you ask. Results and settings can also be saved as files, to use elsewhere.",
-    phoneTitle: "On this phone",
-    phone: "Everything runs on this phone. Nothing is sent anywhere unless you choose to share it, and once the app has opened it works without a connection.",
-    originTitle: "Where it comes from",
-    origin: "OvicounterAI grows out of an earlier ovitrap-counting tool built in 2018–19 for the Zika response in Jamaica, El Salvador and Guatemala. It is a fresh rebuild, not a copy, with a different idea at its centre: the person checks every mark.",
-    openSourceTitle: "Open source",
-    openSource: "OvicounterAI is open source, under the Apache 2.0 licence. The code, and the reasoning behind it, are public.",
+    problem: "An ovitrap (oviposition trap) is a dark, water-filled container that attracts female Aedes mosquitoes to lay their eggs on a strip of paper or a wooden paddle inside it. These are the mosquitoes, such as Ae. aegypti and Ae. albopictus, that spread dengue, Zika and chikungunya. Once the strip is dry, someone inspects it and counts (or estimates) the eggs. The traps cost pennies and go out by the hundreds, and the eggs are the earliest sign that mosquito numbers are changing, weeks before biting adults appear.\n\nOne of the slowest and hardest parts of this process is the counting itself, which is still often done by hand. A technician counts specks the size of poppy seeds (or smaller), often hundreds on one strip, by eye. It is slow and tiring, and two people rarely reach the same number.",
+    whatTitle: "What OvicounterAI does",
+    what: "You photograph a strip, and the app marks every speck that could be an egg. You can fine-tune how it detects eggs, then quickly correct the marks by hand (confirming, removing and adding eggs), and the count is yours.\n\nOnce opened, the app works without a connection. A session saves each strip as you go, and any result or set of settings can be saved as a file or shared.\n\nOvicounterAI is open source under the Apache 2.0 license; the code and the reasoning behind it are public.",
+    todayTitle: "How OvicounterAI finds eggs today",
+    today: "OvicounterAI uses classical computer vision (OpenCV) rather than a neural network. It takes out the paper’s own shading (a black-hat transform), keeps what is clearly darker than the paper (a threshold), separates the dark specks (connected components) and pulls touching eggs apart (a watershed). The Measure step in the app shows each of these pictures, so you can see how every mark was found.\n\nThis approach lets the app run in the web browser of a mid-range smartphone, without a large download. It also makes the app flexible. It can be adjusted to different kinds of ovitrap paper and different settings for taking the photo, whether in a field laboratory or out in the field. It doesn’t need a special camera or positioning equipment, and it doesn’t need hundreds of marked-up photos before it can be used.\n\nSo today OvicounterAI is an assistive tool for manual counting rather than an automatic counter, and every strip counted with it helps build the training data for the next phase.",
+    nextTitle: "Where it is going",
+    next: "Every strip checked in OvicounterAI becomes a useful record: the photograph, the settings, and the position of every egg a person confirmed. That is what it takes to train an egg detector: labeled examples of eggs on real paper, in real light, from many places.\n\nWe are building the means to gather that data from programs in different countries: a way for teams to upload checked strips and coordinate across sites, programs and countries, into a shared repository of training data.\n\nA detector trained on that repository would take the place of today’s classical steps, behind the same review: it would propose, and the person would still decide. Each version would be tested, fixed for its release, and published openly like the rest of the app.\n\nThere will be more on this as it develops.",
+    teamTitle: "The team behind OvicounterAI",
+    team: "OvicounterAI grows out of an earlier ovitrap-counting tool that Gabriel Krieshok and Carolina Torres Gutierrez built in 2018–19 for the Zika response in Jamaica, El Salvador and Guatemala. In 2025 they were joined by Gonçalo Seixas and Gonçalo Alves in Portugal.",
+    licence: "Open source, under the Apache 2.0 license.",
   },
 
   /* DRAFT (Sep 30, 2026) — the Guide (views/GuideScreen.vue): one section per
      step, under the step names in `steps`. Written to the copy rules: the app
-     finds and marks, the person checks, removes and adds; nothing learns and
-     nothing leaves the phone. */
+     finds and marks, the person checks, removes and adds. */
   guide: {
     open: 'How it works',
     title: 'How it works',
-    intro: 'One strip at a time. The app marks what it finds; you check the marks, and the count is yours. Everything runs on this phone.',
+    intro: 'One strip at a time. The app marks what it finds; you check the marks, and the count is yours.',
     photo: 'Lay the strip flat in good light and fill the box with it. If the eggs are too small or the photo is soft, the app says so and asks for another.',
     crop: 'The app proposes a box around the strip. Drag the corners if it missed, and straighten the strip if it is tilted.',
     measure: 'The app finds a typical egg on this strip and marks every speck of that size and darkness, showing each picture it makes on the way. Then two sliders set how dark a speck must be and how big; move them until the rings sit on eggs and not on dirt. If the marks still look wrong, mark one egg yourself and it measures again from that.',
     check: 'Now the marks are yours to judge. Pick a tool — Remove, Keep or Add — and use it with one finger: paint over marks to remove or keep them; touch empty paper to add an egg, or a mark or a clump to add one more egg to it. Touching eggs are drawn as one outline with a number; check the clumps one by one and set each number. Two fingers, or + and −, move the strip and look closer. A mark stays blue until you have looked at its part of the strip up close.',
-    count: 'The count is every mark you did not remove. It places the strip in a band. A grey number with ~ in front is the app’s alone: nobody checked those marks.',
+    count: 'The count is every mark you did not remove. It places the strip in a band. A gray number with ~ in front is the app’s alone: nobody checked those marks.',
     done: 'Got it',
   },
 
@@ -404,11 +393,11 @@ export default {
     backTo: 'Back to {step}',
     continueTo: 'Continue to {step}',
     redoTitle: 'Find the marks again?',
-    redoBody: 'This finds the marks on this strip again from the start. The marks you removed, added or split will be lost.',
+    redoBody: 'This finds the marks on this strip again from the start. The marks you removed, added or changed will be lost.',
     redoStay: 'Keep my fixes',
     redoGo: 'Find them again',
     retakeTitle: 'Take a new photo?',
-    retakeBody: 'A new photo starts this strip again. The marks you removed, added or split on it will be lost.',
+    retakeBody: 'A new photo starts this strip again. The marks you removed, added or changed on it will be lost.',
     retakeStay: 'Keep this strip',
     retakeGo: 'Take a new photo',
   },

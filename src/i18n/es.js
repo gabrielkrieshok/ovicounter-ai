@@ -1,13 +1,15 @@
 /* Spanish copy.
  *
- * Written against the same rules as en.js. The banned list translates too, and
- * the Spanish equivalents are the ones that would slip in most easily: modelo,
- * algoritmo, inferencia, confianza, aprender, enseñar, entrenar, subir,
- * cargando. None of them appear here. "Midiendo en este teléfono", never
- * "Cargando" — the whole point of that line is that nothing leaves the device.
+ * Written against the same rules as en.js (AGENTS.md "Copy", Oct 2026): the
+ * copy never credits the machine with a judgment it did not make, and never
+ * says the app learns from use. There is no banned-words list any more —
+ * "entrenar", "detector", "subir" are fine where accurate — but "Cargando" is
+ * still wrong for measuring. The product name stays "OvicounterAI"
+ * untranslated, as names do.
  *
- * "IA" is not banned, following the same decision as en.js, but it also never
- * appears — the product name stays "OvicounterAI" untranslated, as names do.
+ * NEW IN OCT 2026, NEEDS REVIEW: the About page (rewritten Oct 1 — today,
+ * where it is going, the shared repository being built) and the short lines
+ * that dropped "en este teléfono".
  *
  * Register: `usted` throughout. These are instructions to a technician at work,
  * and the refusals in particular have to stay courteous while blaming the
@@ -44,7 +46,7 @@ export default {
     home: 'Inicio',
     language: 'Idioma',
     endSession: 'Terminar esta sesión',
-    about: 'Todo funciona en este teléfono. No se envía nada a ninguna parte a menos que usted lo comparta.',
+    about: "Una prueba de concepto que funciona, compartida con socios para probarla con tiras reales.",
     settings: 'Ajustes',
     exportSettings: 'Guardar ajustes',
     importSettings: 'Abrir ajustes',
@@ -72,7 +74,7 @@ export default {
     demoField: 'Una tira de campo, vista de lejos',
     demoFieldNote: 'Manchada y arrugada, con la mesa alrededor para recortar.',
     demoPattern: 'Un patrón de prueba',
-    demoPatternNote: 'Óvalos dibujados en este teléfono. El resultado dice cuántos.',
+    demoPatternNote: 'Óvalos dibujados por la aplicación. El resultado dice cuántos.',
     countSingle: 'Contar una sola tira de papel',
     countSingleNote: 'Con la cámara, una foto que ya está en este teléfono o una de tres fotos de demostración. No se guarda nada a menos que lo pida.',
     guideNote: 'Los cinco pasos de la foto al conteo, y qué significa cada marca.',
@@ -148,7 +150,7 @@ export default {
   },
 
   processing: {
-    title: 'Midiendo en este teléfono…',
+    title: 'Midiendo…',
     stepLightDark: 'CLARO / OSCURO',
     stepDarkSpecks: 'MOTAS OSCURAS',
     stepBoxes: 'RECUADROS',
@@ -239,7 +241,7 @@ export default {
     retakesAsked: 'fotos repetidas',
     bands: 'niveles',
     saved:
-      'Registro guardado en este teléfono — fotos, ajustes y cada marca que usted revisó.',
+      'Registro guardado — fotos, ajustes y cada marca que usted revisó.',
     demoNotSaved: 'Esto fue el ejemplo. No se guardó nada.',
     backHome: 'Volver al inicio',
   },
@@ -253,43 +255,32 @@ export default {
     marksChecked: 'Las marcas, revisadas por usted',
     marksFound: 'Las marcas que encontró la aplicación',
     countLabel: 'El conteo',
-    footer: 'Contado en este teléfono con OvicounterAI',
+    footer: 'Contado con OvicounterAI',
   },
 
   about: {
     link: "Acerca de",
     version: "Versión {version}",
-    lede: "Una aplicación gratuita y de código abierto que ayuda al personal de salud a contar huevos de mosquito en el papel de ovitrampa — sin conexión, en un teléfono común.",
+    lede: "Una aplicación de código abierto que ayuda al personal de salud y a investigadores a contar huevos de mosquito en tiras de ovitrampa, con un teléfono común, con o sin conexión a internet.",
     pocTitle: "Una prueba de concepto",
-    poc: "OvicounterAI es una prueba de concepto que funciona, compartida con socios para probarla con tiras reales y mejorarla. Ningún programa de vigilancia la usa todavía, y sus conteos aún no se han comparado con conteos manuales cuidadosos. Tome sus números como una prueba del enfoque, no como datos para actuar.",
+    poc: "OvicounterAI («ovi», del latín «huevo») es una prueba de concepto que funciona, compartida con socios para probarla con tiras reales y mejorarla. Ningún programa de vigilancia la usa todavía, y sus conteos aún no se han comparado con conteos manuales cuidadosos, así que tome sus números como una prueba del enfoque y no como datos para actuar. El equipo trabaja en las siguientes fases de desarrollo: la recopilación de imágenes, ajustes predefinidos para distintos programas y entornos, y una asistencia más avanzada de visión por computadora con IA.",
     problemTitle: "Por qué contar huevos de mosquito",
-    problem: "Una ovitrampa es un vaso de agua con una tira de papel. Los mosquitos Aedes — los que transmiten dengue, zika y chikungunya — ponen sus huevos en el papel. Las trampas cuestan centavos y se colocan por cientos, y los huevos son la señal más temprana de que la población de mosquitos está cambiando, semanas antes de que aparezcan los adultos que pican.\n\nEl punto débil es el conteo. Un técnico cuenta motas del tamaño de una semilla de amapola, a menudo cientos en una tira, a simple vista. Es lento y cansado, y dos personas rara vez llegan al mismo número.",
-    whatTitle: "Qué hace",
-    what: "Usted fotografía una tira; la aplicación marca lo que encuentra; usted revisa cada marca — quitando, conservando y añadiendo — y el conteo es suyo.",
-    whyTitle: "Por qué marca de más",
-    why: "La aplicación marca más de lo que debería, a propósito. Quitar una marca equivocada cuesta un toque; encontrar un huevo que se pasó por alto obliga a revisar toda la tira. Así que la aplicación propone y usted decide.",
-    aiNowTitle: "Dónde está la IA hoy",
-    aiNow: "Hoy no hay ninguna red neuronal en el proceso, a propósito. La aplicación encuentra los huevos con visión por computadora clásica (OpenCV): quita el sombreado propio del papel (una transformación black-hat), conserva lo que es claramente más oscuro que el papel (un umbral), separa las motas oscuras (componentes conexos) y aparta los huevos que se tocan (un watershed). Medir muestra cada una de estas imágenes, para que vea cómo se encontró cada marca.\n\nEl contexto decidió. La aplicación tiene que funcionar sin conexión, en un teléfono de gama media, sin una descarga grande, en sitios cuyo papel y luz son distintos — por eso sus ajustes salen de un huevo medido en cada tira, y los controles pueden moverlos. Y cada paso tiene que estar a la vista de quien firma el conteo.\n\nTiene un costo. La visión clásica es menos precisa que un detector bien entrenado, sobre todo donde los huevos se amontonan. Por eso los grupos se muestran como grupos, con el número de la aplicación marcado como una estimación para que usted lo confirme.",
-    authorityTitle: "Por qué decide la persona",
-    authority: "La aplicación propone; usted decide, y de ahí salen algunas reglas. No se muestra ningún total mientras mueve los controles, porque un número visible invita a ajustar hasta que coincida con lo esperado. Las estimaciones de la aplicación y sus juicios nunca se ven iguales: su conteo es gris con un ~, el suyo es negro. Una tira que nadie revisó lo dice, en pantalla y en el registro.\n\nY nada aprende en el teléfono. La misma foto con los mismos ajustes da las mismas marcas cada vez, así que cualquier conteo se puede volver a revisar.",
-    aiNextTitle: "Dónde entra la IA después",
-    aiNext: "El verdadero resultado no es el número. Es el registro: la foto, los ajustes y las posiciones de huevos que una persona revisó. Cada tira revisada es un ejemplo etiquetado de cómo se ve un huevo en ese papel, con esa luz.\n\nUnos cientos de ellas, de varios sitios, podrían entrenar un detector que sustituya los pasos clásicos de hoy. Quedaría detrás de la misma revisión: seguiría solo proponiendo, y usted seguiría confirmando. Se entrenaría de antemano, fijo y con versión, y se distribuiría con la aplicación, sin cambiar nunca en silencio en el teléfono; y se publicaría con una licencia abierta, como el resto.\n\nLa versión clásica va primero porque gana confianza y reúne los registros que necesita una entrenada. Es una cuestión de orden, no de creencia. Los registros ya se pueden guardar como archivos (JSON y CSV) para esto.",
-    unknownsTitle: "Lo que aún no se sabe",
-    unknowns: "Qué tan cerca están los conteos de conteos manuales cuidadosos. El siguiente paso es pasar la aplicación por cerca de mil fotos públicas de tiras que ya tienen el conteo de un técnico, y después por tiras marcadas huevo por huevo.\n\nQué tan pequeño puede ser un huevo y aun así contarse. Por debajo de unos seis píxeles de ancho su forma desaparece, y la aplicación pide otra foto. La comprobación de desenfoque aún no se ha ajustado con una foto de campo realmente desenfocada.\n\nSi una persona cansada en su tira número dieciocho de verdad revisa las marcas o simplemente las acepta. El diseño se apoya en lo primero, y no se ha probado.\n\nEl español y el portugués aún no se han revisado en el campo.",
-    recordTitle: "Qué se guarda",
-    record: "En una sesión, cada tira se guarda en este teléfono con su foto, sus ajustes y cada marca que usted conservó, quitó o agregó, para que un conteo siempre se pueda volver a revisar. Contar una sola tira no guarda nada a menos que lo pida. Los resultados y los ajustes también se pueden guardar como archivos, para usarlos en otro lugar.",
-    phoneTitle: "En este teléfono",
-    phone: "Todo funciona en este teléfono. No se envía nada a ninguna parte a menos que usted decida compartirlo, y una vez abierta, la aplicación funciona sin conexión.",
-    originTitle: "De dónde viene",
-    origin: "OvicounterAI nace de una herramienta anterior para contar huevos en ovitrampas, construida en 2018–19 para la respuesta al zika en Jamaica, El Salvador y Guatemala. Es una reconstrucción desde cero, no una copia, con otra idea en el centro: la persona revisa cada marca.",
-    openSourceTitle: "Código abierto",
-    openSource: "OvicounterAI es de código abierto, con licencia Apache 2.0. El código, y el razonamiento detrás, son públicos.",
+    problem: "Una ovitrampa (trampa de oviposición) es un recipiente oscuro con agua que atrae a las hembras de los mosquitos Aedes para que pongan sus huevos en una tira de papel o una paleta de madera colocada dentro. Son los mosquitos, como Ae. aegypti y Ae. albopictus, que transmiten dengue, zika y chikungunya. Una vez seca la tira, alguien la inspecciona y cuenta (o estima) los huevos. Las trampas cuestan centavos y se colocan por cientos, y los huevos son la señal más temprana de que la población de mosquitos está cambiando, semanas antes de que aparezcan los adultos que pican.\n\nUna de las partes más lentas y difíciles del proceso es el conteo mismo, que todavía suele hacerse a mano. Un técnico cuenta motas del tamaño de una semilla de amapola (o más pequeñas), a menudo cientos en una tira, a simple vista. Es lento y cansado, y dos personas rara vez llegan al mismo número.",
+    whatTitle: "Qué hace OvicounterAI",
+    what: "Usted fotografía una tira y la aplicación marca cada mota que podría ser un huevo. Puede ajustar cómo detecta los huevos y luego corregir rápidamente las marcas a mano (confirmando, quitando y añadiendo huevos), y el conteo es suyo.\n\nUna vez abierta, la aplicación funciona sin conexión. Una sesión guarda cada tira sobre la marcha, y cualquier resultado o conjunto de ajustes se puede guardar como archivo o compartir.\n\nOvicounterAI es de código abierto, con licencia Apache 2.0; el código y el razonamiento detrás son públicos.",
+    todayTitle: "Cómo encuentra OvicounterAI los huevos hoy",
+    today: "OvicounterAI usa visión por computadora clásica (OpenCV), no una red neuronal. Quita el sombreado propio del papel (una transformación black-hat), conserva lo que es claramente más oscuro que el papel (un umbral), separa las motas oscuras (componentes conexos) y aparta los huevos que se tocan (un watershed). El paso Medir de la aplicación muestra cada una de estas imágenes, para que vea cómo se encontró cada marca.\n\nEste enfoque permite que la aplicación funcione en el navegador de un teléfono de gama media, sin una descarga grande. También la hace flexible. Se puede ajustar a distintos tipos de papel de ovitrampa y a distintas condiciones para tomar la foto, ya sea en un laboratorio de campo o en el campo mismo. No necesita una cámara especial ni equipo de posicionamiento, y no necesita cientos de fotos marcadas antes de poder usarse.\n\nAsí que hoy OvicounterAI es una herramienta de apoyo al conteo manual más que un contador automático, y cada tira contada con ella ayuda a construir los datos de entrenamiento para la siguiente fase.",
+    nextTitle: "Hacia dónde va",
+    next: "Cada tira revisada en OvicounterAI se convierte en un registro útil: la foto, los ajustes y la posición de cada huevo que una persona confirmó. Eso es lo que hace falta para entrenar un detector de huevos: ejemplos etiquetados de huevos en papel real, con luz real, de muchos lugares.\n\nEstamos construyendo la manera de reunir esos datos de programas de distintos países: una forma de que los equipos suban tiras revisadas y se coordinen entre sitios, programas y países, en un repositorio compartido de datos de entrenamiento.\n\nUn detector entrenado con ese repositorio sustituiría los pasos clásicos de hoy, detrás de la misma revisión: propondría, y la persona seguiría decidiendo. Cada versión se probaría, quedaría fija para su lanzamiento y se publicaría abiertamente, como el resto de la aplicación.\n\nHabrá más sobre esto a medida que avance.",
+    teamTitle: "El equipo detrás de OvicounterAI",
+    team: "OvicounterAI nace de una herramienta anterior para contar huevos en ovitrampas que Gabriel Krieshok y Carolina Torres Gutierrez construyeron en 2018–19 para la respuesta al zika en Jamaica, El Salvador y Guatemala. En 2025 se sumaron Gonçalo Seixas y Gonçalo Alves, en Portugal.",
+    licence: "Código abierto, con licencia Apache 2.0.",
   },
 
   guide: {
     open: 'Cómo funciona',
     title: 'Cómo funciona',
-    intro: 'Una tira a la vez. La aplicación marca lo que encuentra; usted revisa las marcas, y el conteo es suyo. Todo funciona en este teléfono.',
+    intro: 'Una tira a la vez. La aplicación marca lo que encuentra; usted revisa las marcas, y el conteo es suyo.',
     photo: 'Ponga la tira plana con buena luz y llene el recuadro con ella. Si los huevos se ven muy pequeños o la foto está borrosa, la aplicación lo dice y pide otra.',
     crop: 'La aplicación propone un recuadro alrededor de la tira. Arrastre las esquinas si no acertó, y enderece la tira si está inclinada.',
     measure: 'La aplicación encuentra un huevo típico en esta tira y marca cada mota de ese tamaño y tono, mostrando cada imagen que produce. Luego dos controles fijan qué tan oscura y qué tan grande debe ser una mota; muévalos hasta que los anillos queden sobre huevos y no sobre suciedad. Si las marcas aún se ven mal, marque usted un huevo y vuelve a medir a partir de él.',
@@ -309,11 +300,11 @@ export default {
     backTo: 'Volver a {step}',
     continueTo: 'Seguir a {step}',
     redoTitle: '¿Buscar las marcas de nuevo?',
-    redoBody: 'Esto vuelve a buscar las marcas de esta tira desde el principio. Se perderán las marcas que usted quitó, agregó o separó.',
+    redoBody: 'Esto vuelve a buscar las marcas de esta tira desde el principio. Se perderán las marcas que usted quitó, agregó o cambió.',
     redoStay: 'Conservar mis cambios',
     redoGo: 'Buscarlas de nuevo',
     retakeTitle: '¿Tomar una foto nueva?',
-    retakeBody: 'Una foto nueva empieza esta tira otra vez. Se perderán las marcas que usted quitó, agregó o separó en ella.',
+    retakeBody: 'Una foto nueva empieza esta tira otra vez. Se perderán las marcas que usted quitó, agregó o cambió en ella.',
     retakeStay: 'Conservar esta tira',
     retakeGo: 'Tomar una foto nueva',
   },

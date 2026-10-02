@@ -6,28 +6,13 @@ import AppWordmark from '@/components/AppWordmark.vue'
 import { t } from '@/i18n'
 import { version } from '../../package.json'
 
-/* About — from the menu (Oct 2026). A proof of concept, said plainly: the
- * problem, what the app does, where the AI is today and where it fits next,
- * why the person stays in charge, what is not known yet, what is kept, and
- * where it comes from. Every sentence is DRAFT (docs/copy-to-ratify.md). It is
- * the one screen that talks about trained detectors, because it explains the
- * roadmap — and it says plainly that nothing learns on the phone. */
+/* About — from the menu (Oct 2026; Gabriel's text, Oct 2). A proof of
+ * concept, why count eggs, what it does, how it finds eggs today, where it is
+ * going, and the team behind it. Marked DRAFT in en.js, which is the only record of
+ * what is decided. */
 const router = useRouter()
 
-const SECTIONS = [
-  'poc',
-  'problem',
-  'what',
-  'why',
-  'aiNow',
-  'authority',
-  'aiNext',
-  'unknowns',
-  'record',
-  'phone',
-  'origin',
-  'openSource',
-]
+const SECTIONS = ['poc', 'problem', 'what', 'today', 'next', 'team']
 
 /* A section's text is one or more paragraphs, split on blank lines. */
 const paragraphs = (key) => t(`about.${key}`).split(/\n\s*\n/)

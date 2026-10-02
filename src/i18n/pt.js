@@ -1,13 +1,15 @@
 /* Portuguese copy — European Portuguese (pt-PT).
  *
- * Written against the same rules as en.js. The banned list translates too, and
- * the Portuguese equivalents that would slip in most easily are: modelo,
- * algoritmo, inferência, confiança, aprender, ensinar, treinar — and CARREGAR,
- * which in Portuguese is both "upload" and "loading", so it is doubly out. None
- * of them appear here. "A medir neste telemóvel", never "A carregar".
+ * Written against the same rules as en.js (AGENTS.md "Copy", Oct 2026): the
+ * copy never credits the machine with a judgment it did not make, and never
+ * says the app learns from use. There is no banned-words list any more —
+ * "treinar", "detetor", "enviar" are fine where accurate — but "A carregar" is
+ * still wrong for measuring. The product name stays "OvicounterAI"
+ * untranslated, as names do.
  *
- * "IA" is not banned, following en.js, but it never appears — the product name
- * stays "OvicounterAI" untranslated, as names do.
+ * NEW IN OCT 2026, NEEDS REVIEW: the About page (rewritten Oct 1 — today,
+ * where it is going, the shared repository being built) and the short lines
+ * that dropped "neste telemóvel".
  *
  * Register: formal, third-person imperative with no pronoun ("Toque", "Tire-a
  * de novo"), and "por si" where a subject is needed. That is the courteous
@@ -50,7 +52,7 @@ export default {
     home: 'Início',
     language: 'Idioma',
     endSession: 'Terminar esta sessão',
-    about: 'Tudo funciona neste telemóvel. Nada é enviado para lado nenhum a não ser que partilhe.',
+    about: "Uma prova de conceito que funciona, partilhada com parceiros para ser experimentada em tiras reais.",
     settings: 'Definições',
     exportSettings: 'Guardar definições',
     importSettings: 'Abrir definições',
@@ -78,7 +80,7 @@ export default {
     demoField: 'Uma tira de campo, vista de longe',
     demoFieldNote: 'Manchada e amarrotada, com a mesa à volta para recortar.',
     demoPattern: 'Um padrão de teste',
-    demoPatternNote: 'Ovais desenhadas neste telemóvel. O resultado diz quantas.',
+    demoPatternNote: 'Ovais desenhadas pela aplicação. O resultado diz quantas.',
     countSingle: 'Contar uma única tira de papel',
     countSingleNote: 'Com a câmara, uma foto que já está neste telemóvel ou uma de três fotos de demonstração. Nada é guardado a não ser que o peça.',
     guideNote: 'Os cinco passos da foto à contagem, e o que significa cada marca.',
@@ -154,7 +156,7 @@ export default {
   },
 
   processing: {
-    title: 'A medir neste telemóvel…',
+    title: 'A medir…',
     stepLightDark: 'CLARO / ESCURO',
     stepDarkSpecks: 'PONTOS ESCUROS',
     stepBoxes: 'CAIXAS',
@@ -245,7 +247,7 @@ export default {
     retakesAsked: 'fotos repetidas',
     bands: 'níveis',
     saved:
-      'Registo guardado neste telemóvel — fotos, definições e cada marca que verificou.',
+      'Registo guardado — fotos, definições e cada marca que verificou.',
     demoNotSaved: 'Isto foi o exemplo. Nada foi guardado.',
     backHome: 'Voltar ao início',
   },
@@ -259,43 +261,32 @@ export default {
     marksChecked: 'As marcas, verificadas por si',
     marksFound: 'As marcas que a aplicação encontrou',
     countLabel: 'A contagem',
-    footer: 'Contado neste telemóvel com OvicounterAI',
+    footer: 'Contado com OvicounterAI',
   },
 
   about: {
     link: "Sobre",
     version: "Versão {version}",
-    lede: "Uma aplicação gratuita e de código aberto que ajuda os profissionais de saúde a contar ovos de mosquito no papel da ovitrampa — sem ligação, num telemóvel comum.",
+    lede: "Uma aplicação de código aberto que ajuda profissionais de saúde e investigadores a contar ovos de mosquito em tiras de ovitrampa, com um telemóvel comum, com ou sem ligação à internet.",
     pocTitle: "Uma prova de conceito",
-    poc: "O OvicounterAI é uma prova de conceito que funciona, partilhada com parceiros para ser experimentada em tiras reais e melhorada. Nenhum programa de vigilância a usa ainda, e as suas contagens ainda não foram comparadas com contagens manuais cuidadosas. Veja os seus números como um teste da abordagem, não como dados para agir.",
+    poc: "O OvicounterAI («ovi», do latim «ovo») é uma prova de conceito que funciona, partilhada com parceiros para ser experimentada em tiras reais e melhorada. Nenhum programa de vigilância a usa ainda, e as suas contagens ainda não foram comparadas com contagens manuais cuidadosas; os seus números são um teste da abordagem, não dados para agir. A equipa está a trabalhar nas próximas fases de desenvolvimento: recolha de imagens, predefinições para diferentes programas e ambientes, e uma assistência mais avançada de visão por computador com IA.",
     problemTitle: "Porquê contar ovos de mosquito",
-    problem: "Uma ovitrampa é um copo de água com uma tira de papel. Os mosquitos Aedes — os que transmitem dengue, zika e chikungunya — põem os ovos no papel. As armadilhas custam cêntimos e são colocadas às centenas, e os ovos são o primeiro sinal de que a população de mosquitos está a mudar, semanas antes de aparecerem os adultos que picam.\n\nO ponto fraco é a contagem. Um técnico conta pontos do tamanho de uma semente de papoila, muitas vezes centenas numa tira, a olho. É lento e cansativo, e duas pessoas raramente chegam ao mesmo número.",
-    whatTitle: "O que faz",
-    what: "Fotografa uma tira; a aplicação marca o que encontra; verifica cada marca — retirando, mantendo e acrescentando — e a contagem é sua.",
-    whyTitle: "Porque marca a mais",
-    why: "A aplicação marca mais do que devia, de propósito. Retirar uma marca errada custa um toque; encontrar um ovo que escapou obriga a percorrer a tira toda. Por isso a aplicação propõe e quem decide é você.",
-    aiNowTitle: "Onde está a IA hoje",
-    aiNow: "Hoje não há nenhuma rede neuronal no processo, de propósito. A aplicação encontra os ovos com visão por computador clássica (OpenCV): retira o sombreado do próprio papel (uma transformação black-hat), mantém o que é claramente mais escuro do que o papel (um limiar), separa os pontos escuros (componentes conexos) e afasta os ovos que se tocam (um watershed). Medir mostra cada uma destas imagens, para que veja como cada marca foi encontrada.\n\nO contexto decidiu. A aplicação tem de funcionar sem ligação, num telemóvel de gama média, sem uma transferência grande, em locais com papel e luz diferentes — por isso as suas definições vêm de um ovo medido em cada tira, e os controlos podem ajustá-las. E cada passo tem de estar à vista de quem assina a contagem.\n\nTem um custo. A visão clássica é menos precisa do que um detetor bem treinado, sobretudo onde os ovos se amontoam. Por isso os aglomerados aparecem como aglomerados, com o número da aplicação marcado como uma estimativa para confirmar.",
-    authorityTitle: "Porque decide a pessoa",
-    authority: "A aplicação propõe; você decide, e daí seguem algumas regras. Nenhum total aparece enquanto move os controlos, porque um número visível convida a ajustar até coincidir com o esperado. As estimativas da aplicação e os seus juízos nunca se parecem: a contagem dela é cinzenta com um ~, a sua é preta. Uma tira que ninguém verificou di-lo, no ecrã e no registo.\n\nE nada aprende no telemóvel. A mesma fotografia com as mesmas definições dá sempre as mesmas marcas, por isso qualquer contagem pode ser verificada de novo.",
-    aiNextTitle: "Onde entra a IA a seguir",
-    aiNext: "O verdadeiro resultado não é o número. É o registo: a fotografia, as definições e as posições dos ovos que uma pessoa verificou. Cada tira verificada é um exemplo etiquetado de como um ovo se vê naquele papel, com aquela luz.\n\nAlgumas centenas delas, de vários locais, poderiam treinar um detetor para substituir os passos clássicos de hoje. Ficaria atrás da mesma revisão: continuaria apenas a propor, e você continuaria a confirmar. Seria treinado antes, fixo e com versão, e distribuído com a aplicação, sem nunca mudar em silêncio no telemóvel; e seria publicado com uma licença aberta, como o resto.\n\nA versão clássica vem primeiro porque ganha confiança e reúne os registos de que uma treinada precisa. É uma questão de ordem, não de crença. Os registos já podem ser guardados como ficheiros (JSON e CSV) para isto.",
-    unknownsTitle: "O que ainda não se sabe",
-    unknowns: "Quão perto ficam as contagens de contagens manuais cuidadosas. O passo seguinte é correr a aplicação sobre cerca de mil fotografias públicas de tiras que já têm a contagem de um técnico, e depois sobre tiras marcadas ovo a ovo.\n\nQuão pequeno pode ser um ovo e ainda ser contado. Abaixo de uns seis píxeis de largura a forma perde-se, e a aplicação pede outra fotografia. A verificação de desfocagem ainda não foi afinada com uma fotografia de campo realmente desfocada.\n\nSe uma pessoa cansada na sua décima oitava tira verifica mesmo as marcas ou simplesmente as aceita. O desenho assenta na primeira hipótese, e não foi testado.\n\nO espanhol e o português ainda não foram revistos no terreno.",
-    recordTitle: "O que fica guardado",
-    record: "Numa sessão, cada tira fica guardada neste telemóvel com a fotografia, as definições e cada marca que manteve, retirou ou acrescentou, para que uma contagem possa sempre ser verificada de novo. Contar uma única tira não guarda nada a não ser que o peça. Os resultados e as definições também podem ser guardados como ficheiros, para usar noutro lado.",
-    phoneTitle: "Neste telemóvel",
-    phone: "Tudo corre neste telemóvel. Nada é enviado para lado nenhum a não ser que escolha partilhar, e depois de aberta a aplicação funciona sem ligação.",
-    originTitle: "De onde vem",
-    origin: "O OvicounterAI nasce de uma ferramenta anterior para contar ovos em ovitrampas, construída em 2018–19 para a resposta ao zika na Jamaica, em El Salvador e na Guatemala. É uma reconstrução de raiz, não uma cópia, com outra ideia no centro: a pessoa verifica cada marca.",
-    openSourceTitle: "Código aberto",
-    openSource: "O OvicounterAI é de código aberto, com licença Apache 2.0. O código, e o raciocínio por detrás dele, são públicos.",
+    problem: "Uma ovitrampa (armadilha de oviposição) é um recipiente escuro com água que atrai as fêmeas dos mosquitos Aedes a pôr os ovos numa tira de papel ou numa palheta de madeira colocada no seu interior. São os mosquitos, como Ae. aegypti e Ae. albopictus, que transmitem dengue, zika e chikungunya. Depois de seca, a tira é inspecionada e os ovos são contados (ou estimados). As armadilhas custam cêntimos e são colocadas às centenas, e os ovos são o primeiro sinal de que a população de mosquitos está a mudar, semanas antes de aparecerem os adultos que picam.\n\nUma das partes mais lentas e difíceis do processo é a própria contagem, que ainda é muitas vezes feita à mão. Um técnico conta pontos do tamanho de uma semente de papoila (ou mais pequenos), muitas vezes centenas numa tira, a olho. É lento e cansativo, e duas pessoas raramente chegam ao mesmo número.",
+    whatTitle: "O que faz o OvicounterAI",
+    what: "Fotografa uma tira e a aplicação marca cada ponto que pode ser um ovo. Pode afinar a forma como deteta os ovos e depois corrigir rapidamente as marcas à mão (confirmando, retirando e acrescentando ovos), e a contagem é sua.\n\nDepois de aberta, a aplicação funciona sem ligação. Uma sessão guarda cada tira à medida que avança, e qualquer resultado ou conjunto de definições pode ser guardado como ficheiro ou partilhado.\n\nO OvicounterAI é de código aberto, com licença Apache 2.0; o código e o raciocínio por trás são públicos.",
+    todayTitle: "Como o OvicounterAI encontra os ovos hoje",
+    today: "O OvicounterAI usa visão por computador clássica (OpenCV), não uma rede neuronal. Retira o sombreado do próprio papel (uma transformação black-hat), mantém o que é claramente mais escuro do que o papel (um limiar), separa os pontos escuros (componentes conexos) e afasta os ovos que se tocam (um watershed). O passo Medir da aplicação mostra cada uma destas imagens, para que veja como cada marca foi encontrada.\n\nEsta abordagem permite que a aplicação funcione no navegador de um telemóvel de gama média, sem uma transferência grande. Também a torna flexível. Pode ser ajustada a diferentes tipos de papel de ovitrampa e a diferentes condições para tirar a fotografia, seja num laboratório de campo ou no próprio terreno. Não precisa de uma câmara especial nem de equipamento de posicionamento, e não precisa de centenas de fotografias anotadas antes de poder ser usada.\n\nPor isso, hoje o OvicounterAI é uma ferramenta de apoio à contagem manual, mais do que um contador automático, e cada tira contada com ele ajuda a construir os dados de treino para a próxima fase.",
+    nextTitle: "Para onde vai",
+    next: "Cada tira verificada no OvicounterAI torna-se um registo útil: a fotografia, as definições e a posição de cada ovo que uma pessoa confirmou. É disso que se precisa para treinar um detetor de ovos: exemplos anotados de ovos em papel real, com luz real, de muitos lugares.\n\nEstamos a construir a forma de reunir esses dados de programas de diferentes países: um meio para as equipas enviarem tiras verificadas e se coordenarem entre locais, programas e países, num repositório partilhado de dados de treino.\n\nUm detetor treinado com esse repositório substituiria os passos clássicos de hoje, atrás da mesma revisão: proporia, e a pessoa continuaria a decidir. Cada versão seria testada, fixada para o seu lançamento e publicada abertamente, como o resto da aplicação.\n\nHaverá mais sobre isto à medida que avançar.",
+    teamTitle: "A equipa por trás do OvicounterAI",
+    team: "O OvicounterAI nasce de uma ferramenta anterior de contagem de ovos em ovitrampas que Gabriel Krieshok e Carolina Torres Gutierrez construíram em 2018–19 para a resposta ao zika na Jamaica, em El Salvador e na Guatemala. Em 2025 juntaram-se Gonçalo Seixas e Gonçalo Alves, em Portugal.",
+    licence: "Código aberto, com licença Apache 2.0.",
   },
 
   guide: {
     open: 'Como funciona',
     title: 'Como funciona',
-    intro: 'Uma tira de cada vez. A aplicação marca o que encontra; verifica as marcas, e a contagem é sua. Tudo funciona neste telemóvel.',
+    intro: 'Uma tira de cada vez. A aplicação marca o que encontra; verifica as marcas, e a contagem é sua.',
     photo: 'Coloque a tira plana com boa luz e preencha o enquadramento com ela. Se os ovos parecerem demasiado pequenos ou a foto estiver desfocada, a aplicação diz e pede outra.',
     crop: 'A aplicação propõe um recorte à volta da tira. Arraste os cantos se não acertou, e endireite a tira se estiver inclinada.',
     measure: 'A aplicação encontra um ovo típico nesta tira e marca cada ponto desse tamanho e tom, mostrando cada imagem que produz. Depois dois controlos definem quão escuro e quão grande tem de ser um ponto; mova-os até os anéis ficarem sobre ovos e não sobre sujidade. Se as marcas ainda parecerem erradas, marque um ovo e ela volta a medir a partir dele.',
@@ -315,11 +306,11 @@ export default {
     backTo: 'Voltar a {step}',
     continueTo: 'Seguir para {step}',
     redoTitle: 'Procurar as marcas de novo?',
-    redoBody: 'Isto volta a procurar as marcas desta tira desde o início. Perdem-se as marcas que retirou, acrescentou ou separou.',
+    redoBody: 'Isto volta a procurar as marcas desta tira desde o início. Perdem-se as marcas que retirou, acrescentou ou alterou.',
     redoStay: 'Manter as minhas correções',
     redoGo: 'Procurá-las de novo',
     retakeTitle: 'Tirar uma foto nova?',
-    retakeBody: 'Uma foto nova recomeça esta tira. Perdem-se as marcas que retirou, acrescentou ou separou nela.',
+    retakeBody: 'Uma foto nova recomeça esta tira. Perdem-se as marcas que retirou, acrescentou ou alterou nela.',
     retakeStay: 'Manter esta tira',
     retakeGo: 'Tirar uma foto nova',
   },

@@ -139,18 +139,18 @@ function overflow(counts) {
       </template>
     </section>
 
-    <!-- The foot of the page (Oct 2026): what this is and where it runs, as a
+    <!-- The foot of the page (Oct 2026): what this is and what stage it is at, as a
          site says it, with the ways to read more. -->
     <footer class="site-foot">
       <div class="foot-inner">
         <AppWordmark :size="26" />
-        <p class="t-body">{{ t('about.what') }}</p>
+        <p class="t-body">{{ t('about.lede') }}</p>
         <p class="t-body">{{ t('menu.about') }}</p>
         <nav class="foot-links" :aria-label="t('welcome.footerLinks')">
           <button class="foot-link t-label" type="button" @click="router.push({ name: 'guide' })">{{ t('guide.open') }}</button>
           <button class="foot-link t-label" type="button" @click="router.push({ name: 'about' })">{{ t('about.link') }}</button>
         </nav>
-        <p class="licence t-label">{{ t('about.openSource') }}</p>
+        <p class="licence t-label">{{ t('about.licence') }}</p>
       </div>
     </footer>
   </div>
