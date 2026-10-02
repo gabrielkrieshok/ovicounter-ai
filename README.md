@@ -4,6 +4,8 @@ An open-source app that helps health workers and researchers count mosquito eggs
 
 You photograph a strip, and the app marks every speck that could be an egg. You can fine-tune how it detects eggs, then correct the marks by hand (confirming, removing and adding eggs), and the count is yours. A session saves each strip as you go, and any result or set of settings can be saved as a file or shared.
 
+Live at [ovicounterai.gabrielkrieshok.com](https://ovicounterai.gabrielkrieshok.com/). The earlier classical version is kept at classic.ovicounterai.gabrielkrieshok.com and on the `classic` branch.
+
 ## Status
 
 A working proof of concept, shared with partners to try on real strips. No surveillance program uses it yet, and its counts have not been checked against careful hand counts.
