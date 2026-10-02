@@ -34,7 +34,7 @@ const RUNNER_FLAGS = new Set(['port', 'shot'])
 const query = new URLSearchParams(
   Object.entries(args).filter(([k]) => !RUNNER_FLAGS.has(k)),
 )
-const target = `http://localhost:${appPort}/dev-harness.html?${query}`
+const target = `http://localhost:${appPort}/tools/dev-harness.html?${query}`
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
