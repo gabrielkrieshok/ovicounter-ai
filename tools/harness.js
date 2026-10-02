@@ -154,7 +154,7 @@ async function runOne(image) {
     cutoff: seed.contrastFloor,
     medianEggArea: seed.medianEggArea,
     eggLongEdgePx: Math.round(egg.longEdgePx),
-    /* The resolution floor from docs/gate-study-RESULTS.md: Portugal works at a 15px
+    /* The resolution floor from the gate study: Portugal works at a 15px
        egg bounding box, El Salvador fails at 4px, and shape is simply not
        recoverable somewhere in between. The exact threshold has never been
        swept, so 8px is a bracket, not a measurement — it is the criterion the

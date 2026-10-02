@@ -1,8 +1,8 @@
 /* Photographs bundled with the build.
  *
  * These ship in the download, so the list is short on purpose. The 52MB
- * debugging corpus lives in `paper-tests/` and is opened through the file
- * picker instead — shipping it would triple the app's size for no field
+ * debugging corpus is kept outside the repo (the project's Dropbox folder,
+ * Ovicounter-AI/Test Images) and is opened through the file picker instead — shipping it would triple the app's size for no field
  * benefit.
  */
 

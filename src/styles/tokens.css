@@ -1,7 +1,7 @@
 /* Design tokens. These names are the contract — do not introduce colours,
    radii, rules or sizes that are not in this file.
 
-   Field Manual (Sep 30, 2026, docs/field-manual-brief.md): sunlight first.
+   Field Manual (Sep 30, 2026, Field Manual brief): sunlight first.
    Pure black and white, square corners, heavy rules, a safety-yellow primary
    action. The type roles that sit on top of these values are in base.css;
    screens use the roles and the shared parts in src/components/, not their own

@@ -59,7 +59,7 @@ export const useSessionStore = defineStore('session', {
        is only ever asked for after someone chose it (Oct 2026). */
     source: null,
 
-    /* Quick count (Sep 2026, docs/surpass-v1-brief.md §4): photo → crop →
+    /* Quick count (Sep 2026, Surpass v1 brief §4): photo → crop →
        marks → fix if wanted → number, with no session and nothing saved unless
        the person asks. The demo uses it. It is a session in every mechanical
        sense — the strip store and the screens do not care — that never writes

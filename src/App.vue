@@ -15,7 +15,7 @@ import { stepIndex } from '@/lib/steps'
  * viewport (380×788) so a screen can be checked against the handoff. Also
  * forced at any width by `?frame=1` in the page URL, for the same reason.
  *
- * LAPTOP, 900px and up (decided Sep 2026, docs/surpass-v1-brief.md §3): the
+ * LAPTOP, 900px and up (decided Sep 2026, Surpass v1 brief §3): the
  * frame goes away and the stage screens split into two panes — the photograph
  * on the left at full height, the title, controls, legend and actions in a
  * right-hand column no narrower than the phone layout they were designed at.

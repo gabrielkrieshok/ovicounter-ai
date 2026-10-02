@@ -77,7 +77,7 @@ export function probeForEgg(canvas) {
     hPx: median((m) => m.hPx),
     /* The egg's long edge. An egg is an oval roughly twice as long as it is
        wide, so the diameter of an equal-area circle badly understates it — and
-       the resolution floor in docs/gate-study-RESULTS.md was measured as a
+       the resolution floor in the gate study was measured as a
        BOUNDING BOX. Comparing the two would declare the demo strip unreadable. */
     longEdgePx: median((m) => Math.max(m.wPx, m.hPx)),
     /* The position of the clearest egg, so a screen that wants to draw "the

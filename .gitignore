@@ -3,8 +3,5 @@ dist/
 .DS_Store
 *.local
 
-# 52MB debugging corpus — reachable in dev, never bundled.
-paper-tests/
-
 # Screenshots taken for fidelity checks.
 /tools/shots/
